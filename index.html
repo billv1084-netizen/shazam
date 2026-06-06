@@ -116,6 +116,18 @@ input[type=number]:focus{outline:none;border-color:var(--accent);}
 .rpe-l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-right:2px;}
 .rpe-b{flex:1;padding:8px 0;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-family:'DM Mono';font-size:13px;cursor:pointer;color:var(--muted);}
 .rpe-b.sel{background:var(--accent);color:#fff;border-color:var(--accent);}
+.last{font-size:12px;color:var(--muted);background:var(--surface2);border-radius:8px;padding:7px 10px;margin-bottom:10px;line-height:1.5;}
+.last b{color:var(--ink);}
+.effort{display:flex;gap:6px;margin-top:12px;align-items:center;}
+.eff{flex:1;padding:9px 0;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-weight:700;font-size:13px;cursor:pointer;color:var(--muted);}
+.eff.easy.sel{background:var(--green);color:#fff;border-color:var(--green);}
+.eff.ok.sel{background:var(--accent);color:#fff;border-color:var(--accent);}
+.eff.hard.sel{background:var(--bolt-deep);color:#fff;border-color:var(--bolt-deep);}
+.sticky{margin-top:12px;}
+.sticky textarea{width:100%;min-height:46px;border:1px solid #F4E2A8;background:#FFFBEC;border-radius:9px;padding:9px 11px;
+  font-family:'DM Sans',sans-serif;font-size:13px;color:#5c4a12;resize:vertical;line-height:1.4;}
+.sticky textarea::placeholder{color:#BCA968;}
+.sticky textarea:focus{outline:none;border-color:var(--bolt-deep);}
 
 /* REST TIMER */
 .rest{position:fixed;left:0;right:0;bottom:0;z-index:200;background:var(--ink);color:#fff;
@@ -187,7 +199,7 @@ svg{display:block;width:100%;}
 <body>
 
 <div class="header">
-  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v1.1</span></div>
+  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v1.2</span></div>
   <div class="hstat">
     <div class="hstat-l">Est. Bench 1RM</div>
     <div class="hstat-v" id="h-1rm">—<span class="sync-dot off" id="sync-dot"></span></div>
@@ -286,7 +298,7 @@ function seedWeights(){return{
   '4_barbellbenchpress':205, '4_latpulldown':160, '4_machinechestsupportedrow':245,
   '4_pecdeck':120, '4_facepullreardelt':60, '4_cablecurl':65, '4_ropepushdown':70
 };}
-function defaultData(){return{v:1,settings:{barWeight:45,smallestPlate:0.5,benchGoal:315},weights:seedWeights(),failStreak:{},plan:{},logs:[],nextDay:0};}
+function defaultData(){return{v:1,settings:{barWeight:45,smallestPlate:0.5,benchGoal:315},weights:seedWeights(),failStreak:{},plan:{},notes:{},logs:[],nextDay:0};}
 let DATA=load();
 function load(){try{const d=localStorage.getItem(KEY);return d?Object.assign(defaultData(),JSON.parse(d)):defaultData();}catch(e){return defaultData();}}
 function save(){localStorage.setItem(KEY,JSON.stringify(DATA));}
@@ -351,7 +363,7 @@ function startWorkout(){
   SESSION={dayIdx:DATA.nextDay,name:d.name,tag:d.tag,date:new Date().toISOString(),
     ex:d.ex.map(x=>{
       const sw=suggestWeight(x);
-      return{...x,weight:sw.w,suggest:sw,rpe:null,sets:Array.from({length:x.s},()=>({weight:sw.w,reps:'',status:''}))};
+      return{...x,weight:sw.w,suggest:sw,effort:null,sets:Array.from({length:x.s},()=>({weight:sw.w,reps:'',status:''}))};
     })};
   renderActive();
 }
@@ -363,6 +375,7 @@ function suggestWeight(x){
     const m={
       up:`&#9889; Hit ${x.hi}+ on all sets \u2014 go up ${x.inc} lb to ${p.w}`,
       hold:`In range last time. Add reps toward ${x.hi}, then go up.`,
+      hardhold:`You hit the reps but graded it Hard \u2014 stay at ${p.w} until it feels solid, then go up.`,
       retry:`Missed last time \u2014 same weight, try again before backing off.`,
       down:`Stalled twice \u2014 backed off to ${p.w} (~10%). Build back up.`
     };
@@ -383,13 +396,15 @@ function classify(x){
 // update weight, fail streak, and next plan from a completed session exercise
 function updateProgression(x){
   if(x.t==='core'||x.inc===0)return;
-  const out=classify(x); if(out==='skip')return;
+  let out=classify(x); if(out==='skip')return;
+  let hardHold=false;
+  if(out==='success'&&x.effort==='hard'){out='hold';hardHold=true;}   // hit reps but graded Hard -> don't graduate
   const w=Math.max(...x.sets.filter(s=>s.status&&+s.weight>0).map(s=>+s.weight),0);
   if(!w)return;
   DATA.weights[x.id]=w;
   let fs=DATA.failStreak[x.id]||0;
   if(out==='success'){DATA.plan[x.id]={w:roundLoad(w+x.inc,x),kind:'up'};fs=0;}
-  else if(out==='hold'){DATA.plan[x.id]={w:w,kind:'hold'};fs=0;}
+  else if(out==='hold'){DATA.plan[x.id]={w:w,kind:hardHold?'hardhold':'hold'};fs=0;}
   else{fs++;
     if(fs>=2){DATA.plan[x.id]={w:roundLoad(w*0.9,x),kind:'down'};fs=0;}
     else{DATA.plan[x.id]={w:w,kind:'retry'};}
@@ -408,9 +423,12 @@ function renderActive(){
 function exCard(x,i){
   const sm=DATA.settings.smallestPlate,bar=DATA.settings.barWeight;
   const plate=(x.t==='barbell'&&x.weight)?`<span class="plate">${plateBreakdown(+x.weight,bar,sm)}</span>`:'';
-  const hk={up:'',down:'down',retry:'same',hold:'same',start:'same'}[x.suggest&&x.suggest.kind]||'same';
+  const hk={up:'',down:'down',retry:'same',hold:'same',hardhold:'down',start:'same'}[x.suggest&&x.suggest.kind]||'same';
   const hint=x.suggest&&x.suggest.msg?`<div class="hint ${hk}">${x.suggest.msg}</div>`:'';
   const note=x.note?`<div class="prev" style="color:var(--red);">&#9888; ${x.note}</div>`:'';
+  const ls=lastSessionFor(x.id);
+  const last=ls?`<div class="last">Last ${fmtD(ls.date)}: ${ls.e.sets.filter(s=>s.status).map(s=>`${s.weight}\u00d7${s.reps}${s.status==='fail'?'\u2717':''}`).join('  \u00b7  ')}${ls.e.effort?`  \u2014  felt <b>${ls.e.effort.toUpperCase()}</b>`:''}</div>`:'';
+  const sticky=`<div class="sticky"><textarea placeholder="Sticky note \u2014 you'll see this next time (e.g. form broke on set 4, hold here)" oninput="saveNote('${x.id}',this.value)">${(DATA.notes[x.id]||'').replace(/</g,'&lt;')}</textarea></div>`;
   return`<div class="card ex" style="animation-delay:${i*.03}s">
     <div class="ex-head"><div class="ex-name ${x.primary?'primary':''}">${x.n}</div>
       <div class="ex-target">${x.s}\u00d7${x.lo}\u2013${x.hi}</div></div>
@@ -419,7 +437,7 @@ function exCard(x,i){
       ${x.t==='core'?'<span class="chip safe">Anti-movement core</span>':''}
       ${x.primary?'<span class="chip full">Key lift</span>':''}
     </div>
-    ${note}${hint}
+    ${note}${last}${hint}
     ${x.t!=='core'?`<div class="wt-row"><label>Weight</label>
       <input type="number" inputmode="decimal" value="${x.weight}" onchange="setWeight(${i},this.value)">
       <span style="font-size:12px;color:var(--muted)">lb</span> ${plate}</div>`:''}
@@ -431,13 +449,16 @@ function exCard(x,i){
           <button class="mark no ${st.status==='fail'?'on':''}" title="Failed" onclick="setStatus(${i},${j},'fail','${x.rest}')">&#10007;</button>
         </div>
       </div>`).join('')}</div>
-    <div class="rpe"><span class="rpe-l">RPE</span>
-      ${[6,7,8,9,10].map(r=>`<button class="rpe-b ${x.rpe==r?'sel':''}" onclick="setRPE(${i},${r})">${r}</button>`).join('')}</div>
+    <div class="effort"><span class="rpe-l">Felt</span>
+      ${[['easy','Easy'],['ok','OK'],['hard','Hard']].map(([v,l])=>`<button class="eff ${v} ${x.effort===v?'sel':''}" onclick="setEffort(${i},'${v}')">${l}</button>`).join('')}</div>
+    ${sticky}
   </div>`;
 }
 function setWeight(i,v){SESSION.ex[i].weight=v;SESSION.ex[i].sets.forEach(s=>{if(!s.status)s.weight=+v;});renderActive();}
 function setReps(i,j,v){SESSION.ex[i].sets[j].reps=v?+v:'';}
-function setRPE(i,r){SESSION.ex[i].rpe=r;renderActive();}
+function setEffort(i,e){SESSION.ex[i].effort=SESSION.ex[i].effort===e?null:e;renderActive();}
+function saveNote(id,v){DATA.notes[id]=v;save();}
+function lastSessionFor(id){for(let i=DATA.logs.length-1;i>=0;i--){const e=DATA.logs[i].ex.find(x=>x.id===id&&x.sets.some(s=>s.status));if(e)return{date:DATA.logs[i].date,e};}return null;}
 function setStatus(i,j,status,rest){
   const x=SESSION.ex[i],st=x.sets[j];
   st.status=st.status===status?'':status;       // tap same again to clear
@@ -451,7 +472,7 @@ function finishWorkout(){
   const s=SESSION;const any=s.ex.some(x=>x.sets.some(st=>st.status));
   if(!any){toast('Mark at least one set first.','err');return;}
   DATA.logs.push({date:s.date,name:s.name,tag:s.tag,
-    ex:s.ex.map(x=>({n:x.n,id:x.id,rpe:x.rpe,sets:x.sets.map(st=>({weight:+st.weight||0,reps:+st.reps||0,status:st.status||''}))}))});
+    ex:s.ex.map(x=>({n:x.n,id:x.id,effort:x.effort||'',sets:x.sets.map(st=>({weight:+st.weight||0,reps:+st.reps||0,status:st.status||''}))}))});
   s.ex.forEach(x=>updateProgression(x));
   DATA.nextDay=(DATA.nextDay+1)%PROGRAM.length;
   SESSION=null;save();stopRest();
@@ -526,9 +547,9 @@ function renderHistory(){
     }).join('');
 }
 function exportCSV(){
-  let rows=[['date','day','exercise','set','weight','reps','result','rpe']];
+  let rows=[['date','day','exercise','set','weight','reps','result','effort']];
   DATA.logs.forEach(l=>l.ex.forEach(x=>x.sets.forEach((s,i)=>{
-    if(s.status)rows.push([l.date,l.name,x.n,i+1,s.weight,s.reps,s.status==='fail'?'fail':'done',x.rpe||'']);
+    if(s.status)rows.push([l.date,l.name,x.n,i+1,s.weight,s.reps,s.status==='fail'?'fail':'done',x.effort||'']);
   })));
   const csv=rows.map(r=>r.join(',')).join('\n');
   const b=new Blob([csv],{type:'text/csv'});const u=URL.createObjectURL(b);

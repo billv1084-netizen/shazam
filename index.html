@@ -104,7 +104,13 @@ input[type=number]:focus{outline:none;border-color:var(--accent);}
 .set .reps input{width:54px;padding:7px;font-size:14px;}
 .check{margin-left:auto;width:38px;height:38px;border-radius:10px;border:2px solid var(--border);background:var(--surface);
   font-size:18px;color:transparent;cursor:pointer;transition:.12s;display:flex;align-items:center;justify-content:center;}
-.check.done{background:var(--green);border-color:var(--green);color:#fff;}
+.marks{margin-left:auto;display:flex;gap:6px;}
+.mark{width:38px;height:38px;border-radius:10px;border:2px solid var(--border);background:var(--surface);
+  font-size:16px;color:var(--light);cursor:pointer;transition:.12s;display:flex;align-items:center;justify-content:center;}
+.mark.ok.on{background:var(--green);border-color:var(--green);color:#fff;}
+.mark.no.on{background:var(--red);border-color:var(--red);color:#fff;}
+.mark:active{transform:scale(.92);}
+.ver{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0;color:var(--bolt);opacity:.85;font-weight:500;align-self:flex-start;margin:3px 0 0 2px;}
 
 .rpe{display:flex;gap:6px;margin-top:12px;align-items:center;}
 .rpe-l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-right:2px;}
@@ -181,7 +187,7 @@ svg{display:block;width:100%;}
 <body>
 
 <div class="header">
-  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM</div>
+  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v1.0</span></div>
   <div class="hstat">
     <div class="hstat-l">Est. Bench 1RM</div>
     <div class="hstat-v" id="h-1rm">—<span class="sync-dot off" id="sync-dot"></span></div>
@@ -303,8 +309,8 @@ function updateHeader(){
   const e=lastBenchEst(); $('h-1rm').innerHTML=(e?e:'—')+'<span class="sync-dot '+(ghReady()?'ok':'off')+'" id="sync-dot"></span>';
 }
 function lastBenchEst(){
-  for(let i=DATA.logs.length-1;i>=0;i--){const e=DATA.logs[i].ex.find(x=>x.n==='Barbell Bench Press'&&x.sets.some(s=>s.done));
-    if(e){let best=0;e.sets.forEach(s=>{if(s.done){const v=calc1RM(s.weight,s.reps);if(v>best)best=v;}});if(best)return best;}}
+  for(let i=DATA.logs.length-1;i>=0;i--){const e=DATA.logs[i].ex.find(x=>x.n==='Barbell Bench Press'&&x.sets.some(s=>s.status));
+    if(e){let best=0;e.sets.forEach(s=>{if(s.status&&s.reps){const v=calc1RM(s.weight,s.reps);if(v>best)best=v;}});if(best)return best;}}
   return 0;
 }
 
@@ -333,7 +339,7 @@ function startWorkout(){
   SESSION={dayIdx:DATA.nextDay,name:d.name,tag:d.tag,date:new Date().toISOString(),
     ex:d.ex.map(x=>{
       const sw=suggestWeight(x);
-      return{...x,weight:sw.w,suggest:sw,rpe:null,sets:Array.from({length:x.s},()=>({weight:sw.w,reps:'',done:false}))};
+      return{...x,weight:sw.w,suggest:sw,rpe:null,sets:Array.from({length:x.s},()=>({weight:sw.w,reps:'',status:''}))};
     })};
   renderActive();
 }
@@ -354,17 +360,19 @@ function suggestWeight(x){
 }
 // classify a just-completed session exercise: success | hold | miss | skip
 function classify(x){
-  const done=x.sets.filter(s=>s.done&&+s.reps>0);
-  if(done.length===0)return'skip';
-  if(done.length>=x.s&&done.every(s=>+s.reps>=x.hi))return'success';
-  if(done.length>=x.s&&done.every(s=>+s.reps>=x.lo))return'hold';
+  const touched=x.sets.filter(s=>s.status);
+  if(touched.length===0)return'skip';
+  const anyFail=x.sets.some(s=>s.status==='fail');           // a red X always counts as a stall
+  const ok=x.sets.filter(s=>s.status==='done'&&+s.reps>0);
+  if(!anyFail&&ok.length>=x.s&&ok.every(s=>+s.reps>=x.hi))return'success';
+  if(!anyFail&&ok.length>=x.s&&ok.every(s=>+s.reps>=x.lo))return'hold';
   return'miss';
 }
 // update weight, fail streak, and next plan from a completed session exercise
 function updateProgression(x){
   if(x.t==='core'||x.inc===0)return;
   const out=classify(x); if(out==='skip')return;
-  const w=Math.max(...x.sets.filter(s=>s.done&&+s.weight>0).map(s=>+s.weight),0);
+  const w=Math.max(...x.sets.filter(s=>s.status&&+s.weight>0).map(s=>+s.weight),0);
   if(!w)return;
   DATA.weights[x.n]=w;
   let fs=DATA.failStreak[x.n]||0;
@@ -406,26 +414,32 @@ function exCard(x,i){
     <div class="sets">${x.sets.map((st,j)=>`
       <div class="set"><span class="set-n">${j+1}</span>
         <span class="reps">${x.t==='core'?'hold/reps':'reps'} <input type="number" inputmode="numeric" value="${st.reps}" placeholder="${x.hi}" onchange="setReps(${i},${j},this.value)"></span>
-        <button class="check ${st.done?'done':''}" onclick="toggleSet(${i},${j},'${x.rest}')">&#10003;</button>
+        <div class="marks">
+          <button class="mark ok ${st.status==='done'?'on':''}" title="Made it" onclick="setStatus(${i},${j},'done','${x.rest}')">&#10003;</button>
+          <button class="mark no ${st.status==='fail'?'on':''}" title="Failed" onclick="setStatus(${i},${j},'fail','${x.rest}')">&#10007;</button>
+        </div>
       </div>`).join('')}</div>
     <div class="rpe"><span class="rpe-l">RPE</span>
       ${[6,7,8,9,10].map(r=>`<button class="rpe-b ${x.rpe==r?'sel':''}" onclick="setRPE(${i},${r})">${r}</button>`).join('')}</div>
   </div>`;
 }
-function setWeight(i,v){SESSION.ex[i].weight=v;SESSION.ex[i].sets.forEach(s=>{if(!s.done)s.weight=+v;});renderActive();}
+function setWeight(i,v){SESSION.ex[i].weight=v;SESSION.ex[i].sets.forEach(s=>{if(!s.status)s.weight=+v;});renderActive();}
 function setReps(i,j,v){SESSION.ex[i].sets[j].reps=v?+v:'';}
 function setRPE(i,r){SESSION.ex[i].rpe=r;renderActive();}
-function toggleSet(i,j,rest){
-  const st=SESSION.ex[i].sets[j];st.done=!st.done;st.weight=+SESSION.ex[i].weight;
-  if(st.done){if(!st.reps)st.reps=SESSION.ex[i].hi;startRest(rest);}
+function setStatus(i,j,status,rest){
+  const x=SESSION.ex[i],st=x.sets[j];
+  st.status=st.status===status?'':status;       // tap same again to clear
+  st.weight=+x.weight;
+  if(st.status&&!st.reps)st.reps=status==='done'?x.hi:x.lo;
+  if(st.status==='done')startRest(rest);
   renderActive();
 }
 function cancelWorkout(){confirmModal('Cancel workout?','Nothing will be saved.',()=>{SESSION=null;closeModal();renderToday();});}
 function finishWorkout(){
-  const s=SESSION;const done=s.ex.some(x=>x.sets.some(st=>st.done));
-  if(!done){toast('Log at least one set first.','err');return;}
+  const s=SESSION;const any=s.ex.some(x=>x.sets.some(st=>st.status));
+  if(!any){toast('Mark at least one set first.','err');return;}
   DATA.logs.push({date:s.date,name:s.name,tag:s.tag,
-    ex:s.ex.map(x=>({n:x.n,rpe:x.rpe,sets:x.sets.map(st=>({weight:+st.weight||0,reps:+st.reps||0,done:st.done}))}))});
+    ex:s.ex.map(x=>({n:x.n,rpe:x.rpe,sets:x.sets.map(st=>({weight:+st.weight||0,reps:+st.reps||0,status:st.status||''}))}))});
   s.ex.forEach(x=>updateProgression(x));
   DATA.nextDay=(DATA.nextDay+1)%PROGRAM.length;
   SESSION=null;save();stopRest();
@@ -462,7 +476,7 @@ function renderProgress(){
     </div>`;
 }
 function benchSeries(){const out=[];DATA.logs.forEach(l=>{const e=l.ex.find(x=>x.n==='Barbell Bench Press');
-  if(e){let best=0;e.sets.forEach(s=>{if(s.done){const v=calc1RM(s.weight,s.reps);if(v>best)best=v;}});if(best)out.push({d:l.date,v:best});}});return out;}
+  if(e){let best=0;e.sets.forEach(s=>{if(s.status&&s.reps){const v=calc1RM(s.weight,s.reps);if(v>best)best=v;}});if(best)out.push({d:l.date,v:best});}});return out;}
 function trendTxt(p){const diff=p[p.length-1].v-p[0].v;return(diff>=0?'+':'')+diff+' lb';}
 function chartSVG(pts,goal){
   const W=560,H=200,pad=34;
@@ -491,17 +505,18 @@ function renderHistory(){
   if(!DATA.logs.length){el.innerHTML='<div class="empty">No workouts logged yet.<br>Your history will appear here.</div>';return;}
   el.innerHTML=`<button class="btn btn-ghost" style="margin-bottom:14px;" onclick="exportCSV()">&#8595; Export CSV</button>`+
     [...DATA.logs].reverse().map(l=>{
-      const sets=l.ex.reduce((a,x)=>a+x.sets.filter(s=>s.done).length,0);
-      const vol=l.ex.reduce((a,x)=>a+x.sets.filter(s=>s.done).reduce((b,s)=>b+s.weight*s.reps,0),0);
+      const sets=l.ex.reduce((a,x)=>a+x.sets.filter(s=>s.status).length,0);
+      const fails=l.ex.reduce((a,x)=>a+x.sets.filter(s=>s.status==='fail').length,0);
+      const vol=l.ex.reduce((a,x)=>a+x.sets.filter(s=>s.status).reduce((b,s)=>b+s.weight*s.reps,0),0);
       return`<div class="card hist"><div class="d">${new Date(l.date).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})}</div>
         <div class="n">${l.name} &bull; ${l.tag.split(' + ')[0]}</div>
-        <div class="stat">${sets} sets &bull; ${Math.round(vol).toLocaleString()} lb volume</div></div>`;
+        <div class="stat">${sets} sets &bull; ${Math.round(vol).toLocaleString()} lb volume${fails?` &bull; <span style="color:var(--red)">${fails} failed</span>`:''}</div></div>`;
     }).join('');
 }
 function exportCSV(){
-  let rows=[['date','day','exercise','set','weight','reps','rpe']];
+  let rows=[['date','day','exercise','set','weight','reps','result','rpe']];
   DATA.logs.forEach(l=>l.ex.forEach(x=>x.sets.forEach((s,i)=>{
-    if(s.done)rows.push([l.date,l.name,x.n,i+1,s.weight,s.reps,x.rpe||'']);
+    if(s.status)rows.push([l.date,l.name,x.n,i+1,s.weight,s.reps,s.status==='fail'?'fail':'done',x.rpe||'']);
   })));
   const csv=rows.map(r=>r.join(',')).join('\n');
   const b=new Blob([csv],{type:'text/csv'});const u=URL.createObjectURL(b);

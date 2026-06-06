@@ -187,7 +187,7 @@ svg{display:block;width:100%;}
 <body>
 
 <div class="header">
-  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v1.0</span></div>
+  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v1.1</span></div>
   <div class="hstat">
     <div class="hstat-l">Est. Bench 1RM</div>
     <div class="hstat-v" id="h-1rm">—<span class="sync-dot off" id="sync-dot"></span></div>
@@ -271,10 +271,22 @@ const PROGRAM = [
     {n:'Rope Pushdown',t:'cable',s:2,lo:8,hi:12,rest:'short',inc:5},
   ]},
 ];
+// give every slot a unique id (so Day-1 and Day-4 bench track separately)
+PROGRAM.forEach((d,di)=>d.ex.forEach(x=>{x.id=(di+1)+'_'+x.n.toLowerCase().replace(/[^a-z0-9]/g,'');}));
 
 /* ============ DATA ============ */
 const KEY='shazam_data';
-function defaultData(){return{v:1,settings:{barWeight:45,smallestPlate:0.5,benchGoal:315},weights:{},failStreak:{},plan:{},logs:[],nextDay:0};}
+// Starting weights seeded from the IRON 300 export (most recent working sets).
+// Reps above the SHAZAM cap were converted to the heavier weight for the new rep target.
+function seedWeights(){return{
+  '1_barbellbenchpress':235, '1_hammerstrengthchestpress':130, '1_pecdeck':120,
+  '1_ropetricepspushdown':70, '1_cableoverheadtricepsext':60,
+  '2_neutralgriplatpulldown':160, '2_chestsupportedrow':245, '2_onearmcablerow':50,
+  '2_reardeltmachine':100, '2_ezbarcablecurl':65, '2_hammercurl':30,
+  '4_barbellbenchpress':205, '4_latpulldown':160, '4_machinechestsupportedrow':245,
+  '4_pecdeck':120, '4_facepullreardelt':60, '4_cablecurl':65, '4_ropepushdown':70
+};}
+function defaultData(){return{v:1,settings:{barWeight:45,smallestPlate:0.5,benchGoal:315},weights:seedWeights(),failStreak:{},plan:{},logs:[],nextDay:0};}
 let DATA=load();
 function load(){try{const d=localStorage.getItem(KEY);return d?Object.assign(defaultData(),JSON.parse(d)):defaultData();}catch(e){return defaultData();}}
 function save(){localStorage.setItem(KEY,JSON.stringify(DATA));}
@@ -345,8 +357,8 @@ function startWorkout(){
 }
 function suggestWeight(x){
   if(x.t==='core'||x.inc===0)return{w:'',kind:'core',msg:''};
-  const saved=DATA.weights[x.n];
-  const p=DATA.plan[x.n];
+  const saved=DATA.weights[x.id];
+  const p=DATA.plan[x.id];
   if(p){
     const m={
       up:`&#9889; Hit ${x.hi}+ on all sets \u2014 go up ${x.inc} lb to ${p.w}`,
@@ -374,15 +386,15 @@ function updateProgression(x){
   const out=classify(x); if(out==='skip')return;
   const w=Math.max(...x.sets.filter(s=>s.status&&+s.weight>0).map(s=>+s.weight),0);
   if(!w)return;
-  DATA.weights[x.n]=w;
-  let fs=DATA.failStreak[x.n]||0;
-  if(out==='success'){DATA.plan[x.n]={w:roundLoad(w+x.inc,x),kind:'up'};fs=0;}
-  else if(out==='hold'){DATA.plan[x.n]={w:w,kind:'hold'};fs=0;}
+  DATA.weights[x.id]=w;
+  let fs=DATA.failStreak[x.id]||0;
+  if(out==='success'){DATA.plan[x.id]={w:roundLoad(w+x.inc,x),kind:'up'};fs=0;}
+  else if(out==='hold'){DATA.plan[x.id]={w:w,kind:'hold'};fs=0;}
   else{fs++;
-    if(fs>=2){DATA.plan[x.n]={w:roundLoad(w*0.9,x),kind:'down'};fs=0;}
-    else{DATA.plan[x.n]={w:w,kind:'retry'};}
+    if(fs>=2){DATA.plan[x.id]={w:roundLoad(w*0.9,x),kind:'down'};fs=0;}
+    else{DATA.plan[x.id]={w:w,kind:'retry'};}
   }
-  DATA.failStreak[x.n]=fs;
+  DATA.failStreak[x.id]=fs;
 }
 function renderActive(){
   const s=SESSION,el=$('page-today');
@@ -439,7 +451,7 @@ function finishWorkout(){
   const s=SESSION;const any=s.ex.some(x=>x.sets.some(st=>st.status));
   if(!any){toast('Mark at least one set first.','err');return;}
   DATA.logs.push({date:s.date,name:s.name,tag:s.tag,
-    ex:s.ex.map(x=>({n:x.n,rpe:x.rpe,sets:x.sets.map(st=>({weight:+st.weight||0,reps:+st.reps||0,status:st.status||''}))}))});
+    ex:s.ex.map(x=>({n:x.n,id:x.id,rpe:x.rpe,sets:x.sets.map(st=>({weight:+st.weight||0,reps:+st.reps||0,status:st.status||''}))}))});
   s.ex.forEach(x=>updateProgression(x));
   DATA.nextDay=(DATA.nextDay+1)%PROGRAM.length;
   SESSION=null;save();stopRest();

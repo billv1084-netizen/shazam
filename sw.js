@@ -1,4 +1,4 @@
-const CACHE = 'shazam-v1.0';
+const CACHE = 'shazam-v1.1';
 const SHELL = ['./', 'index.html', 'manifest.json', 'icon-180.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {

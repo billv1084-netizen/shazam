@@ -63,6 +63,9 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .hero .eyebrow{color:var(--bolt);opacity:1;}
 .hero .title-xl{color:#fff;}
 .hero .sub{color:rgba(255,255,255,.8);}
+.goal-in{width:130px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);color:#fff;
+  font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:1px;border-radius:9px;text-align:center;padding:0 6px;}
+.goal-in:focus{outline:none;border-color:var(--bolt);background:rgba(255,255,255,.22);}
 
 /* BUTTONS */
 .btn{display:block;width:100%;font-family:'DM Sans';font-weight:700;font-size:15px;letter-spacing:.5px;
@@ -199,7 +202,7 @@ svg{display:block;width:100%;}
 <body>
 
 <div class="header">
-  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v1.2</span></div>
+  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v1.3</span></div>
   <div class="hstat">
     <div class="hstat-l">Est. Bench 1RM</div>
     <div class="hstat-v" id="h-1rm">—<span class="sync-dot off" id="sync-dot"></span></div>
@@ -285,6 +288,7 @@ const PROGRAM = [
 ];
 // give every slot a unique id (so Day-1 and Day-4 bench track separately)
 PROGRAM.forEach((d,di)=>d.ex.forEach(x=>{x.id=(di+1)+'_'+x.n.toLowerCase().replace(/[^a-z0-9]/g,'');}));
+const NAMEBYID={}; PROGRAM.forEach(d=>d.ex.forEach(x=>NAMEBYID[x.id]=x.n));
 
 /* ============ DATA ============ */
 const KEY='shazam_data';
@@ -298,9 +302,10 @@ function seedWeights(){return{
   '4_barbellbenchpress':205, '4_latpulldown':160, '4_machinechestsupportedrow':245,
   '4_pecdeck':120, '4_facepullreardelt':60, '4_cablecurl':65, '4_ropepushdown':70
 };}
-function defaultData(){return{v:1,settings:{barWeight:45,smallestPlate:0.5,benchGoal:315},weights:seedWeights(),failStreak:{},plan:{},notes:{},logs:[],nextDay:0};}
+function defaultData(){return{v:1,settings:{barWeight:45,smallestPlate:0.5,benchGoal:300},weights:seedWeights(),failStreak:{},plan:{},notes:{},logs:[],nextDay:0};}
 let DATA=load();
-function load(){try{const d=localStorage.getItem(KEY);return d?Object.assign(defaultData(),JSON.parse(d)):defaultData();}catch(e){return defaultData();}}
+function load(){try{const d=localStorage.getItem(KEY);if(!d)return defaultData();const b=defaultData(),s=JSON.parse(d);
+  return {...b,...s,settings:{...b.settings,...(s.settings||{})}};}catch(e){return defaultData();}}
 function save(){localStorage.setItem(KEY,JSON.stringify(DATA));}
 
 /* ============ HELPERS ============ */
@@ -496,18 +501,19 @@ function renderProgress(){
   const pts=benchSeries();
   const goal=DATA.settings.benchGoal;
   el.innerHTML=`
-    <div class="card hero"><div class="eyebrow">Goal Bench 1RM</div>
-      <div class="title-xl">${goal} lb</div>
+    <div class="card hero"><div class="eyebrow">Goal Bench 1RM &bull; tap to change</div>
+      <div class="title-xl" style="color:#fff;"><input type="number" class="goal-in" value="${goal}" onchange="setGoal(this.value)"> lb</div>
       <div class="sub">Estimated now: ${lastBenchEst()||'—'} lb${pts.length>1?' &bull; '+trendTxt(pts):''}</div></div>
     <div class="card"><div class="eyebrow" style="margin-bottom:12px;">Estimated Bench 1RM (Epley)</div>
       ${pts.length<1?'<div class="empty">Log a bench session to start the trend.</div>':chartSVG(pts,goal)}
       <div class="legend"><span><i style="background:var(--accent)"></i>Est. 1RM</span><span><i style="background:var(--bolt)"></i>Goal ${goal}</span></div>
     </div>
     <div class="card"><div class="eyebrow" style="margin-bottom:8px;">Working Weights</div>
-      ${Object.keys(DATA.weights).length?Object.entries(DATA.weights).map(([n,w])=>
-        `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--surface2);font-size:13px;"><span>${n}</span><span class="mono">${w} lb</span></div>`).join(''):'<div class="empty">No data yet.</div>'}
+      ${Object.keys(DATA.weights).length?Object.entries(DATA.weights).map(([id,w])=>
+        `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--surface2);font-size:13px;"><span>${(NAMEBYID[id]||id)} <span style="color:var(--light);font-size:11px">D${(id.split('_')[0])}</span></span><span class="mono">${w} lb</span></div>`).join(''):'<div class="empty">No data yet.</div>'}
     </div>`;
 }
+function setGoal(v){const g=+v;if(g>0){DATA.settings.benchGoal=g;save();renderProgress();updateHeader();}}
 function benchSeries(){const out=[];DATA.logs.forEach(l=>{const e=l.ex.find(x=>x.n==='Barbell Bench Press');
   if(e){let best=0;e.sets.forEach(s=>{if(s.status&&s.reps){const v=calc1RM(s.weight,s.reps);if(v>best)best=v;}});if(best)out.push({d:l.date,v:best});}});return out;}
 function trendTxt(p){const diff=p[p.length-1].v-p[0].v;return(diff>=0?'+':'')+diff+' lb';}

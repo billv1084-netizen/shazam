@@ -88,6 +88,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .chip.safe{background:var(--red-tint);color:var(--red);border-color:#F8C9C9;}
 .hint{background:var(--green-tint);border:1px solid #BBF7D0;color:#15803D;border-radius:9px;padding:7px 10px;font-size:12px;margin-bottom:10px;}
 .hint.same{background:var(--surface2);border-color:var(--border);color:var(--muted);}
+.hint.down{background:#FFF7E0;border-color:#F4E2A8;color:var(--bolt-deep);}
 .prev{font-size:11px;color:var(--light);margin-bottom:8px;}
 
 .wt-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
@@ -157,6 +158,24 @@ svg{display:block;width:100%;}
 .modal-box p{font-size:14px;color:var(--muted);margin-bottom:18px;line-height:1.5;}
 
 .empty{text-align:center;color:var(--muted);padding:40px 20px;font-size:14px;}
+
+/* PLATE CALC */
+.pc-mode{display:flex;gap:10px;margin-bottom:16px;}
+.pc-mode button{flex:1;padding:13px 10px;border-radius:11px;border:2px solid var(--border);background:var(--surface2);color:var(--muted);font-weight:700;font-size:13px;cursor:pointer;line-height:1.25;text-align:center;}
+.pc-mode button.sel{border-color:var(--accent);background:var(--tint);color:var(--accent);}
+.pc-mode small{display:block;font-weight:400;font-size:10px;color:var(--muted);margin-top:3px;}
+.pc-mode button.sel small{color:var(--accent);opacity:.8;}
+.pc-wt{display:flex;align-items:center;justify-content:center;gap:8px;margin:4px 0 2px;}
+.pc-wt input{font-family:'DM Mono';font-size:26px;width:120px;text-align:center;padding:10px;border:1.5px solid var(--border);border-radius:11px;}
+.pc-adj{display:flex;gap:6px;margin:12px 0;}
+.pc-adj button{flex:1;padding:11px 0;border:1.5px solid var(--border);border-radius:9px;background:var(--surface);font-family:'DM Mono';font-size:13px;font-weight:600;cursor:pointer;color:var(--text);}
+.pc-adj button:active{background:var(--surface2);}
+.pc-stack{display:flex;align-items:flex-end;justify-content:center;gap:3px;flex-wrap:wrap;min-height:90px;margin:18px 0 10px;}
+.pc-plate{min-width:30px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'DM Mono';font-size:10px;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.22);padding:0 3px;}
+.pc-side{text-align:center;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-weight:600;}
+.pc-total{text-align:center;font-family:'Bebas Neue';font-size:34px;color:var(--ink);letter-spacing:1px;line-height:1;margin-top:6px;}
+.pc-note{text-align:center;font-size:12px;color:var(--muted);margin-top:6px;}
+.pc-note.warn{color:var(--bolt-deep);}
 </style>
 </head>
 <body>
@@ -173,6 +192,7 @@ svg{display:block;width:100%;}
   <button class="nav-btn active" data-pg="today" onclick="showPage('today')">Today</button>
   <button class="nav-btn" data-pg="progress" onclick="showPage('progress')">Progress</button>
   <button class="nav-btn" data-pg="history" onclick="showPage('history')">History</button>
+  <button class="nav-btn" data-pg="plates" onclick="showPage('plates')">Plates</button>
   <button class="nav-btn" data-pg="settings" onclick="showPage('settings')">Settings</button>
 </div>
 
@@ -180,6 +200,7 @@ svg{display:block;width:100%;}
   <div class="page active" id="page-today"></div>
   <div class="page" id="page-progress"></div>
   <div class="page" id="page-history"></div>
+  <div class="page" id="page-plates"></div>
   <div class="page" id="page-settings"></div>
 </div>
 
@@ -247,7 +268,7 @@ const PROGRAM = [
 
 /* ============ DATA ============ */
 const KEY='shazam_data';
-function defaultData(){return{v:1,settings:{barWeight:45,smallestPlate:0.5,benchGoal:315},weights:{},logs:[],nextDay:0};}
+function defaultData(){return{v:1,settings:{barWeight:45,smallestPlate:0.5,benchGoal:315},weights:{},failStreak:{},plan:{},logs:[],nextDay:0};}
 let DATA=load();
 function load(){try{const d=localStorage.getItem(KEY);return d?Object.assign(defaultData(),JSON.parse(d)):defaultData();}catch(e){return defaultData();}}
 function save(){localStorage.setItem(KEY,JSON.stringify(DATA));}
@@ -261,6 +282,11 @@ function plateBreakdown(weight,bar,smallest){
   return out.length?out.join(' + ')+' /side':'just the bar';
 }
 function lastLogFor(name){for(let i=DATA.logs.length-1;i>=0;i--){const e=DATA.logs[i].ex.find(x=>x.n===name);if(e)return e;}return null;}
+function roundLoad(w,x){
+  if(x.t==='barbell'){const bar=DATA.settings.barWeight,inc=DATA.settings.smallestPlate*2;
+    if(w<=bar)return bar;return bar+Math.round((w-bar)/inc)*inc;}
+  return Math.round(w/5)*5; // machines/cables/dumbbells round to 5
+}
 function $(id){return document.getElementById(id);}
 
 /* ============ PAGES ============ */
@@ -270,7 +296,7 @@ function showPage(p){
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
   $('page-'+p).classList.add('active');
   if(p==='today')renderToday(); if(p==='progress')renderProgress();
-  if(p==='history')renderHistory(); if(p==='settings')renderSettings();
+  if(p==='history')renderHistory(); if(p==='plates')renderPlates(); if(p==='settings')renderSettings();
   updateHeader();
 }
 function updateHeader(){
@@ -306,20 +332,49 @@ function startWorkout(){
   const d=PROGRAM[DATA.nextDay];
   SESSION={dayIdx:DATA.nextDay,name:d.name,tag:d.tag,date:new Date().toISOString(),
     ex:d.ex.map(x=>{
-      const last=lastLogFor(x.n); const sw=suggestWeight(x,last);
+      const sw=suggestWeight(x);
       return{...x,weight:sw.w,suggest:sw,rpe:null,sets:Array.from({length:x.s},()=>({weight:sw.w,reps:'',done:false}))};
     })};
   renderActive();
 }
-function suggestWeight(x,last){
-  if(x.t==='core'||x.inc===0)return{w:'',msg:''};
+function suggestWeight(x){
+  if(x.t==='core'||x.inc===0)return{w:'',kind:'core',msg:''};
   const saved=DATA.weights[x.n];
-  if(!last){return{w:saved||'',msg:saved?'':'Set your starting weight'};}
-  const done=last.sets.filter(s=>s.done&&s.reps);
-  const allTop=done.length>=x.s&&done.every(s=>s.reps>=x.hi);
-  const lastW=Math.max(...last.sets.filter(s=>s.weight).map(s=>s.weight),0)||saved||'';
-  if(allTop&&lastW){return{w:lastW+x.inc,up:true,msg:`Hit ${x.hi}+ on all sets last time \u2014 go up ${x.inc} lb to ${lastW+x.inc}`};}
-  return{w:lastW,msg:lastW?`Last time: ${lastW} lb. Add reps toward ${x.hi}, then go up ${x.inc}.`:''};
+  const p=DATA.plan[x.n];
+  if(p){
+    const m={
+      up:`&#9889; Hit ${x.hi}+ on all sets \u2014 go up ${x.inc} lb to ${p.w}`,
+      hold:`In range last time. Add reps toward ${x.hi}, then go up.`,
+      retry:`Missed last time \u2014 same weight, try again before backing off.`,
+      down:`Stalled twice \u2014 backed off to ${p.w} (~10%). Build back up.`
+    };
+    return{w:p.w,kind:p.kind,msg:m[p.kind]||''};
+  }
+  return{w:saved||'',kind:'start',msg:saved?'':'Set your starting weight'};
+}
+// classify a just-completed session exercise: success | hold | miss | skip
+function classify(x){
+  const done=x.sets.filter(s=>s.done&&+s.reps>0);
+  if(done.length===0)return'skip';
+  if(done.length>=x.s&&done.every(s=>+s.reps>=x.hi))return'success';
+  if(done.length>=x.s&&done.every(s=>+s.reps>=x.lo))return'hold';
+  return'miss';
+}
+// update weight, fail streak, and next plan from a completed session exercise
+function updateProgression(x){
+  if(x.t==='core'||x.inc===0)return;
+  const out=classify(x); if(out==='skip')return;
+  const w=Math.max(...x.sets.filter(s=>s.done&&+s.weight>0).map(s=>+s.weight),0);
+  if(!w)return;
+  DATA.weights[x.n]=w;
+  let fs=DATA.failStreak[x.n]||0;
+  if(out==='success'){DATA.plan[x.n]={w:roundLoad(w+x.inc,x),kind:'up'};fs=0;}
+  else if(out==='hold'){DATA.plan[x.n]={w:w,kind:'hold'};fs=0;}
+  else{fs++;
+    if(fs>=2){DATA.plan[x.n]={w:roundLoad(w*0.9,x),kind:'down'};fs=0;}
+    else{DATA.plan[x.n]={w:w,kind:'retry'};}
+  }
+  DATA.failStreak[x.n]=fs;
 }
 function renderActive(){
   const s=SESSION,el=$('page-today');
@@ -333,7 +388,8 @@ function renderActive(){
 function exCard(x,i){
   const sm=DATA.settings.smallestPlate,bar=DATA.settings.barWeight;
   const plate=(x.t==='barbell'&&x.weight)?`<span class="plate">${plateBreakdown(+x.weight,bar,sm)}</span>`:'';
-  const hint=x.suggest&&x.suggest.msg?`<div class="hint ${x.suggest.up?'':'same'}">${x.suggest.up?'&#9889; ':''}${x.suggest.msg}</div>`:'';
+  const hk={up:'',down:'down',retry:'same',hold:'same',start:'same'}[x.suggest&&x.suggest.kind]||'same';
+  const hint=x.suggest&&x.suggest.msg?`<div class="hint ${hk}">${x.suggest.msg}</div>`:'';
   const note=x.note?`<div class="prev" style="color:var(--red);">&#9888; ${x.note}</div>`:'';
   return`<div class="card ex" style="animation-delay:${i*.03}s">
     <div class="ex-head"><div class="ex-name ${x.primary?'primary':''}">${x.n}</div>
@@ -370,7 +426,7 @@ function finishWorkout(){
   if(!done){toast('Log at least one set first.','err');return;}
   DATA.logs.push({date:s.date,name:s.name,tag:s.tag,
     ex:s.ex.map(x=>({n:x.n,rpe:x.rpe,sets:x.sets.map(st=>({weight:+st.weight||0,reps:+st.reps||0,done:st.done}))}))});
-  s.ex.forEach(x=>{const w=Math.max(...x.sets.filter(st=>st.done&&st.weight).map(st=>+st.weight),0);if(w)DATA.weights[x.n]=w;});
+  s.ex.forEach(x=>updateProgression(x));
   DATA.nextDay=(DATA.nextDay+1)%PROGRAM.length;
   SESSION=null;save();stopRest();
   toast('&#9889; Workout saved','ok');
@@ -525,6 +581,60 @@ function toast(msg,kind){const t=$('toast');t.innerHTML=msg;t.className='toast s
 let modalCb=null;
 function confirmModal(title,body,cb){$('modal-t').textContent=title;$('modal-p').textContent=body;modalCb=cb;$('modal-ok').onclick=()=>modalCb&&modalCb();$('modal').classList.add('on');}
 function closeModal(){$('modal').classList.remove('on');modalCb=null;}
+
+/* ---- PLATE CALCULATOR ---- */
+let pcMode='olympic';
+const PC_COLORS={45:'#C0392B',35:'#2980B9',25:'#E0922A',10:'#27AE60',5:'#6B7785',2.5:'#A7AEB5',1:'#FFC72C',0.75:'#F0A500',0.5:'#9CA3AF'};
+function pcSizes(){return [45,35,25,10,5,2.5,1,0.75,0.5].filter(p=>p>=(DATA.settings.smallestPlate||0.5));}
+function pcPlates(total,barW){
+  let side=(total-barW)/2; if(side<=0)return[];
+  const out=[];for(const p of pcSizes()){let c=0;while(side+1e-6>=p){side-=p;c++;}if(c)out.push({w:p,c});side=Math.round(side*100)/100;}
+  return out;
+}
+function renderPlates(){
+  const start=DATA.weights['Barbell Bench Press']||135;
+  $('page-plates').innerHTML=`
+    <div class="card hero"><div class="eyebrow">Tool</div><div class="title-xl" style="color:#fff;">Plate Calculator</div>
+      <div class="sub">What to load on each side</div></div>
+    <div class="card">
+      <div class="pc-mode">
+        <button id="pc-oly" class="${pcMode==='olympic'?'sel':''}" onclick="pcSetMode('olympic')">&#9889; Olympic Bar<small>bar = ${DATA.settings.barWeight} lb</small></button>
+        <button id="pc-mac" class="${pcMode==='machine'?'sel':''}" onclick="pcSetMode('machine')">&#128296; Plate-Loaded Machine<small>per side, no bar</small></button>
+      </div>
+      <div class="pc-wt"><input type="number" inputmode="decimal" id="pc-weight" value="${start}" oninput="pcCalc()"><span style="color:var(--muted)">lb total</span></div>
+      <div class="pc-adj">
+        <button onclick="pcAdjust(-5)">&minus;5</button><button onclick="pcAdjust(-1)">&minus;1</button>
+        <button onclick="pcAdjust(1)">+1</button><button onclick="pcAdjust(5)">+5</button><button onclick="pcAdjust(45)">+45</button>
+      </div>
+      <div id="pc-result"></div>
+    </div>
+    <div class="card" style="font-size:12px;color:var(--muted);line-height:1.5;">
+      <strong style="color:var(--text)">Olympic Bar</strong> subtracts the ${DATA.settings.barWeight} lb bar, then splits the rest evenly across both sides.<br>
+      <strong style="color:var(--text)">Plate-Loaded Machine</strong> (hack squat, leg press, Hammer Strength) assumes the carriage is your zero \u2014 it just splits the number you enter across both sides.
+    </div>`;
+  pcCalc();
+}
+function pcSetMode(m){pcMode=m;document.getElementById('pc-oly').classList.toggle('sel',m==='olympic');document.getElementById('pc-mac').classList.toggle('sel',m==='machine');pcCalc();}
+function pcAdjust(d){const i=$('pc-weight');i.value=Math.max(0,(parseFloat(i.value)||0)+d);pcCalc();}
+function pcCalc(){
+  const i=$('pc-weight'),r=$('pc-result');if(!i||!r)return;
+  const total=parseFloat(i.value)||0;
+  const barW=pcMode==='olympic'?DATA.settings.barWeight:0;
+  if(total<=0){r.innerHTML='';return;}
+  if(pcMode==='olympic'&&total<barW){r.innerHTML=`<div class="pc-note warn">That's less than the ${barW} lb bar.</div>`;return;}
+  const plates=pcPlates(total,barW);
+  const perSide=plates.reduce((s,p)=>s+p.c*p.w,0);
+  const achievable=barW+perSide*2;
+  const exact=Math.abs(achievable-total)<0.05;
+  const chips=plates.length?plates.flatMap(p=>Array(p.c).fill(p.w)).map(w=>{
+    const h=34+(w/45)*52;return`<div class="pc-plate" style="height:${h}px;background:${PC_COLORS[w]||'#888'};${w<5?'color:#1A1A1A;':''}">${w}</div>`;}).join(''):'';
+  r.innerHTML=`
+    <div class="pc-side">Each side &bull; ${perSide} lb</div>
+    <div class="pc-stack">${pcMode==='olympic'?`<div class="pc-plate" style="height:24px;width:46px;background:var(--ink);">BAR</div>`:''}${chips||'<span style="color:var(--muted);font-size:13px">just the '+(pcMode==='olympic'?'bar':'carriage')+'</span>'}</div>
+    <div class="pc-total">${achievable} lb total</div>
+    ${exact?'':`<div class="pc-note warn">Closest loadable: ${achievable} lb (you entered ${total}).</div>`}
+    <div class="pc-note">${plates.length?plates.map(p=>p.c+'\u00d7'+p.w).join(' + ')+' per side':''}</div>`;
+}
 
 /* ---- INIT ---- */
 if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}

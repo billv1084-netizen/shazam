@@ -108,6 +108,11 @@ input[type=number]:focus{outline:none;border-color:var(--accent);}
 .check{margin-left:auto;width:38px;height:38px;border-radius:10px;border:2px solid var(--border);background:var(--surface);
   font-size:18px;color:transparent;cursor:pointer;transition:.12s;display:flex;align-items:center;justify-content:center;}
 .marks{margin-left:auto;display:flex;gap:6px;}
+.setw{font-size:13px;color:var(--muted);min-width:44px;}
+.ew{width:66px!important;}
+.warm{background:#FFF7E0;border:1px solid #F4E2A8;border-radius:9px;padding:9px 11px;margin-bottom:10px;}
+.warm-h{font-size:11px;font-weight:700;color:var(--bolt-deep);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.warm-s{display:inline-block;font-family:'DM Mono',monospace;font-size:12px;color:#7a5c12;background:#FFFBEC;border:1px solid #F4E2A8;border-radius:6px;padding:3px 7px;margin:2px 4px 2px 0;}
 .mark{width:38px;height:38px;border-radius:10px;border:2px solid var(--border);background:var(--surface);
   font-size:16px;color:var(--light);cursor:pointer;transition:.12s;display:flex;align-items:center;justify-content:center;}
 .mark.ok.on{background:var(--green);border-color:var(--green);color:#fff;}
@@ -202,7 +207,7 @@ svg{display:block;width:100%;}
 <body>
 
 <div class="header">
-  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v1.3</span></div>
+  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v1.5</span></div>
   <div class="hstat">
     <div class="hstat-l">Est. Bench 1RM</div>
     <div class="hstat-v" id="h-1rm">—<span class="sync-dot off" id="sync-dot"></span></div>
@@ -289,6 +294,16 @@ const PROGRAM = [
 // give every slot a unique id (so Day-1 and Day-4 bench track separately)
 PROGRAM.forEach((d,di)=>d.ex.forEach(x=>{x.id=(di+1)+'_'+x.n.toLowerCase().replace(/[^a-z0-9]/g,'');}));
 const NAMEBYID={}; PROGRAM.forEach(d=>d.ex.forEach(x=>NAMEBYID[x.id]=x.n));
+const METABYID={}; PROGRAM.forEach(d=>d.ex.forEach(x=>METABYID[x.id]=x));
+// Rebuild all progression (weights/plan/failStreak) from the full log history.
+// Logs are the source of truth, so editing a past session just re-derives everything.
+function recomputeProgression(){
+  DATA.weights=seedWeights(); DATA.failStreak={}; DATA.plan={};
+  DATA.logs.forEach(l=>l.ex.forEach(le=>{
+    const meta=METABYID[le.id]; if(!meta)return;
+    updateProgression({...meta,effort:le.effort,sets:le.sets});
+  }));
+}
 
 /* ============ DATA ============ */
 const KEY='shazam_data';
@@ -327,6 +342,7 @@ function $(id){return document.getElementById(id);}
 /* ============ PAGES ============ */
 let SESSION=null;
 function showPage(p){
+  EDIT=null;
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.pg===p));
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
   $('page-'+p).classList.add('active');
@@ -434,6 +450,11 @@ function exCard(x,i){
   const ls=lastSessionFor(x.id);
   const last=ls?`<div class="last">Last ${fmtD(ls.date)}: ${ls.e.sets.filter(s=>s.status).map(s=>`${s.weight}\u00d7${s.reps}${s.status==='fail'?'\u2717':''}`).join('  \u00b7  ')}${ls.e.effort?`  \u2014  felt <b>${ls.e.effort.toUpperCase()}</b>`:''}</div>`:'';
   const sticky=`<div class="sticky"><textarea placeholder="Sticky note \u2014 you'll see this next time (e.g. form broke on set 4, hold here)" oninput="saveNote('${x.id}',this.value)">${(DATA.notes[x.id]||'').replace(/</g,'&lt;')}</textarea></div>`;
+  let warm='';
+  if(x.t==='barbell'&&x.primary&&+x.weight>bar){
+    const wu=buildWarmups(+x.weight,bar);
+    if(wu.length)warm=`<div class="warm"><div class="warm-h">&#128293; Warm-up to ${x.weight}</div>${wu.map(s=>`<span class="warm-s">${s.w}\u00d7${s.r}</span>`).join('')}</div>`;
+  }
   return`<div class="card ex" style="animation-delay:${i*.03}s">
     <div class="ex-head"><div class="ex-name ${x.primary?'primary':''}">${x.n}</div>
       <div class="ex-target">${x.s}\u00d7${x.lo}\u2013${x.hi}</div></div>
@@ -446,8 +467,10 @@ function exCard(x,i){
     ${x.t!=='core'?`<div class="wt-row"><label>Weight</label>
       <input type="number" inputmode="decimal" value="${x.weight}" onchange="setWeight(${i},this.value)">
       <span style="font-size:12px;color:var(--muted)">lb</span> ${plate}</div>`:''}
+    ${warm}
     <div class="sets">${x.sets.map((st,j)=>`
       <div class="set"><span class="set-n">${j+1}</span>
+        ${x.t!=='core'?`<span class="setw mono">${st.weight||x.weight||''}</span>`:''}
         <span class="reps">${x.t==='core'?'hold/reps':'reps'} <input type="number" inputmode="numeric" value="${st.reps}" placeholder="${x.hi}" onchange="setReps(${i},${j},this.value)"></span>
         <div class="marks">
           <button class="mark ok ${st.status==='done'?'on':''}" title="Made it" onclick="setStatus(${i},${j},'done','${x.rest}')">&#10003;</button>
@@ -459,20 +482,30 @@ function exCard(x,i){
     ${sticky}
   </div>`;
 }
-function setWeight(i,v){SESSION.ex[i].weight=v;SESSION.ex[i].sets.forEach(s=>{if(!s.status)s.weight=+v;});renderActive();}
-function setReps(i,j,v){SESSION.ex[i].sets[j].reps=v?+v:'';}
-function setEffort(i,e){SESSION.ex[i].effort=SESSION.ex[i].effort===e?null:e;renderActive();}
+function setWeight(i,v){SESSION.ex[i].weight=v;SESSION.ex[i].sets.forEach(s=>{if(!s.status)s.weight=+v;});savePending();renderActive();}
+function setReps(i,j,v){SESSION.ex[i].sets[j].reps=v?+v:'';savePending();}
+function setEffort(i,e){SESSION.ex[i].effort=SESSION.ex[i].effort===e?null:e;savePending();renderActive();}
 function saveNote(id,v){DATA.notes[id]=v;save();}
 function lastSessionFor(id){for(let i=DATA.logs.length-1;i>=0;i--){const e=DATA.logs[i].ex.find(x=>x.id===id&&x.sets.some(s=>s.status));if(e)return{date:DATA.logs[i].date,e};}return null;}
+// keep the live workout safe if iOS reloads the app from the background
+function savePending(){try{localStorage.setItem('shazam_pending',JSON.stringify(SESSION));}catch(e){}}
+function clearPending(){localStorage.removeItem('shazam_pending');}
+// warm-up ramp to the working weight (barbell key lifts)
+function buildWarmups(W,bar){
+  if(!W||W<=bar)return[];
+  const pct=[0,0.5,0.7,0.85,0.93],reps=[8,5,4,2,1],out=[];let prev=0;
+  pct.forEach((p,i)=>{let w=i===0?bar:Math.round(W*p/5)*5;if(w<bar)w=bar;if(w>=W||w<=prev)return;out.push({w,r:reps[i]});prev=w;});
+  return out;
+}
 function setStatus(i,j,status,rest){
   const x=SESSION.ex[i],st=x.sets[j];
   st.status=st.status===status?'':status;       // tap same again to clear
   st.weight=+x.weight;
   if(st.status&&!st.reps)st.reps=status==='done'?x.hi:x.lo;
   if(st.status==='done')startRest(rest);
-  renderActive();
+  savePending();renderActive();
 }
-function cancelWorkout(){confirmModal('Cancel workout?','Nothing will be saved.',()=>{SESSION=null;closeModal();renderToday();});}
+function cancelWorkout(){confirmModal('Cancel workout?','Nothing will be saved.',()=>{SESSION=null;clearPending();closeModal();renderToday();});}
 function finishWorkout(){
   const s=SESSION;const any=s.ex.some(x=>x.sets.some(st=>st.status));
   if(!any){toast('Mark at least one set first.','err');return;}
@@ -480,7 +513,7 @@ function finishWorkout(){
     ex:s.ex.map(x=>({n:x.n,id:x.id,effort:x.effort||'',sets:x.sets.map(st=>({weight:+st.weight||0,reps:+st.reps||0,status:st.status||''}))}))});
   s.ex.forEach(x=>updateProgression(x));
   DATA.nextDay=(DATA.nextDay+1)%PROGRAM.length;
-  SESSION=null;save();stopRest();
+  SESSION=null;clearPending();save();stopRest();
   toast('&#9889; Workout saved','ok');
   if(ghReady())autoSync();
   renderToday();updateHeader();
@@ -539,19 +572,54 @@ function chartSVG(pts,goal){
 function fmtD(iso){const d=new Date(iso);return(d.getMonth()+1)+'/'+d.getDate();}
 
 /* ---- HISTORY ---- */
+let EDIT=null;
 function renderHistory(){
   const el=$('page-history');
+  if(EDIT!==null){renderEdit(el);return;}
   if(!DATA.logs.length){el.innerHTML='<div class="empty">No workouts logged yet.<br>Your history will appear here.</div>';return;}
-  el.innerHTML=`<button class="btn btn-ghost" style="margin-bottom:14px;" onclick="exportCSV()">&#8595; Export CSV</button>`+
-    [...DATA.logs].reverse().map(l=>{
+  el.innerHTML=`<button class="btn btn-ghost" style="margin-bottom:14px;" onclick="exportCSV()">&#8595; Export CSV</button>
+    <div class="sub" style="margin-bottom:10px;">Tap a workout to edit it.</div>`+
+    DATA.logs.map((l,idx)=>({l,idx})).reverse().map(({l,idx})=>{
       const sets=l.ex.reduce((a,x)=>a+x.sets.filter(s=>s.status).length,0);
       const fails=l.ex.reduce((a,x)=>a+x.sets.filter(s=>s.status==='fail').length,0);
       const vol=l.ex.reduce((a,x)=>a+x.sets.filter(s=>s.status).reduce((b,s)=>b+s.weight*s.reps,0),0);
-      return`<div class="card hist"><div class="d">${new Date(l.date).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})}</div>
+      return`<div class="card hist" style="cursor:pointer" onclick="openEdit(${idx})"><div class="d">${new Date(l.date).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})} &nbsp;&rsaquo; edit</div>
         <div class="n">${l.name} &bull; ${l.tag.split(' + ')[0]}</div>
         <div class="stat">${sets} sets &bull; ${Math.round(vol).toLocaleString()} lb volume${fails?` &bull; <span style="color:var(--red)">${fails} failed</span>`:''}</div></div>`;
     }).join('');
 }
+function openEdit(idx){EDIT=idx;renderHistory();}
+function closeEdit(){EDIT=null;renderHistory();}
+function renderEdit(el){
+  const idx=EDIT,l=DATA.logs[idx];
+  el.innerHTML=`
+    <div class="card hero"><div class="eyebrow">Editing &bull; ${new Date(l.date).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</div>
+      <div class="title-l" style="color:#fff;">${l.name} &mdash; ${l.tag.split(' + ')[0]}</div>
+      <div class="sub">Changes recompute your progression automatically.</div></div>
+    ${l.ex.map((le,ei)=>{
+      const m=METABYID[le.id]||{lo:'',hi:''};
+      return`<div class="card ex">
+        <div class="ex-name" style="margin-bottom:8px;">${le.n}</div>
+        <div class="sets">${le.sets.map((st,si)=>`
+          <div class="set"><span class="set-n">${si+1}</span>
+            <input class="ew" type="number" inputmode="decimal" value="${st.weight||''}" onchange="editSet(${ei},${si},'weight',this.value)">
+            <span class="reps">reps <input type="number" inputmode="numeric" value="${st.reps||''}" onchange="editSet(${ei},${si},'reps',this.value)"></span>
+            <div class="marks">
+              <button class="mark ok ${st.status==='done'?'on':''}" onclick="editStatus(${ei},${si},'done')">&#10003;</button>
+              <button class="mark no ${st.status==='fail'?'on':''}" onclick="editStatus(${ei},${si},'fail')">&#10007;</button>
+            </div>
+          </div>`).join('')}</div>
+        <div class="effort"><span class="rpe-l">Felt</span>
+          ${[['easy','Easy'],['ok','OK'],['hard','Hard']].map(([v,lb])=>`<button class="eff ${v} ${le.effort===v?'sel':''}" onclick="editEffort(${ei},'${v}')">${lb}</button>`).join('')}</div>
+      </div>`;}).join('')}
+    <button class="btn btn-bolt" onclick="closeEdit()">Done</button>
+    <button class="btn btn-ghost" style="margin-top:10px;color:var(--red)" onclick="deleteSession(${idx})">Delete this workout</button>`;
+}
+function commitEdit(){recomputeProgression();save();if(ghReady())autoSync();updateHeader();}
+function editSet(ei,si,field,v){const st=DATA.logs[EDIT].ex[ei].sets[si];st[field]=v?+v:0;commitEdit();}
+function editStatus(ei,si,status){const st=DATA.logs[EDIT].ex[ei].sets[si];st.status=st.status===status?'':status;commitEdit();renderHistory();}
+function editEffort(ei,e){const le=DATA.logs[EDIT].ex[ei];le.effort=le.effort===e?'':e;commitEdit();renderHistory();}
+function deleteSession(idx){confirmModal('Delete this workout?','It will be removed and your progression recalculated.',()=>{DATA.logs.splice(idx,1);EDIT=null;recomputeProgression();save();if(ghReady())autoSync();closeModal();showPage('history');updateHeader();toast('Workout deleted','ok');});}
 function exportCSV(){
   let rows=[['date','day','exercise','set','weight','reps','result','effort']];
   DATA.logs.forEach(l=>l.ex.forEach(x=>x.sets.forEach((s,i)=>{
@@ -692,6 +760,8 @@ function pcCalc(){
 
 /* ---- INIT ---- */
 if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+// recover a live workout if iOS reloaded us from the background
+try{const pend=localStorage.getItem('shazam_pending');if(pend){const p=JSON.parse(pend);if(p&&p.ex)SESSION=p;}}catch(e){}
 renderToday();updateHeader();
 </script>
 </body>

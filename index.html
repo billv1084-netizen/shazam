@@ -183,7 +183,14 @@ svg{display:block;width:100%;}
 .modal-box .title-l{margin-bottom:8px;}
 .modal-box p{font-size:14px;color:var(--muted);margin-bottom:18px;line-height:1.5;}
 
+.day-pick{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .empty{text-align:center;color:var(--muted);padding:40px 20px;font-size:14px;}
+.day-b{padding:11px 12px;border:2px solid var(--border);border-radius:11px;background:var(--surface2);cursor:pointer;text-align:left;}
+.day-b.sel{border-color:var(--accent);background:var(--tint);}
+.day-b .dn{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:.5px;color:var(--ink);line-height:1;}
+.day-b.sel .dn{color:var(--accent);}
+.day-b .dt{font-size:11px;color:var(--muted);margin-top:3px;}
+.day-b .nx{font-size:9px;color:var(--bolt-deep);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-top:4px;min-height:11px;}
 
 /* PLATE CALC */
 .pc-mode{display:flex;gap:10px;margin-bottom:16px;}
@@ -207,7 +214,7 @@ svg{display:block;width:100%;}
 <body>
 
 <div class="header">
-  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v1.5</span></div>
+  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v1.6</span></div>
   <div class="hstat">
     <div class="hstat-l">Est. Bench 1RM</div>
     <div class="hstat-v" id="h-1rm">—<span class="sync-dot off" id="sync-dot"></span></div>
@@ -341,6 +348,7 @@ function $(id){return document.getElementById(id);}
 
 /* ============ PAGES ============ */
 let SESSION=null;
+let selDay=null;
 function showPage(p){
   EDIT=null;
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.pg===p));
@@ -360,33 +368,42 @@ function lastBenchEst(){
 }
 
 /* ---- TODAY ---- */
+const SHORTS=['Bench + Chest','Back + Arms','Legs + Delts','Bench + Width'];
 function renderToday(){
   const el=$('page-today');
   if(SESSION){renderActive();return;}
-  const d=PROGRAM[DATA.nextDay];
+  if(selDay==null||selDay<0||selDay>=PROGRAM.length)selDay=DATA.nextDay||0;
+  const d=PROGRAM[selDay];
   el.innerHTML=`
+    <div class="card"><div class="eyebrow" style="margin-bottom:10px;">Pick today's workout</div>
+      <div class="day-pick">${PROGRAM.map((dd,i)=>`
+        <button class="day-b ${i===selDay?'sel':''}" onclick="pickDay(${i})">
+          <div class="dn">Day ${i+1}</div><div class="dt">${SHORTS[i]}</div>
+          ${i===DATA.nextDay?'<div class="nx">&#9889; suggested</div>':'<div class="nx">&nbsp;</div>'}
+        </button>`).join('')}</div>
+    </div>
     <div class="card hero">
-      <div class="eyebrow">Next Session &bull; ${d.name}</div>
+      <div class="eyebrow">${d.name}</div>
       <div class="title-xl">${d.tag.split(' + ')[0]}</div>
       <div class="sub">${d.tag}</div>
     </div>
     <div class="card">
       <div class="eyebrow" style="margin-bottom:10px;">${d.ex.length} Exercises</div>
       ${d.ex.map(x=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--surface2);font-size:14px;">
-        <span class="${x.primary?'':''}" style="${x.primary?'color:var(--accent);font-weight:600':''}">${x.n}</span>
+        <span style="${x.primary?'color:var(--accent);font-weight:600':''}">${x.n}</span>
         <span class="mono" style="color:var(--muted);font-size:12px;">${x.s}\u00d7${x.lo}\u2013${x.hi}</span></div>`).join('')}
     </div>
-    <button class="btn btn-bolt" onclick="startWorkout()">&#9889; Start ${d.name}</button>
-    <button class="btn btn-ghost" style="margin-top:10px;" onclick="skipDay()">Skip to next day</button>`;
+    <button class="btn btn-bolt" onclick="startWorkout()">&#9889; Start ${d.name}</button>`;
 }
+function pickDay(i){selDay=i;renderToday();}
 function startWorkout(){
-  const d=PROGRAM[DATA.nextDay];
-  SESSION={dayIdx:DATA.nextDay,name:d.name,tag:d.tag,date:new Date().toISOString(),
+  const d=PROGRAM[selDay];
+  SESSION={dayIdx:selDay,name:d.name,tag:d.tag,date:new Date().toISOString(),
     ex:d.ex.map(x=>{
       const sw=suggestWeight(x);
       return{...x,weight:sw.w,suggest:sw,effort:null,sets:Array.from({length:x.s},()=>({weight:sw.w,reps:'',status:''}))};
     })};
-  renderActive();
+  savePending();renderActive();
 }
 function suggestWeight(x){
   if(x.t==='core'||x.inc===0)return{w:'',kind:'core',msg:''};
@@ -512,13 +529,13 @@ function finishWorkout(){
   DATA.logs.push({date:s.date,name:s.name,tag:s.tag,
     ex:s.ex.map(x=>({n:x.n,id:x.id,effort:x.effort||'',sets:x.sets.map(st=>({weight:+st.weight||0,reps:+st.reps||0,status:st.status||''}))}))});
   s.ex.forEach(x=>updateProgression(x));
-  DATA.nextDay=(DATA.nextDay+1)%PROGRAM.length;
+  DATA.nextDay=(s.dayIdx+1)%PROGRAM.length; selDay=DATA.nextDay;
   SESSION=null;clearPending();save();stopRest();
   toast('&#9889; Workout saved','ok');
   if(ghReady())autoSync();
   renderToday();updateHeader();
 }
-function skipDay(){DATA.nextDay=(DATA.nextDay+1)%PROGRAM.length;save();renderToday();toast('Skipped to '+PROGRAM[DATA.nextDay].name);}
+
 
 /* ---- REST TIMER ---- */
 let restT=0,restIv=null;

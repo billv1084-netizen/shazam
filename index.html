@@ -17,7 +17,7 @@
   --bg:#F0EFED; --surface:#FFFFFF; --surface2:#F5F4F2; --border:#E2E1DE;
   --accent:#1A44C8; --accent-deep:#0E2A8A; --ink:#0E1B3D;
   --bolt:#FFC72C; --bolt-deep:#F0A500;
-  --text:#1A1A1A; --muted:#6B7280; --light:#9CA3AF;
+  --text:#1A1A1A; --muted:#6B7280; --light:#727A86;
   --green:#16A34A; --green-tint:#F0FDF4; --red:#EF4444; --red-tint:#FEF2F2;
   --tint:#EEF1FB;
 }
@@ -36,7 +36,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .hstat-l{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;opacity:.7;}
 .hstat-v{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--bolt);letter-spacing:1px;}
 .sync-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-left:6px;background:var(--light);vertical-align:middle;}
-.sync-dot.ok{background:var(--bolt);box-shadow:0 0 6px var(--bolt);} .sync-dot.off{background:#5A6B8C;}
+.sync-dot.ok{background:var(--bolt);box-shadow:0 0 6px var(--bolt);} .sync-dot.off{background:#5A6B8C;} .sync-dot.bad{background:var(--red);box-shadow:0 0 6px var(--red);}
 
 /* NAV */
 .nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:90;}
@@ -104,7 +104,7 @@ input[type=number]:focus{outline:none;border-color:var(--accent);}
 .set{display:flex;align-items:center;gap:10px;}
 .set-n{font-family:'Bebas Neue';font-size:18px;color:var(--light);width:18px;}
 .set .reps{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);}
-.set .reps input{width:54px;padding:7px;font-size:14px;}
+.set .reps input{width:54px;padding:7px;font-size:16px;}
 .check{margin-left:auto;width:38px;height:38px;border-radius:10px;border:2px solid var(--border);background:var(--surface);
   font-size:18px;color:transparent;cursor:pointer;transition:.12s;display:flex;align-items:center;justify-content:center;}
 .marks{margin-left:auto;display:flex;gap:6px;}
@@ -113,7 +113,7 @@ input[type=number]:focus{outline:none;border-color:var(--accent);}
 .warm{background:#FFF7E0;border:1px solid #F4E2A8;border-radius:9px;padding:9px 11px;margin-bottom:10px;}
 .warm-h{font-size:11px;font-weight:700;color:var(--bolt-deep);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
 .warm-s{display:inline-block;font-family:'DM Mono',monospace;font-size:12px;color:#7a5c12;background:#FFFBEC;border:1px solid #F4E2A8;border-radius:6px;padding:3px 7px;margin:2px 4px 2px 0;}
-.mark{width:38px;height:38px;border-radius:10px;border:2px solid var(--border);background:var(--surface);
+.mark{width:44px;height:44px;border-radius:10px;border:2px solid var(--border);background:var(--surface);
   font-size:16px;color:var(--light);cursor:pointer;transition:.12s;display:flex;align-items:center;justify-content:center;}
 .mark.ok.on{background:var(--green);border-color:var(--green);color:#fff;}
 .mark.no.on{background:var(--red);border-color:var(--red);color:#fff;}
@@ -214,7 +214,7 @@ svg{display:block;width:100%;}
 <body>
 
 <div class="header">
-  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v1.6</span></div>
+  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v1.7</span></div>
   <div class="hstat">
     <div class="hstat-l">Est. Bench 1RM</div>
     <div class="hstat-v" id="h-1rm">—<span class="sync-dot off" id="sync-dot"></span></div>
@@ -299,23 +299,25 @@ const PROGRAM = [
   ]},
 ];
 // give every slot a unique id (so Day-1 and Day-4 bench track separately)
-PROGRAM.forEach((d,di)=>d.ex.forEach(x=>{x.id=(di+1)+'_'+x.n.toLowerCase().replace(/[^a-z0-9]/g,'');}));
+// id is derived from name by default; to RENAME a lift later without orphaning its
+// history, add an explicit `id:` to that PROGRAM entry so this line leaves it alone.
+PROGRAM.forEach((d,di)=>d.ex.forEach(x=>{if(!x.id)x.id=(di+1)+'_'+x.n.toLowerCase().replace(/[^a-z0-9]/g,'');}));
 const NAMEBYID={}; PROGRAM.forEach(d=>d.ex.forEach(x=>NAMEBYID[x.id]=x.n));
 const METABYID={}; PROGRAM.forEach(d=>d.ex.forEach(x=>METABYID[x.id]=x));
 // Rebuild all progression (weights/plan/failStreak) from the full log history.
-// Logs are the source of truth, so editing a past session just re-derives everything.
+// Logs are the source of truth. Each log carries its own rep-scheme snapshot (le.meta),
+// so old sessions are judged by the rules in force when they happened, not today's.
 function recomputeProgression(){
-  DATA.weights=seedWeights(); DATA.failStreak={}; DATA.plan={};
+  DATA.weights={}; DATA.failStreak={}; DATA.plan={};
   DATA.logs.forEach(l=>l.ex.forEach(le=>{
-    const meta=METABYID[le.id]; if(!meta)return;
-    updateProgression({...meta,effort:le.effort,sets:le.sets});
+    const meta=le.meta||METABYID[le.id]; if(!meta)return;
+    updateProgression({...meta,id:le.id,effort:le.effort,sets:le.sets});
   }));
 }
 
 /* ============ DATA ============ */
-const KEY='shazam_data';
-// Starting weights seeded from the IRON 300 export (most recent working sets).
-// Reps above the SHAZAM cap were converted to the heavier weight for the new rep target.
+const KEY='shazam_data', LASTGOOD='shazam_lastgood';
+// Starting weights seeded from the IRON 300 export (used only on first launch / full reset).
 function seedWeights(){return{
   '1_barbellbenchpress':235, '1_hammerstrengthchestpress':130, '1_pecdeck':120,
   '1_ropetricepspushdown':70, '1_cableoverheadtricepsext':60,
@@ -324,11 +326,32 @@ function seedWeights(){return{
   '4_barbellbenchpress':205, '4_latpulldown':160, '4_machinechestsupportedrow':245,
   '4_pecdeck':120, '4_facepullreardelt':60, '4_cablecurl':65, '4_ropepushdown':70
 };}
-function defaultData(){return{v:1,settings:{barWeight:45,smallestPlate:0.5,benchGoal:300},weights:seedWeights(),failStreak:{},plan:{},notes:{},logs:[],nextDay:0};}
+function defaultData(){return{v:1,settings:{barWeight:45,smallestPlate:0.5,benchGoal:300},weights:seedWeights(),failStreak:{},plan:{},notes:{},sync:{},logs:[],nextDay:0};}
+function validData(d){return d&&typeof d==='object'&&Array.isArray(d.logs)&&d.settings&&typeof d.settings==='object';}
+function merge(s){const b=defaultData();return {...b,...s,settings:{...b.settings,...(s.settings||{})}};}
+let LOAD_ERROR=null;
 let DATA=load();
-function load(){try{const d=localStorage.getItem(KEY);if(!d)return defaultData();const b=defaultData(),s=JSON.parse(d);
-  return {...b,...s,settings:{...b.settings,...(s.settings||{})}};}catch(e){return defaultData();}}
-function save(){localStorage.setItem(KEY,JSON.stringify(DATA));}
+function load(){
+  const raw=localStorage.getItem(KEY);
+  if(!raw)return defaultData();
+  try{
+    const s=JSON.parse(raw); if(!validData(s))throw new Error('bad shape');
+    localStorage.setItem(LASTGOOD,raw);            // this load is good — remember it
+    return merge(s);
+  }catch(e){
+    try{localStorage.setItem('shazam_corrupt_'+Date.now(),raw);}catch(_){}   // never lose the bytes
+    const lg=localStorage.getItem(LASTGOOD);
+    if(lg){try{const s=JSON.parse(lg);LOAD_ERROR='Your saved data was unreadable. I loaded your last good copy — back up now to be safe.';return merge(s);}catch(_){}}
+    LOAD_ERROR='Your saved data was unreadable and there was no local backup. Restore from GitHub in Settings, or start fresh.';
+    return defaultData();
+  }
+}
+function save(){
+  try{const txt=JSON.stringify(DATA);
+    const prev=localStorage.getItem(KEY); if(prev)localStorage.setItem(LASTGOOD,prev);  // keep the prior good state
+    localStorage.setItem(KEY,txt);return true;
+  }catch(e){toast('Save failed — export or back up now.','err');return false;}
+}
 
 /* ============ HELPERS ============ */
 function calc1RM(w,r){if(!w||!r)return 0;if(r==1)return w;return Math.round(w*(1+r/30));}
@@ -345,6 +368,7 @@ function roundLoad(w,x){
   return Math.round(w/5)*5; // machines/cables/dumbbells round to 5
 }
 function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
 /* ============ PAGES ============ */
 let SESSION=null;
@@ -358,12 +382,13 @@ function showPage(p){
   if(p==='history')renderHistory(); if(p==='plates')renderPlates(); if(p==='settings')renderSettings();
   updateHeader();
 }
+function syncDotClass(){if(!ghReady())return'off';const s=DATA.sync||{};if(s.err)return'bad';if(s.ok)return'ok';return'off';}
 function updateHeader(){
-  const e=lastBenchEst(); $('h-1rm').innerHTML=(e?e:'—')+'<span class="sync-dot '+(ghReady()?'ok':'off')+'" id="sync-dot"></span>';
+  const e=lastBenchEst(); $('h-1rm').innerHTML=(e?e:'—')+'<span class="sync-dot '+syncDotClass()+'" id="sync-dot"></span>';
 }
 function lastBenchEst(){
-  for(let i=DATA.logs.length-1;i>=0;i--){const e=DATA.logs[i].ex.find(x=>x.n==='Barbell Bench Press'&&x.sets.some(s=>s.status));
-    if(e){let best=0;e.sets.forEach(s=>{if(s.status&&s.reps){const v=calc1RM(s.weight,s.reps);if(v>best)best=v;}});if(best)return best;}}
+  for(let i=DATA.logs.length-1;i>=0;i--){const e=DATA.logs[i].ex.find(x=>x.n==='Barbell Bench Press'&&x.sets.some(s=>s.status==='done'));
+    if(e){let best=0;e.sets.forEach(s=>{if(s.status==='done'&&s.reps){const v=calc1RM(s.weight,s.reps);if(v>best)best=v;}});if(best)return best;}}
   return 0;
 }
 
@@ -425,11 +450,11 @@ function suggestWeight(x){
 function classify(x){
   const touched=x.sets.filter(s=>s.status);
   if(touched.length===0)return'skip';
-  const anyFail=x.sets.some(s=>s.status==='fail');           // a red X always counts as a stall
+  if(x.sets.some(s=>s.status==='fail'))return'miss';          // an explicit red X is the only stall
   const ok=x.sets.filter(s=>s.status==='done'&&+s.reps>0);
-  if(!anyFail&&ok.length>=x.s&&ok.every(s=>+s.reps>=x.hi))return'success';
-  if(!anyFail&&ok.length>=x.s&&ok.every(s=>+s.reps>=x.lo))return'hold';
-  return'miss';
+  if(ok.length===0)return'skip';
+  if(ok.length>=x.s&&ok.every(s=>+s.reps>=x.hi))return'success';
+  return'hold';                                               // completed but not all-top, OR fewer sets = hold (no penalty)
 }
 // update weight, fail streak, and next plan from a completed session exercise
 function updateProgression(x){
@@ -499,8 +524,8 @@ function exCard(x,i){
     ${sticky}
   </div>`;
 }
-function setWeight(i,v){SESSION.ex[i].weight=v;SESSION.ex[i].sets.forEach(s=>{if(!s.status)s.weight=+v;});savePending();renderActive();}
-function setReps(i,j,v){SESSION.ex[i].sets[j].reps=v?+v:'';savePending();}
+function setWeight(i,v){let n=Math.min(2000,Math.max(0,(+v||0)));SESSION.ex[i].weight=n;SESSION.ex[i].sets.forEach(s=>{if(!s.status)s.weight=n;});savePending();renderActive();}
+function setReps(i,j,v){let n=v===''?'':Math.min(50,Math.max(0,Math.round(+v||0)));SESSION.ex[i].sets[j].reps=n;savePending();}
 function setEffort(i,e){SESSION.ex[i].effort=SESSION.ex[i].effort===e?null:e;savePending();renderActive();}
 function saveNote(id,v){DATA.notes[id]=v;save();}
 function lastSessionFor(id){for(let i=DATA.logs.length-1;i>=0;i--){const e=DATA.logs[i].ex.find(x=>x.id===id&&x.sets.some(s=>s.status));if(e)return{date:DATA.logs[i].date,e};}return null;}
@@ -516,10 +541,11 @@ function buildWarmups(W,bar){
 }
 function setStatus(i,j,status,rest){
   const x=SESSION.ex[i],st=x.sets[j];
-  st.status=st.status===status?'':status;       // tap same again to clear
-  st.weight=+x.weight;
-  if(st.status&&!st.reps)st.reps=status==='done'?x.hi:x.lo;
-  if(st.status==='done')startRest(rest);
+  const was=st.status;
+  st.status=st.status===status?'':status;        // tap same again to clear
+  if(st.status&&!was)st.weight=+x.weight;         // stamp the weight ONLY when first marking, so toggling never rewrites it
+  if(st.status&&!st.reps)st.reps=x.lo;            // blank default = bottom of range (a completed-but-unconfirmed set holds, it never auto-progresses)
+  if(st.status==='done'&&!was)startRest(rest);
   savePending();renderActive();
 }
 function cancelWorkout(){confirmModal('Cancel workout?','Nothing will be saved.',()=>{SESSION=null;clearPending();closeModal();renderToday();});}
@@ -527,7 +553,7 @@ function finishWorkout(){
   const s=SESSION;const any=s.ex.some(x=>x.sets.some(st=>st.status));
   if(!any){toast('Mark at least one set first.','err');return;}
   DATA.logs.push({date:s.date,name:s.name,tag:s.tag,
-    ex:s.ex.map(x=>({n:x.n,id:x.id,effort:x.effort||'',sets:x.sets.map(st=>({weight:+st.weight||0,reps:+st.reps||0,status:st.status||''}))}))});
+    ex:s.ex.map(x=>({n:x.n,id:x.id,effort:x.effort||'',meta:{s:x.s,lo:x.lo,hi:x.hi,inc:x.inc,t:x.t},sets:x.sets.map(st=>({weight:+st.weight||0,reps:+st.reps||0,status:st.status||''}))}))});
   s.ex.forEach(x=>updateProgression(x));
   DATA.nextDay=(s.dayIdx+1)%PROGRAM.length; selDay=DATA.nextDay;
   SESSION=null;clearPending();save();stopRest();
@@ -565,7 +591,7 @@ function renderProgress(){
 }
 function setGoal(v){const g=+v;if(g>0){DATA.settings.benchGoal=g;save();renderProgress();updateHeader();}}
 function benchSeries(){const out=[];DATA.logs.forEach(l=>{const e=l.ex.find(x=>x.n==='Barbell Bench Press');
-  if(e){let best=0;e.sets.forEach(s=>{if(s.status&&s.reps){const v=calc1RM(s.weight,s.reps);if(v>best)best=v;}});if(best)out.push({d:l.date,v:best});}});return out;}
+  if(e){let best=0;e.sets.forEach(s=>{if(s.status==='done'&&s.reps){const v=calc1RM(s.weight,s.reps);if(v>best)best=v;}});if(best)out.push({d:l.date,v:best});}});return out;}
 function trendTxt(p){const diff=p[p.length-1].v-p[0].v;return(diff>=0?'+':'')+diff+' lb';}
 function chartSVG(pts,goal){
   const W=560,H=200,pad=34;
@@ -601,7 +627,7 @@ function renderHistory(){
       const fails=l.ex.reduce((a,x)=>a+x.sets.filter(s=>s.status==='fail').length,0);
       const vol=l.ex.reduce((a,x)=>a+x.sets.filter(s=>s.status).reduce((b,s)=>b+s.weight*s.reps,0),0);
       return`<div class="card hist" style="cursor:pointer" onclick="openEdit(${idx})"><div class="d">${new Date(l.date).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})} &nbsp;&rsaquo; edit</div>
-        <div class="n">${l.name} &bull; ${l.tag.split(' + ')[0]}</div>
+        <div class="n">${esc(l.name)} &bull; ${esc(l.tag.split(' + ')[0])}</div>
         <div class="stat">${sets} sets &bull; ${Math.round(vol).toLocaleString()} lb volume${fails?` &bull; <span style="color:var(--red)">${fails} failed</span>`:''}</div></div>`;
     }).join('');
 }
@@ -611,12 +637,12 @@ function renderEdit(el){
   const idx=EDIT,l=DATA.logs[idx];
   el.innerHTML=`
     <div class="card hero"><div class="eyebrow">Editing &bull; ${new Date(l.date).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</div>
-      <div class="title-l" style="color:#fff;">${l.name} &mdash; ${l.tag.split(' + ')[0]}</div>
+      <div class="title-l" style="color:#fff;">${esc(l.name)} &mdash; ${esc(l.tag.split(' + ')[0])}</div>
       <div class="sub">Changes recompute your progression automatically.</div></div>
     ${l.ex.map((le,ei)=>{
       const m=METABYID[le.id]||{lo:'',hi:''};
       return`<div class="card ex">
-        <div class="ex-name" style="margin-bottom:8px;">${le.n}</div>
+        <div class="ex-name" style="margin-bottom:8px;">${esc(le.n)}</div>
         <div class="sets">${le.sets.map((st,si)=>`
           <div class="set"><span class="set-n">${si+1}</span>
             <input class="ew" type="number" inputmode="decimal" value="${st.weight||''}" onchange="editSet(${ei},${si},'weight',this.value)">
@@ -632,7 +658,9 @@ function renderEdit(el){
     <button class="btn btn-bolt" onclick="closeEdit()">Done</button>
     <button class="btn btn-ghost" style="margin-top:10px;color:var(--red)" onclick="deleteSession(${idx})">Delete this workout</button>`;
 }
-function commitEdit(){recomputeProgression();save();if(ghReady())autoSync();updateHeader();}
+let syncTimer=null;
+function debouncedSync(){if(!ghReady())return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>autoSync(),2500);}
+function commitEdit(){recomputeProgression();save();debouncedSync();updateHeader();}
 function editSet(ei,si,field,v){const st=DATA.logs[EDIT].ex[ei].sets[si];st[field]=v?+v:0;commitEdit();}
 function editStatus(ei,si,status){const st=DATA.logs[EDIT].ex[ei].sets[si];st.status=st.status===status?'':status;commitEdit();renderHistory();}
 function editEffort(ei,e){const le=DATA.logs[EDIT].ex[ei];le.effort=le.effort===e?'':e;commitEdit();renderHistory();}
@@ -659,7 +687,7 @@ function renderSettings(){
       <div class="field"><label>Bench 1RM goal (lb)</label><input class="full" type="number" value="${DATA.settings.benchGoal}" onchange="setSetting('benchGoal',this.value)"></div>
     </div>
     <div class="card"><div class="eyebrow" style="margin-bottom:6px;">&#9889; GitHub Backup</div>
-      <div class="help" style="margin-bottom:14px;">Auto-saves your data to your repo after every workout. The token is like a password \u2014 see setup notes.</div>
+      <div class="help" style="margin-bottom:14px;">Auto-saves your data after every workout. <b>Use a separate <u>private</u> repo (not the one that hosts the app)</b>, with a token scoped only to it. The token is like a password.</div>
       <div class="field"><label>GitHub username</label><input class="full" type="text" id="gh-user" value="${g.user}" placeholder="billv1084-netizen"></div>
       <div class="field"><label>Repository name</label><input class="full" type="text" id="gh-repo" value="${g.repo}" placeholder="shazam"></div>
       <div class="field"><label>Access token</label><input class="full" type="password" id="gh-token" value="${g.token}" placeholder="github_pat_..."></div>
@@ -674,7 +702,7 @@ function renderSettings(){
     </div>`;
 }
 function setSetting(k,v){DATA.settings[k]=+v;save();toast('Saved');}
-function resetAll(){confirmModal('Reset everything?','All logs and weights will be erased. This cannot be undone (unless you have a backup).',()=>{DATA=defaultData();save();closeModal();showPage('today');toast('Reset complete');});}
+function resetAll(){confirmModal('Reset everything?','All logs and weights will be erased. This cannot be undone (unless you have a backup).',()=>{localStorage.removeItem('shazam_pending');DATA=defaultData();SESSION=null;save();closeModal();showPage('today');toast('Reset complete');});}
 
 /* ---- GITHUB SYNC (mirrors IRON 300 flow) ---- */
 function ghCfg(){return{token:localStorage.getItem('shz_token')||'',user:localStorage.getItem('shz_user')||'billv1084-netizen',repo:localStorage.getItem('shz_repo')||'shazam',last:localStorage.getItem('shz_last')||''};}
@@ -690,16 +718,25 @@ async function syncTo(fb){
   const g=ghCfg();if(!ghReady()){toast('Set up backup first','err');return false;}
   try{
     const data=localStorage.getItem(KEY)||'{}';
-    const content=btoa(Array.from(new TextEncoder().encode(data),b=>String.fromCharCode(b)).join(''));
     const url='https://api.github.com/repos/'+g.user+'/'+g.repo+'/contents/shazam_data.json';
     const h={'Authorization':'token '+g.token,'Accept':'application/vnd.github+json'};
-    let sha=null;const gr=await fetch(url,{headers:h});if(gr.ok)sha=(await gr.json()).sha;
+    let sha=null,remoteLogs=-1;
+    const gr=await fetch(url,{headers:h});
+    if(gr.ok){const j=await gr.json();sha=j.sha;
+      try{const rt=new TextDecoder().decode(Uint8Array.from(atob(j.content.replace(/\n/g,'')),c=>c.charCodeAt(0)));const rj=JSON.parse(rt);remoteLogs=Array.isArray(rj.logs)?rj.logs.length:-1;}catch(_){}}
+    // SAFETY: never clobber a non-empty remote backup with an empty/near-empty local dataset
+    if((DATA.logs||[]).length===0 && remoteLogs>0){
+      DATA.sync={ok:false,err:'guard',at:Date.now()};updateHeader();
+      toast('Backup blocked: local is empty but your remote has data. Restore instead.','err');return false;
+    }
+    const content=btoa(Array.from(new TextEncoder().encode(data),b=>String.fromCharCode(b)).join(''));
     const body={message:'shazam backup '+new Date().toISOString().slice(0,16).replace('T',' '),content};if(sha)body.sha=sha;
     const pr=await fetch(url,{method:'PUT',headers:{...h,'Content-Type':'application/json'},body:JSON.stringify(body)});
-    if(pr.ok){localStorage.setItem('shz_last',new Date().toISOString());updateHeader();
+    if(pr.ok){DATA.sync={ok:true,err:null,at:Date.now()};localStorage.setItem('shz_last',new Date().toISOString());updateHeader();
       if(fb){toast('&#9889; Backed up','ok');renderSettings();}return true;}
-    const er=await pr.json();if(fb)toast('Backup failed: '+(er.message||pr.status),'err');return false;
-  }catch(e){if(fb)toast('Error: '+e.message,'err');return false;}
+    const er=await pr.json();DATA.sync={ok:false,err:(er.message||pr.status),at:Date.now()};updateHeader();
+    toast('Backup failed: '+(er.message||pr.status),'err');return false;   // always surface failures, even auto-sync
+  }catch(e){DATA.sync={ok:false,err:e.message,at:Date.now()};updateHeader();toast('Backup error: '+e.message,'err');return false;}
 }
 function autoSync(){syncTo(false);}
 async function syncFrom(){
@@ -709,7 +746,11 @@ async function syncFrom(){
     const r=await fetch(url,{headers:{'Authorization':'token '+g.token,'Accept':'application/vnd.github+json'}});
     if(!r.ok){toast('No backup found','err');return;}
     const j=await r.json();const txt=new TextDecoder().decode(Uint8Array.from(atob(j.content.replace(/\n/g,'')),c=>c.charCodeAt(0)));
-    confirmModal('Restore from backup?','This replaces what is on your phone with the backed-up data.',()=>{
+    let parsed;try{parsed=JSON.parse(txt);}catch(_){toast('Backup file is corrupt — restore aborted.','err');return;}
+    if(!validData(parsed)){toast('Backup looks invalid (no logs) — restore aborted.','err');return;}
+    const n=parsed.logs.length,when=parsed.logs.length?new Date(parsed.logs[parsed.logs.length-1].date).toLocaleDateString():'—';
+    confirmModal('Restore this backup?',`${n} workouts, latest ${when}. This replaces what's on your phone (your current data is kept as a safety copy).`,()=>{
+      localStorage.setItem('shazam_prerestore_'+Date.now(),localStorage.getItem(KEY)||'');
       localStorage.setItem(KEY,txt);DATA=load();closeModal();showPage('today');toast('Restored from backup','ok');});
   }catch(e){toast('Error: '+e.message,'err');}
 }
@@ -731,7 +772,7 @@ function pcPlates(total,barW){
   return out;
 }
 function renderPlates(){
-  const start=DATA.weights['Barbell Bench Press']||135;
+  const start=DATA.weights['1_barbellbenchpress']||DATA.weights['4_barbellbenchpress']||135;
   $('page-plates').innerHTML=`
     <div class="card hero"><div class="eyebrow">Tool</div><div class="title-xl" style="color:#fff;">Plate Calculator</div>
       <div class="sub">What to load on each side</div></div>
@@ -776,10 +817,16 @@ function pcCalc(){
 }
 
 /* ---- INIT ---- */
-if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+  let reloaded=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!reloaded){reloaded=true;location.reload();}});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{});});
+}
 // recover a live workout if iOS reloaded us from the background
 try{const pend=localStorage.getItem('shazam_pending');if(pend){const p=JSON.parse(pend);if(p&&p.ex)SESSION=p;}}catch(e){}
 renderToday();updateHeader();
+if(LOAD_ERROR)setTimeout(()=>toast(LOAD_ERROR,'err'),400);   // tell the user loudly if data was corrupt
 </script>
 </body>
 </html>

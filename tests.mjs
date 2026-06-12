@@ -27,7 +27,7 @@ function bench(reps,effort,status='done',w=240){
   for(let i=1;i<SESSION.ex.length;i++)SESSION.ex[i].sets.forEach(s=>s.status='');
   finishWorkout(); return DATA.plan['1_barbellbenchpress'];
 }
-function fresh(){ for(const k in (global.__mem||{})){} DATA=defaultData(); DATA.logs=[]; DATA.weights={}; DATA.plan={}; DATA.failStreak={}; }
+function fresh(){ DATA=defaultData(); DATA.logs=[]; DATA.weights={}; DATA.plan={}; DATA.failStreak={}; }
 
 // 1. failed set must NOT count toward estimated 1RM
 fresh(); bench([6,6,6,6],'ok','fail',225);
@@ -69,15 +69,39 @@ recomputeProgression();
 ok('recompute uses log snapshot (hi=5 -> success)', DATA.plan['1_barbellbenchpress'].kind==='up');
 
 // 8. plate math (canonical cases for his plates)
-ok('plate 225 olympic', plateBreakdown(225,45,0.5)==='2\\u00d745 /side'.replace('\\\\u00d7','\\u00d7'));
-ok('plate 231 uses microplates', /0\\.5/.test(plateBreakdown(231,45,0.5)));
+ok('plate 225 olympic', plateBreakdown(225,45,0.5)==='2\u00d745 /side');
+ok('plate 231 uses microplates', /0\.5/.test(plateBreakdown(231,45,0.5)));
+
+// 8b. history-edit inputs are clamped (the back-door garbage path)
+fresh();
+DATA.logs=[{date:new Date().toISOString(),name:'Day 1',tag:'x',ex:[
+  {n:'Barbell Bench Press',id:'1_barbellbenchpress',effort:'ok',meta:{s:4,lo:4,hi:6,inc:1,t:'barbell'},sets:[{weight:225,reps:5,status:'done'}]}]}];
+EDIT=0;
+editSet(0,0,'weight',2350); ok('editSet clamps weight', DATA.logs[0].ex[0].sets[0].weight===2000);
+editSet(0,0,'reps',500);    ok('editSet clamps reps',   DATA.logs[0].ex[0].sets[0].reps===50);
+EDIT=null;
+
+// 8c. migration backfills meta onto pre-v1.7 logs (no retroactive reinterpretation later)
+localStorage.setItem('shazam_data', JSON.stringify({v:1,settings:{benchGoal:300},weights:{},logs:[
+  {date:new Date().toISOString(),name:'Day 1',tag:'x',ex:[{n:'Barbell Bench Press',id:'1_barbellbenchpress',effort:'ok',sets:[{weight:200,reps:5,status:'done'}]}]}]}));
+const mig=load();
+ok('migrate backfills meta on legacy logs', !!(mig.logs[0].ex[0].meta) && mig.logs[0].ex[0].meta.hi===6 && mig.v===2);
 
 // 9. corrupt localStorage -> last-good restore + LOAD_ERROR
-localStorage.setItem('shazam_lastgood', JSON.stringify({v:1,settings:{benchGoal:300},logs:[],weights:{}}));
+localStorage.setItem('shazam_lastgood', JSON.stringify({v:2,settings:{benchGoal:300},logs:[],weights:{}}));
 localStorage.setItem('shazam_data', 'this is not json{{');
 LOAD_ERROR=null; const recovered=load();
 ok('corrupt load recovers last-good', Array.isArray(recovered.logs));
 ok('corrupt load sets a loud LOAD_ERROR', !!LOAD_ERROR);
+
+// 9b. save() must never promote a corrupt blob into last-good
+localStorage.setItem('shazam_lastgood', JSON.stringify({v:2,settings:{benchGoal:300},logs:[],weights:{}}));
+localStorage.setItem('shazam_data', 'corrupt{{');
+DATA=load();                                   // recovers from last-good (KEY is corrupt)
+DATA.logs.push({date:new Date().toISOString(),name:'Day 1',tag:'x',ex:[]});
+save();
+let lgGood=false; try{lgGood=JSON.parse(localStorage.getItem('shazam_lastgood')).logs.length===1;}catch(_){}
+ok('save never poisons last-good with a corrupt blob', lgGood);
 
 // 10. sync refuses to overwrite a non-empty remote with an empty local dataset
 (async()=>{

@@ -1,4 +1,4 @@
-const CACHE = 'shazam-v1.7';
+const CACHE = 'shazam-v1.8';
 const SHELL = ['./', 'index.html', 'manifest.json', 'icon-180.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -18,7 +18,6 @@ self.addEventListener('activate', e => {
   );
 });
 
-self.addEventListener('message', e => { if (e.data === 'skipWaiting') self.skipWaiting(); });
 
 self.addEventListener('fetch', e => {
   const req = e.request;

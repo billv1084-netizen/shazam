@@ -214,7 +214,7 @@ svg{display:block;width:100%;}
 <body>
 
 <div class="header">
-  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v1.7</span></div>
+  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v1.8</span></div>
   <div class="hstat">
     <div class="hstat-l">Est. Bench 1RM</div>
     <div class="hstat-v" id="h-1rm">—<span class="sync-dot off" id="sync-dot"></span></div>
@@ -316,7 +316,7 @@ function recomputeProgression(){
 }
 
 /* ============ DATA ============ */
-const KEY='shazam_data', LASTGOOD='shazam_lastgood';
+const KEY='shazam_data', LASTGOOD='shazam_lastgood', SCHEMA=2;
 // Starting weights seeded from the IRON 300 export (used only on first launch / full reset).
 function seedWeights(){return{
   '1_barbellbenchpress':235, '1_hammerstrengthchestpress':130, '1_pecdeck':120,
@@ -326,9 +326,16 @@ function seedWeights(){return{
   '4_barbellbenchpress':205, '4_latpulldown':160, '4_machinechestsupportedrow':245,
   '4_pecdeck':120, '4_facepullreardelt':60, '4_cablecurl':65, '4_ropepushdown':70
 };}
-function defaultData(){return{v:1,settings:{barWeight:45,smallestPlate:0.5,benchGoal:300},weights:seedWeights(),failStreak:{},plan:{},notes:{},sync:{},logs:[],nextDay:0};}
-function validData(d){return d&&typeof d==='object'&&Array.isArray(d.logs)&&d.settings&&typeof d.settings==='object';}
+function defaultData(){return{v:SCHEMA,settings:{barWeight:45,smallestPlate:0.5,benchGoal:300},weights:seedWeights(),failStreak:{},plan:{},notes:{},sync:{},logs:[],nextDay:0};}
+function validData(d){return d&&typeof d==='object'&&Array.isArray(d.logs)&&d.logs.every(l=>l&&typeof l==='object'&&Array.isArray(l.ex))&&d.settings&&typeof d.settings==='object';}
 function merge(s){const b=defaultData();return {...b,...s,settings:{...b.settings,...(s.settings||{})}};}
+// backfill rep-scheme snapshots onto pre-v1.7 logs so future program edits can't reinterpret them
+function migrate(d){
+  if((d.v||1)<2){(d.logs||[]).forEach(l=>(l.ex||[]).forEach(le=>{
+    if(!le.meta){const m=METABYID[le.id];if(m)le.meta={s:m.s,lo:m.lo,hi:m.hi,inc:m.inc,t:m.t};}
+  }));}
+  d.v=SCHEMA;return d;
+}
 let LOAD_ERROR=null;
 let DATA=load();
 function load(){
@@ -337,19 +344,20 @@ function load(){
   try{
     const s=JSON.parse(raw); if(!validData(s))throw new Error('bad shape');
     localStorage.setItem(LASTGOOD,raw);            // this load is good — remember it
-    return merge(s);
+    return migrate(merge(s));
   }catch(e){
     try{localStorage.setItem('shazam_corrupt_'+Date.now(),raw);}catch(_){}   // never lose the bytes
     const lg=localStorage.getItem(LASTGOOD);
-    if(lg){try{const s=JSON.parse(lg);LOAD_ERROR='Your saved data was unreadable. I loaded your last good copy — back up now to be safe.';return merge(s);}catch(_){}}
+    if(lg){try{const s=JSON.parse(lg);if(validData(s)){LOAD_ERROR='Your saved data was unreadable. I loaded your last good copy — back up now to be safe.';return migrate(merge(s));}}catch(_){}}
     LOAD_ERROR='Your saved data was unreadable and there was no local backup. Restore from GitHub in Settings, or start fresh.';
     return defaultData();
   }
 }
 function save(){
   try{const txt=JSON.stringify(DATA);
-    const prev=localStorage.getItem(KEY); if(prev)localStorage.setItem(LASTGOOD,prev);  // keep the prior good state
-    localStorage.setItem(KEY,txt);return true;
+    localStorage.setItem(KEY,txt);
+    try{localStorage.setItem(LASTGOOD,txt);}catch(_){}   // last-good only ever gets a just-written, valid copy
+    return true;
   }catch(e){toast('Save failed — export or back up now.','err');return false;}
 }
 
@@ -361,7 +369,6 @@ function plateBreakdown(weight,bar,smallest){
   let out=[]; for(const p of plates){let c=0;while(perSide+1e-6>=p){perSide-=p;c++;}if(c)out.push(c+'\u00d7'+p);}
   return out.length?out.join(' + ')+' /side':'just the bar';
 }
-function lastLogFor(name){for(let i=DATA.logs.length-1;i>=0;i--){const e=DATA.logs[i].ex.find(x=>x.n===name);if(e)return e;}return null;}
 function roundLoad(w,x){
   if(x.t==='barbell'){const bar=DATA.settings.barWeight,inc=DATA.settings.smallestPlate*2;
     if(w<=bar)return bar;return bar+Math.round((w-bar)/inc)*inc;}
@@ -490,8 +497,8 @@ function exCard(x,i){
   const hint=x.suggest&&x.suggest.msg?`<div class="hint ${hk}">${x.suggest.msg}</div>`:'';
   const note=x.note?`<div class="prev" style="color:var(--red);">&#9888; ${x.note}</div>`:'';
   const ls=lastSessionFor(x.id);
-  const last=ls?`<div class="last">Last ${fmtD(ls.date)}: ${ls.e.sets.filter(s=>s.status).map(s=>`${s.weight}\u00d7${s.reps}${s.status==='fail'?'\u2717':''}`).join('  \u00b7  ')}${ls.e.effort?`  \u2014  felt <b>${ls.e.effort.toUpperCase()}</b>`:''}</div>`:'';
-  const sticky=`<div class="sticky"><textarea placeholder="Sticky note \u2014 you'll see this next time (e.g. form broke on set 4, hold here)" oninput="saveNote('${x.id}',this.value)">${(DATA.notes[x.id]||'').replace(/</g,'&lt;')}</textarea></div>`;
+  const last=ls?`<div class="last">Last ${fmtD(ls.date)}: ${ls.e.sets.filter(s=>s.status).map(s=>`${esc(s.weight)}\u00d7${esc(s.reps)}${s.status==='fail'?'\u2717':''}`).join('  \u00b7  ')}${ls.e.effort?`  \u2014  felt <b>${esc(String(ls.e.effort).toUpperCase())}</b>`:''}</div>`:'';
+  const sticky=`<div class="sticky"><textarea placeholder="Sticky note \u2014 you'll see this next time (e.g. form broke on set 4, hold here)" oninput="saveNote('${x.id}',this.value)">${esc(DATA.notes[x.id]||'')}</textarea></div>`;
   let warm='';
   if(x.t==='barbell'&&x.primary&&+x.weight>bar){
     const wu=buildWarmups(+x.weight,bar);
@@ -661,7 +668,9 @@ function renderEdit(el){
 let syncTimer=null;
 function debouncedSync(){if(!ghReady())return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>autoSync(),2500);}
 function commitEdit(){recomputeProgression();save();debouncedSync();updateHeader();}
-function editSet(ei,si,field,v){const st=DATA.logs[EDIT].ex[ei].sets[si];st[field]=v?+v:0;commitEdit();}
+function editSet(ei,si,field,v){const st=DATA.logs[EDIT].ex[ei].sets[si];
+  let n=+v||0; n=field==='reps'?Math.min(50,Math.max(0,Math.round(n))):Math.min(2000,Math.max(0,n));
+  st[field]=n;commitEdit();}
 function editStatus(ei,si,status){const st=DATA.logs[EDIT].ex[ei].sets[si];st.status=st.status===status?'':status;commitEdit();renderHistory();}
 function editEffort(ei,e){const le=DATA.logs[EDIT].ex[ei];le.effort=le.effort===e?'':e;commitEdit();renderHistory();}
 function deleteSession(idx){confirmModal('Delete this workout?','It will be removed and your progression recalculated.',()=>{DATA.logs.splice(idx,1);EDIT=null;recomputeProgression();save();if(ghReady())autoSync();closeModal();showPage('history');updateHeader();toast('Workout deleted','ok');});}
@@ -688,9 +697,9 @@ function renderSettings(){
     </div>
     <div class="card"><div class="eyebrow" style="margin-bottom:6px;">&#9889; GitHub Backup</div>
       <div class="help" style="margin-bottom:14px;">Auto-saves your data after every workout. <b>Use a separate <u>private</u> repo (not the one that hosts the app)</b>, with a token scoped only to it. The token is like a password.</div>
-      <div class="field"><label>GitHub username</label><input class="full" type="text" id="gh-user" value="${g.user}" placeholder="billv1084-netizen"></div>
-      <div class="field"><label>Repository name</label><input class="full" type="text" id="gh-repo" value="${g.repo}" placeholder="shazam"></div>
-      <div class="field"><label>Access token</label><input class="full" type="password" id="gh-token" value="${g.token}" placeholder="github_pat_..."></div>
+      <div class="field"><label>GitHub username</label><input class="full" type="text" id="gh-user" value="${esc(g.user)}" placeholder="billv1084-netizen"></div>
+      <div class="field"><label>Repository name</label><input class="full" type="text" id="gh-repo" value="${esc(g.repo)}" placeholder="shazam-backup"></div>
+      <div class="field"><label>Access token</label><input class="full" type="password" id="gh-token" value="${esc(g.token)}" placeholder="github_pat_..."></div>
       <button class="btn btn-primary btn-sm" style="width:100%" onclick="saveGh()">Save backup settings</button>
       <div class="btn-row" style="margin-top:10px;">
         <button class="btn btn-ghost btn-sm" style="flex:1" onclick="syncTo(true)">&#8593; Back up now</button>
@@ -708,12 +717,15 @@ function resetAll(){confirmModal('Reset everything?','All logs and weights will 
 function ghCfg(){return{token:localStorage.getItem('shz_token')||'',user:localStorage.getItem('shz_user')||'billv1084-netizen',repo:localStorage.getItem('shz_repo')||'shazam',last:localStorage.getItem('shz_last')||''};}
 function ghReady(){const g=ghCfg();return!!(g.token&&g.user&&g.repo);}
 function saveGh(){
+  const repo=$('gh-repo').value.trim();
   localStorage.setItem('shz_token',$('gh-token').value.trim());
   localStorage.setItem('shz_user',$('gh-user').value.trim());
-  localStorage.setItem('shz_repo',$('gh-repo').value.trim());
-  toast(ghReady()?'Backup settings saved':'Fill all three fields',ghReady()?'ok':'err');
+  localStorage.setItem('shz_repo',repo);
+  if(repo==='shazam'){toast('Warning: that is the public app repo. Use a separate PRIVATE repo for backups.','err');}
+  else toast(ghReady()?'Backup settings saved':'Fill all three fields',ghReady()?'ok':'err');
   updateHeader();renderSettings();
 }
+function markSync(o){DATA.sync=o;save();updateHeader();}
 async function syncTo(fb){
   const g=ghCfg();if(!ghReady()){toast('Set up backup first','err');return false;}
   try{
@@ -726,17 +738,17 @@ async function syncTo(fb){
       try{const rt=new TextDecoder().decode(Uint8Array.from(atob(j.content.replace(/\n/g,'')),c=>c.charCodeAt(0)));const rj=JSON.parse(rt);remoteLogs=Array.isArray(rj.logs)?rj.logs.length:-1;}catch(_){}}
     // SAFETY: never clobber a non-empty remote backup with an empty/near-empty local dataset
     if((DATA.logs||[]).length===0 && remoteLogs>0){
-      DATA.sync={ok:false,err:'guard',at:Date.now()};updateHeader();
+      markSync({ok:false,err:'guard',at:Date.now()});
       toast('Backup blocked: local is empty but your remote has data. Restore instead.','err');return false;
     }
     const content=btoa(Array.from(new TextEncoder().encode(data),b=>String.fromCharCode(b)).join(''));
     const body={message:'shazam backup '+new Date().toISOString().slice(0,16).replace('T',' '),content};if(sha)body.sha=sha;
     const pr=await fetch(url,{method:'PUT',headers:{...h,'Content-Type':'application/json'},body:JSON.stringify(body)});
-    if(pr.ok){DATA.sync={ok:true,err:null,at:Date.now()};localStorage.setItem('shz_last',new Date().toISOString());updateHeader();
+    if(pr.ok){localStorage.setItem('shz_last',new Date().toISOString());markSync({ok:true,err:null,at:Date.now()});
       if(fb){toast('&#9889; Backed up','ok');renderSettings();}return true;}
-    const er=await pr.json();DATA.sync={ok:false,err:(er.message||pr.status),at:Date.now()};updateHeader();
+    const er=await pr.json();markSync({ok:false,err:(er.message||pr.status),at:Date.now()});
     toast('Backup failed: '+(er.message||pr.status),'err');return false;   // always surface failures, even auto-sync
-  }catch(e){DATA.sync={ok:false,err:e.message,at:Date.now()};updateHeader();toast('Backup error: '+e.message,'err');return false;}
+  }catch(e){markSync({ok:false,err:e.message,at:Date.now()});toast('Backup error: '+e.message,'err');return false;}
 }
 function autoSync(){syncTo(false);}
 async function syncFrom(){
@@ -825,6 +837,7 @@ if('serviceWorker' in navigator){
 }
 // recover a live workout if iOS reloaded us from the background
 try{const pend=localStorage.getItem('shazam_pending');if(pend){const p=JSON.parse(pend);if(p&&p.ex)SESSION=p;}}catch(e){}
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist();}catch(_){}  // best-effort against storage eviction
 renderToday();updateHeader();
 if(LOAD_ERROR)setTimeout(()=>toast(LOAD_ERROR,'err'),400);   // tell the user loudly if data was corrupt
 </script>

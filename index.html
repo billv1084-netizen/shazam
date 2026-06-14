@@ -214,7 +214,7 @@ svg{display:block;width:100%;}
 <body>
 
 <div class="header">
-  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v1.8</span></div>
+  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v1.9</span></div>
   <div class="hstat">
     <div class="hstat-l">Est. Bench 1RM</div>
     <div class="hstat-v" id="h-1rm">—<span class="sync-dot off" id="sync-dot"></span></div>
@@ -258,44 +258,46 @@ svg{display:block;width:100%;}
 /* ============ PROGRAM (data-driven) ============ */
 const PROGRAM = [
   { name:'Day 1', tag:'Bench Strength + Chest / Delts / Triceps', ex:[
-    {n:'Barbell Bench Press',t:'barbell',s:4,lo:4,hi:6,rest:'full',prog:'micro',inc:1,primary:1},
-    {n:'Incline Barbell / Smith Press',t:'barbell',s:3,lo:6,hi:10,rest:'full',inc:5},
+    {n:'Barbell Bench Press',t:'barbell',s:3,lo:4,hi:6,rest:'full',inc:1,primary:1,gate:'loose',
+      cue:'Ramp to 1 heavy single @ RPE 7\u20138 (leave gas in the tank), then your 3 working sets below. The single is skill practice \u2014 don\u2019t grind it.'},
+    {n:'Hammer Incline Press',id:'1_inclinebarbellsmithpress',t:'machine',s:3,lo:6,hi:10,rest:'full',inc:5},
     {n:'Hammer Strength Chest Press',t:'machine',s:3,lo:8,hi:12,rest:'short',inc:5},
-    {n:'Pec Deck',t:'machine',s:2,lo:10,hi:12,rest:'short',inc:5},
-    {n:'Cable Lateral Raise',t:'cable',s:3,lo:10,hi:12,rest:'short',inc:5},
-    {n:'Rope Triceps Pushdown',t:'cable',s:3,lo:8,hi:12,rest:'short',inc:5},
-    {n:'Cable Overhead Triceps Ext.',t:'cable',s:2,lo:8,hi:12,rest:'short',inc:5},
+    {n:'Cable Lateral Raise',t:'cable',s:3,lo:10,hi:15,rest:'short',inc:2.5},
+    {n:'JM Press',t:'barbell',s:3,lo:6,hi:10,rest:'short',inc:5,
+      cue:'Heavy, elbow-friendly triceps. Keep it tight \u2014 not a skull crusher.'},
   ]},
   { name:'Day 2', tag:'Back Width + Arms', ex:[
     {n:'Neutral-Grip Lat Pulldown',t:'machine',s:4,lo:8,hi:12,rest:'full',inc:5},
     {n:'Chest-Supported Row',t:'machine',s:4,lo:6,hi:10,rest:'full',inc:5},
-    {n:'One-Arm Cable Row',t:'cable',s:3,lo:8,hi:12,rest:'short',inc:5},
     {n:'Straight-Arm Pulldown',t:'cable',s:2,lo:10,hi:12,rest:'short',inc:5},
-    {n:'Rear Delt Machine',t:'machine',s:3,lo:10,hi:12,rest:'short',inc:5},
+    {n:'Rear Delt Machine',t:'machine',s:3,lo:10,hi:15,rest:'short',inc:2.5},
     {n:'EZ-Bar / Cable Curl',t:'cable',s:3,lo:8,hi:12,rest:'short',inc:5},
     {n:'Hammer Curl',t:'dumbbell',s:2,lo:8,hi:12,rest:'short',inc:5},
   ]},
-  { name:'Day 3', tag:'Lower (Back-Safe) + Shoulders', ex:[
-    {n:'Hack Squat',t:'machine',s:4,lo:4,hi:6,rest:'full',prog:'big',inc:10,primary:1,
-      note:'1\u20132 reps in reserve. No hips off the pad, no bounce. Kill the set if form slips.'},
+  { name:'Day 3', tag:'Posterior Chain + Lower + Shoulders', ex:[
+    {n:'Hack Squat',t:'machine',s:4,lo:6,hi:10,rest:'full',inc:10,primary:1,
+      note:'1\u20132 reps in reserve. Pelvis stays on the pad \u2014 no tuck at the bottom. Kill the set if form slips.'},
+    {n:'Hip Thrust',t:'machine',s:3,lo:8,hi:12,rest:'full',inc:10,
+      cue:'Ribs down, brace, full lockout \u2014 squeeze the glutes, don\u2019t hyperextend the low back.'},
+    {n:'45\u00b0 Back Extension',t:'machine',s:3,lo:10,hi:15,rest:'short',inc:5,
+      cue:'Bodyweight to start (leave weight blank). Neutral spine, glute-focused. Add a held plate only once 15 is easy.'},
     {n:'Seated / Lying Leg Curl',t:'machine',s:3,lo:8,hi:12,rest:'short',inc:5},
-    {n:'Leg Extension',t:'machine',s:3,lo:8,hi:12,rest:'short',inc:5},
-    {n:'Calf Raise',t:'machine',s:3,lo:8,hi:12,rest:'short',inc:5},
+    {n:'Leg Extension',t:'machine',s:2,lo:8,hi:12,rest:'short',inc:5},
+    {n:'Seated Calf Raise',t:'machine',s:3,lo:10,hi:15,rest:'short',inc:5},
     {n:'Hammer Strength Shoulder Press',t:'machine',s:3,lo:6,hi:10,rest:'full',inc:5},
-    {n:'Cable Lateral Raise',t:'cable',s:2,lo:10,hi:12,rest:'short',inc:5},
-    {n:'Pallof / Dead Bug / Carry',t:'core',s:3,lo:10,hi:12,rest:'short',inc:0,
-      note:'Anti-movement core \u2014 keep the spine neutral. No loaded crunches.'},
+    {n:'Pallof Press / Dead Bug',t:'core',s:3,lo:10,hi:15,rest:'short',inc:0,
+      note:'Anti-movement core \u2014 keep the spine neutral. No loaded crunches, no heavy carries.'},
   ]},
-  { name:'Day 4', tag:'Second Bench Exposure + Width / Arms', ex:[
-    {n:'Barbell Bench Press',t:'barbell',s:3,lo:6,hi:10,rest:'full',inc:5,primary:1,
-      note:'Lighter than Day 1 \u2014 a volume exposure, not a max effort.'},
+  { name:'Day 4', tag:'Second Bench (Volume) + Width / Arms', ex:[
+    {n:'Barbell Bench Press',t:'barbell',s:4,lo:6,hi:8,rest:'full',inc:1,primary:1,gate:'loose',
+      cue:'Volume day, ~90% of your Day 1 working weight. 1\u20132 reps in reserve, crisp reps \u2014 not a second max day.'},
     {n:'Lat Pulldown',t:'machine',s:3,lo:8,hi:12,rest:'full',inc:5},
     {n:'Machine / Chest-Supported Row',t:'machine',s:3,lo:8,hi:12,rest:'short',inc:5},
     {n:'Pec Deck',t:'machine',s:2,lo:10,hi:12,rest:'short',inc:5},
-    {n:'Cable Lateral Raise',t:'cable',s:3,lo:10,hi:12,rest:'short',inc:5},
-    {n:'Face Pull / Rear Delt',t:'cable',s:3,lo:10,hi:12,rest:'short',inc:5},
-    {n:'Cable Curl',t:'cable',s:2,lo:8,hi:12,rest:'short',inc:5},
-    {n:'Rope Pushdown',t:'cable',s:2,lo:8,hi:12,rest:'short',inc:5},
+    {n:'Cable Lateral Raise',t:'cable',s:3,lo:10,hi:15,rest:'short',inc:2.5},
+    {n:'Face Pull / Rear Delt',t:'cable',s:3,lo:10,hi:15,rest:'short',inc:2.5},
+    {n:'Skull Crusher',t:'barbell',s:3,lo:8,hi:12,rest:'short',inc:5,
+      cue:'Long-head stretch work. EZ bar, slow eccentric, elbows tucked. Stop if the elbows complain.'},
   ]},
 ];
 // give every slot a unique id (so Day-1 and Day-4 bench track separately)
@@ -308,11 +310,13 @@ const METABYID={}; PROGRAM.forEach(d=>d.ex.forEach(x=>METABYID[x.id]=x));
 // Logs are the source of truth. Each log carries its own rep-scheme snapshot (le.meta),
 // so old sessions are judged by the rules in force when they happened, not today's.
 function recomputeProgression(){
-  DATA.weights={}; DATA.failStreak={}; DATA.plan={};
-  DATA.logs.forEach(l=>l.ex.forEach(le=>{
-    const meta=le.meta||METABYID[le.id]; if(!meta)return;
-    updateProgression({...meta,id:le.id,effort:le.effort,sets:le.sets});
-  }));
+  DATA.weights={}; DATA.failStreak={}; DATA.plan={}; DATA.holds={};
+  DATA.logs.forEach(l=>{ if(l.deload)return;           // deload weeks are intentionally light — don't let them move progression
+    l.ex.forEach(le=>{
+      const meta=le.meta||METABYID[le.id]; if(!meta)return;
+      updateProgression({...meta,id:le.id,effort:le.effort,sets:le.sets});
+    });
+  });
 }
 
 /* ============ DATA ============ */
@@ -326,7 +330,7 @@ function seedWeights(){return{
   '4_barbellbenchpress':205, '4_latpulldown':160, '4_machinechestsupportedrow':245,
   '4_pecdeck':120, '4_facepullreardelt':60, '4_cablecurl':65, '4_ropepushdown':70
 };}
-function defaultData(){return{v:SCHEMA,settings:{barWeight:45,smallestPlate:0.5,benchGoal:300},weights:seedWeights(),failStreak:{},plan:{},notes:{},sync:{},logs:[],nextDay:0};}
+function defaultData(){return{v:SCHEMA,settings:{barWeight:45,smallestPlate:0.5,benchGoal:300,deload:false},weights:seedWeights(),failStreak:{},plan:{},holds:{},notes:{},sync:{},logs:[],nextDay:0};}
 function validData(d){return d&&typeof d==='object'&&Array.isArray(d.logs)&&d.logs.every(l=>l&&typeof l==='object'&&Array.isArray(l.ex))&&d.settings&&typeof d.settings==='object';}
 function merge(s){const b=defaultData();return {...b,...s,settings:{...b.settings,...(s.settings||{})}};}
 // backfill rep-scheme snapshots onto pre-v1.7 logs so future program edits can't reinterpret them
@@ -372,7 +376,7 @@ function plateBreakdown(weight,bar,smallest){
 function roundLoad(w,x){
   if(x.t==='barbell'){const bar=DATA.settings.barWeight,inc=DATA.settings.smallestPlate*2;
     if(w<=bar)return bar;return bar+Math.round((w-bar)/inc)*inc;}
-  return Math.round(w/5)*5; // machines/cables/dumbbells round to 5
+  const step=x.inc||5; return Math.round(w/step)*step; // machines/cables/dumbbells round to that lift's own increment
 }
 function $(id){return document.getElementById(id);}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -400,13 +404,14 @@ function lastBenchEst(){
 }
 
 /* ---- TODAY ---- */
-const SHORTS=['Bench + Chest','Back + Arms','Legs + Delts','Bench + Width'];
+const SHORTS=['Bench + Chest','Back + Arms','Legs + Glutes','Bench + Arms'];
 function renderToday(){
   const el=$('page-today');
   if(SESSION){renderActive();return;}
   if(selDay==null||selDay<0||selDay>=PROGRAM.length)selDay=DATA.nextDay||0;
   const d=PROGRAM[selDay];
-  el.innerHTML=`
+  const dlBanner=DATA.settings.deload?`<div class="card" style="border-color:var(--bolt);"><div class="sub" style="color:var(--bolt);font-weight:700;margin:0;">&#9889; DELOAD WEEK ON \u2014 workouts are light (~60%, half sets) and won\u2019t change your weights. Turn off in Settings when you\u2019re ready to push again.</div></div>`:'';
+  el.innerHTML=`${dlBanner}
     <div class="card"><div class="eyebrow" style="margin-bottom:10px;">Pick today's workout</div>
       <div class="day-pick">${PROGRAM.map((dd,i)=>`
         <button class="day-b ${i===selDay?'sel':''}" onclick="pickDay(${i})">
@@ -429,11 +434,13 @@ function renderToday(){
 }
 function pickDay(i){selDay=i;renderToday();}
 function startWorkout(){
-  const d=PROGRAM[selDay];
-  SESSION={dayIdx:selDay,name:d.name,tag:d.tag,date:new Date().toISOString(),
+  const d=PROGRAM[selDay], dl=!!DATA.settings.deload;
+  SESSION={dayIdx:selDay,name:d.name,tag:d.tag,date:new Date().toISOString(),deload:dl,
     ex:d.ex.map(x=>{
       const sw=suggestWeight(x);
-      return{...x,weight:sw.w,suggest:sw,effort:null,sets:Array.from({length:x.s},()=>({weight:sw.w,reps:'',status:''}))};
+      let w=sw.w, sets=x.s;
+      if(dl){ if(+w)w=roundLoad(+w*0.6,x); sets=Math.max(1,Math.ceil(x.s/2)); }   // ~60% load, half the sets
+      return{...x,s:sets,weight:w,suggest:sw,effort:null,sets:Array.from({length:sets},()=>({weight:w,reps:'',status:''}))};
     })};
   savePending();renderActive();
 }
@@ -443,13 +450,15 @@ function suggestWeight(x){
   const p=DATA.plan[x.id];
   if(p){
     const m={
-      up:`&#9889; Hit ${x.hi}+ on all sets \u2014 go up ${x.inc} lb to ${p.w}`,
+      up:`&#9889; Earned the jump \u2014 go up ${x.inc} lb to ${p.w}`,
       hold:`In range last time. Add reps toward ${x.hi}, then go up.`,
       hardhold:`You hit the reps but graded it Hard \u2014 stay at ${p.w} until it feels solid, then go up.`,
       retry:`Missed last time \u2014 same weight, try again before backing off.`,
       down:`Stalled twice \u2014 backed off to ${p.w} (~10%). Build back up.`
     };
-    return{w:p.w,kind:p.kind,msg:m[p.kind]||''};
+    let msg=m[p.kind]||'';
+    if(p.stale)msg=`Stuck ~6 sessions with no rep PR. Drop 5\u201310% and rebuild, or swap this exercise.`;
+    return{w:p.w,kind:p.kind,msg,stale:!!p.stale};
   }
   return{w:saved||'',kind:'start',msg:saved?'':'Set your starting weight'};
 }
@@ -460,6 +469,8 @@ function classify(x){
   if(x.sets.some(s=>s.status==='fail'))return'miss';          // an explicit red X is the only stall
   const ok=x.sets.filter(s=>s.status==='done'&&+s.reps>0);
   if(ok.length===0)return'skip';
+  const best=Math.max(...ok.map(s=>+s.reps));
+  if(x.gate==='loose')return best>=x.hi?'success':'hold';     // bench: top SET at the top earns the microplate (small, frequent jumps)
   if(ok.length>=x.s&&ok.every(s=>+s.reps>=x.hi))return'success';
   return'hold';                                               // completed but not all-top, OR fewer sets = hold (no penalty)
 }
@@ -472,11 +483,20 @@ function updateProgression(x){
   const w=Math.max(...x.sets.filter(s=>s.status&&+s.weight>0).map(s=>+s.weight),0);
   if(!w)return;
   DATA.weights[x.id]=w;
+  const totalReps=x.sets.filter(s=>s.status==='done').reduce((a,s)=>a+(+s.reps||0),0);
   let fs=DATA.failStreak[x.id]||0;
-  if(out==='success'){DATA.plan[x.id]={w:roundLoad(w+x.inc,x),kind:'up'};fs=0;}
-  else if(out==='hold'){DATA.plan[x.id]={w:w,kind:hardHold?'hardhold':'hold'};fs=0;}
+  let h=DATA.holds[x.id]||{w:null,reps:0,n:0};
+  if(out==='success'){const nw=roundLoad(w+x.inc,x);DATA.plan[x.id]={w:nw,kind:'up'};fs=0;DATA.holds[x.id]={w:nw,reps:0,n:0};}
+  else if(out==='hold'){
+    if(h.w!==w)h={w,reps:totalReps,n:0};             // new weight -> fresh count
+    else if(totalReps>h.reps)h={w,reps:totalReps,n:0}; // a rep PR is real progress -> reset
+    else h.n=(h.n||0)+1;                              // same weight, no rep gain -> stagnating
+    DATA.holds[x.id]=h;
+    DATA.plan[x.id]={w:w,kind:hardHold?'hardhold':'hold',stale:h.n>=5};
+    fs=0;
+  }
   else{fs++;
-    if(fs>=2){DATA.plan[x.id]={w:roundLoad(w*0.9,x),kind:'down'};fs=0;}
+    if(fs>=2){const nw=roundLoad(w*0.9,x);DATA.plan[x.id]={w:nw,kind:'down'};fs=0;DATA.holds[x.id]={w:nw,reps:0,n:0};}
     else{DATA.plan[x.id]={w:w,kind:'retry'};}
   }
   DATA.failStreak[x.id]=fs;
@@ -485,7 +505,8 @@ function renderActive(){
   const s=SESSION,el=$('page-today');
   el.innerHTML=`
     <div class="card hero"><div class="eyebrow">In Progress &bull; ${s.name}</div>
-      <div class="title-l" style="color:#fff;">${s.tag}</div></div>
+      <div class="title-l" style="color:#fff;">${s.tag}</div>
+      ${s.deload?'<div class="sub" style="color:var(--bolt);font-weight:700;">DELOAD \u2014 light loads, half sets. Leave reps in the tank.</div>':''}</div>
     ${s.ex.map((x,i)=>exCard(x,i)).join('')}
     <button class="btn btn-bolt" onclick="finishWorkout()">&#9889; Finish &amp; Save</button>
     <button class="btn btn-ghost" style="margin-top:10px;" onclick="cancelWorkout()">Cancel</button>`;
@@ -493,9 +514,10 @@ function renderActive(){
 function exCard(x,i){
   const sm=DATA.settings.smallestPlate,bar=DATA.settings.barWeight;
   const plate=(x.t==='barbell'&&x.weight)?`<span class="plate">${plateBreakdown(+x.weight,bar,sm)}</span>`:'';
-  const hk={up:'',down:'down',retry:'same',hold:'same',hardhold:'down',start:'same'}[x.suggest&&x.suggest.kind]||'same';
+  const hk=(x.suggest&&x.suggest.stale)?'down':({up:'',down:'down',retry:'same',hold:'same',hardhold:'down',start:'same'}[x.suggest&&x.suggest.kind]||'same');
   const hint=x.suggest&&x.suggest.msg?`<div class="hint ${hk}">${x.suggest.msg}</div>`:'';
   const note=x.note?`<div class="prev" style="color:var(--red);">&#9888; ${x.note}</div>`:'';
+  const cue=x.cue?`<div class="prev" style="color:var(--accent);">${esc(x.cue)}</div>`:'';
   const ls=lastSessionFor(x.id);
   const last=ls?`<div class="last">Last ${fmtD(ls.date)}: ${ls.e.sets.filter(s=>s.status).map(s=>`${esc(s.weight)}\u00d7${esc(s.reps)}${s.status==='fail'?'\u2717':''}`).join('  \u00b7  ')}${ls.e.effort?`  \u2014  felt <b>${esc(String(ls.e.effort).toUpperCase())}</b>`:''}</div>`:'';
   const sticky=`<div class="sticky"><textarea placeholder="Sticky note \u2014 you'll see this next time (e.g. form broke on set 4, hold here)" oninput="saveNote('${x.id}',this.value)">${esc(DATA.notes[x.id]||'')}</textarea></div>`;
@@ -512,7 +534,7 @@ function exCard(x,i){
       ${x.t==='core'?'<span class="chip safe">Anti-movement core</span>':''}
       ${x.primary?'<span class="chip full">Key lift</span>':''}
     </div>
-    ${note}${last}${hint}
+    ${note}${cue}${last}${hint}
     ${x.t!=='core'?`<div class="wt-row"><label>Weight</label>
       <input type="number" inputmode="decimal" value="${x.weight}" onchange="setWeight(${i},this.value)">
       <span style="font-size:12px;color:var(--muted)">lb</span> ${plate}</div>`:''}
@@ -559,24 +581,27 @@ function cancelWorkout(){confirmModal('Cancel workout?','Nothing will be saved.'
 function finishWorkout(){
   const s=SESSION;const any=s.ex.some(x=>x.sets.some(st=>st.status));
   if(!any){toast('Mark at least one set first.','err');return;}
-  DATA.logs.push({date:s.date,name:s.name,tag:s.tag,
-    ex:s.ex.map(x=>({n:x.n,id:x.id,effort:x.effort||'',meta:{s:x.s,lo:x.lo,hi:x.hi,inc:x.inc,t:x.t},sets:x.sets.map(st=>({weight:+st.weight||0,reps:+st.reps||0,status:st.status||''}))}))});
-  s.ex.forEach(x=>updateProgression(x));
+  DATA.logs.push({date:s.date,name:s.name,tag:s.tag,deload:!!s.deload,
+    ex:s.ex.map(x=>({n:x.n,id:x.id,effort:x.effort||'',meta:{s:x.s,lo:x.lo,hi:x.hi,inc:x.inc,t:x.t,gate:x.gate},sets:x.sets.map(st=>({weight:+st.weight||0,reps:+st.reps||0,status:st.status||''}))}))});
+  if(!s.deload) s.ex.forEach(x=>updateProgression(x));   // deload sessions are logged but never move the plan
   DATA.nextDay=(s.dayIdx+1)%PROGRAM.length; selDay=DATA.nextDay;
   SESSION=null;clearPending();save();stopRest();
-  toast('&#9889; Workout saved','ok');
+  toast(s.deload?'Deload session saved':'&#9889; Workout saved','ok');
   if(ghReady())autoSync();
   renderToday();updateHeader();
 }
 
 
 /* ---- REST TIMER ---- */
-let restT=0,restIv=null;
-function startRest(type){restT=type==='full'?150:75;showRest();clearInterval(restIv);restIv=setInterval(()=>{restT--;if(restT<=0){stopRest();try{navigator.vibrate&&navigator.vibrate(200);}catch(e){}}else paintRest();},1000);paintRest();}
+// Track the target END time (wall clock), not a tick counter — so when iOS suspends the
+// app and you switch away, the countdown is still correct the instant you return.
+let restEnd=0,restIv=null;
+function startRest(type){restEnd=Date.now()+(type==='full'?150:75)*1000;showRest();clearInterval(restIv);restIv=setInterval(tickRest,250);tickRest();}
+function tickRest(){const left=Math.round((restEnd-Date.now())/1000);if(left<=0){stopRest();try{navigator.vibrate&&navigator.vibrate(200);}catch(e){}}else paintRest(left);}
 function showRest(){$('rest').classList.add('on');}
 function stopRest(){clearInterval(restIv);$('rest').classList.remove('on');}
-function adjustRest(d){restT=Math.max(5,restT+d);paintRest();}
-function paintRest(){const m=Math.floor(restT/60),s=restT%60;$('rest-time').textContent=m+':'+String(s).padStart(2,'0');}
+function adjustRest(d){restEnd+=d*1000;tickRest();}
+function paintRest(left){if(left==null)left=Math.max(0,Math.round((restEnd-Date.now())/1000));const m=Math.floor(left/60),s=left%60;$('rest-time').textContent=m+':'+String(s).padStart(2,'0');}
 
 /* ---- PROGRESS ---- */
 function renderProgress(){
@@ -706,11 +731,19 @@ function renderSettings(){
         <button class="btn btn-ghost btn-sm" style="flex:1" onclick="syncFrom()">&#8595; Restore</button></div>
       <div class="help" style="margin-top:10px;" id="sync-line">${g.last?'Last backed up: '+new Date(g.last).toLocaleString():'Not backed up yet.'}</div>
     </div>
+    <div class="card"><div class="eyebrow" style="margin-bottom:10px;">Training</div>
+      <div class="field" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <label style="margin:0;">Deload week ${DATA.settings.deload?'<b style="color:var(--bolt)">ON</b>':'OFF'}</label>
+        <button class="btn ${DATA.settings.deload?'btn-bolt':'btn-ghost'} btn-sm" onclick="toggleDeload()">${DATA.settings.deload?'Turn off':'Turn on'}</button>
+      </div>
+      <div class="help">When on, every workout drops to ~60% load and half the sets, and won\u2019t move your progression. Turn it on for a planned light week every 6\u20138 weeks (or after a run of Hard sessions), then turn it off to resume where you left off.</div>
+    </div>
     <div class="card"><div class="eyebrow" style="margin-bottom:10px;">Data</div>
       <button class="btn btn-ghost btn-sm" style="width:100%;color:var(--red)" onclick="resetAll()">Reset all data</button>
     </div>`;
 }
 function setSetting(k,v){DATA.settings[k]=+v;save();toast('Saved');}
+function toggleDeload(){DATA.settings.deload=!DATA.settings.deload;save();renderSettings();toast(DATA.settings.deload?'Deload week ON — workouts will be light':'Deload off — back to normal','ok');}
 function resetAll(){confirmModal('Reset everything?','All logs and weights will be erased. This cannot be undone (unless you have a backup).',()=>{localStorage.removeItem('shazam_pending');DATA=defaultData();SESSION=null;save();closeModal();showPage('today');toast('Reset complete');});}
 
 /* ---- GITHUB SYNC (mirrors IRON 300 flow) ---- */
@@ -833,7 +866,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
   let reloaded=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!reloaded){reloaded=true;location.reload();}});
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{});});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden){navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{});if(restIv)tickRest();}});
 }
 // recover a live workout if iOS reloaded us from the background
 try{const pend=localStorage.getItem('shazam_pending');if(pend){const p=JSON.parse(pend);if(p&&p.ex)SESSION=p;}}catch(e){}

@@ -37,7 +37,7 @@ ok('completed bench counts toward 1RM', lastBenchEst()===calc1RM(230,5));
 
 // 2. partial session (fewer sets, no fail) = hold, not a stall
 fresh(); selDay=0; startWorkout(); let b=SESSION.ex[0]; b.weight=235;
-b.sets=[{weight:235,reps:6,status:'done'},{weight:235,reps:6,status:'done'},{weight:235,reps:'',status:''},{weight:235,reps:'',status:''}];
+b.sets=[{weight:235,reps:5,status:'done'},{weight:235,reps:5,status:'done'},{weight:235,reps:'',status:''}];
 for(let i=1;i<SESSION.ex.length;i++)SESSION.ex[i].sets.forEach(s=>s.status='');
 finishWorkout();
 ok('short session holds, no deload', DATA.plan['1_barbellbenchpress'].kind==='hold' && DATA.failStreak['1_barbellbenchpress']===0);
@@ -102,6 +102,36 @@ DATA.logs.push({date:new Date().toISOString(),name:'Day 1',tag:'x',ex:[]});
 save();
 let lgGood=false; try{lgGood=JSON.parse(localStorage.getItem('shazam_lastgood')).logs.length===1;}catch(_){}
 ok('save never poisons last-good with a corrupt blob', lgGood);
+
+// 11. loose bench gate: top set at the top earns the jump even if other sets are lower
+fresh(); selDay=0; startWorkout(); let lb=SESSION.ex[0]; lb.weight=240;
+lb.sets=[{weight:240,reps:6,status:'done'},{weight:240,reps:4,status:'done'},{weight:240,reps:4,status:'done'}];
+finishWorkout();
+ok('loose gate graduates on top set', DATA.plan['1_barbellbenchpress'].kind==='up' && DATA.plan['1_barbellbenchpress'].w===241);
+
+// 12. light isolations jump by 2.5, not 5
+fresh(); selDay=0; startWorkout(); let lr=SESSION.ex[3];   // Cable Lateral Raise
+lr.weight=15; lr.sets=[{weight:15,reps:15,status:'done'},{weight:15,reps:15,status:'done'},{weight:15,reps:15,status:'done'}];
+finishWorkout();
+ok('lateral raise jumps 2.5 lb', DATA.plan['1_cablelateralraise'].w===17.5);
+
+// 13. stagnation flag after ~6 holds with no rep PR
+fresh();
+for(let k=0;k<6;k++){ selDay=0; startWorkout(); let e=SESSION.ex[2];   // chest press, range 8-12
+  e.weight=130; e.sets=[{weight:130,reps:10,status:'done'},{weight:130,reps:10,status:'done'},{weight:130,reps:10,status:'done'}];
+  for(let i=0;i<SESSION.ex.length;i++)if(i!==2)SESSION.ex[i].sets.forEach(s=>s.status='');
+  finishWorkout(); }
+ok('stagnation flagged after 6 no-PR holds', DATA.plan['1_hammerstrengthchestpress'].stale===true);
+
+// 14. a deload session is logged but never moves progression
+fresh(); selDay=0; startWorkout(); let nb=SESSION.ex[0]; nb.weight=240;
+nb.sets=[{weight:240,reps:6,status:'done'},{weight:240,reps:6,status:'done'},{weight:240,reps:6,status:'done'}];
+finishWorkout();
+const planNormal=JSON.stringify(DATA.plan['1_barbellbenchpress']);
+DATA.settings.deload=true; selDay=0; startWorkout(); let db=SESSION.ex[0];
+db.sets.forEach(s=>{s.status='done';s.reps=db.lo;});
+finishWorkout(); DATA.settings.deload=false; recomputeProgression();
+ok('deload session excluded from progression', JSON.stringify(DATA.plan['1_barbellbenchpress'])===planNormal);
 
 // 10. sync refuses to overwrite a non-empty remote with an empty local dataset
 (async()=>{

@@ -225,7 +225,7 @@ svg{display:block;width:100%;}
 <body>
 
 <div class="header">
-  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v2.0</span></div>
+  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v2.1</span></div>
   <div class="hstat">
     <div class="hstat-l">Est. Bench 1RM</div>
     <div class="hstat-v" id="h-1rm">—<span class="sync-dot off" id="sync-dot"></span></div>
@@ -334,12 +334,12 @@ function recomputeProgression(){
 const KEY='shazam_data', LASTGOOD='shazam_lastgood', SCHEMA=2;
 // Starting weights seeded from the IRON 300 export (used only on first launch / full reset).
 function seedWeights(){return{
-  '1_barbellbenchpress':235, '1_hammerstrengthchestpress':130, '1_pecdeck':120,
-  '1_ropetricepspushdown':70, '1_cableoverheadtricepsext':60,
-  '2_neutralgriplatpulldown':160, '2_chestsupportedrow':245, '2_onearmcablerow':50,
+  '1_barbellbenchpress':235, '1_inclinebarbellsmithpress':90, '1_hammerstrengthchestpress':130,
+  '1_cablelateralraise':15, '1_jmpress':95,
+  '2_neutralgriplatpulldown':160, '2_chestsupportedrow':245, '2_straightarmpulldown':50,
   '2_reardeltmachine':100, '2_ezbarcablecurl':65, '2_hammercurl':30,
-  '4_barbellbenchpress':205, '4_latpulldown':160, '4_machinechestsupportedrow':245,
-  '4_pecdeck':120, '4_facepullreardelt':60, '4_cablecurl':65, '4_ropepushdown':70
+  '4_latpulldown':160, '4_machinechestsupportedrow':245, '4_pecdeck':120,
+  '4_cablelateralraise':15, '4_facepullreardelt':60, '4_skullcrusher':65
 };}
 function defaultData(){return{v:SCHEMA,settings:{barWeight:45,smallestPlate:0.5,benchGoal:300,deload:false},weights:seedWeights(),failStreak:{},plan:{},holds:{},notes:{},sync:{},back:[],backDue:0,logs:[],nextDay:0};}
 function validData(d){return d&&typeof d==='object'&&Array.isArray(d.logs)&&d.logs.every(l=>l&&typeof l==='object'&&Array.isArray(l.ex))&&d.settings&&typeof d.settings==='object';}
@@ -409,7 +409,7 @@ function updateHeader(){
   const e=lastBenchEst(); $('h-1rm').innerHTML=(e?e:'—')+'<span class="sync-dot '+syncDotClass()+'" id="sync-dot"></span>';
 }
 function lastBenchEst(){
-  for(let i=DATA.logs.length-1;i>=0;i--){const e=DATA.logs[i].ex.find(x=>x.n==='Barbell Bench Press'&&x.sets.some(s=>s.status==='done'));
+  for(let i=DATA.logs.length-1;i>=0;i--){if(DATA.logs[i].deload)continue;const e=DATA.logs[i].ex.find(x=>x.n==='Barbell Bench Press'&&x.sets.some(s=>s.status==='done'));
     if(e){let best=0;e.sets.forEach(s=>{if(s.status==='done'&&s.reps){const v=calc1RM(s.weight,s.reps);if(v>best)best=v;}});if(best)return best;}}
   return 0;
 }
@@ -676,7 +676,7 @@ function renderProgress(){
 }
 function setGoal(v){const g=+v;if(g>0){DATA.settings.benchGoal=g;save();renderProgress();updateHeader();}}
 function setProgLift(n){progLift=n;renderProgress();}
-function benchSeries(){const out=[];DATA.logs.forEach(l=>{const e=l.ex.find(x=>x.n==='Barbell Bench Press');
+function benchSeries(){const out=[];DATA.logs.forEach(l=>{if(l.deload)return;const e=l.ex.find(x=>x.n==='Barbell Bench Press');
   if(e){let best=0;e.sets.forEach(s=>{if(s.status==='done'&&s.reps){const v=calc1RM(s.weight,s.reps);if(v>best)best=v;}});if(best)out.push({d:l.date,v:best});}});return out;}
 function trendTxt(p){const diff=p[p.length-1].v-p[0].v;return(diff>=0?'+':'')+diff+' lb';}
 // --- data views ---

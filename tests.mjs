@@ -132,6 +132,8 @@ DATA.settings.deload=true; selDay=0; startWorkout(); let db=SESSION.ex[0];
 db.sets.forEach(s=>{s.status='done';s.reps=db.lo;});
 finishWorkout(); DATA.settings.deload=false; recomputeProgression();
 ok('deload session excluded from progression', JSON.stringify(DATA.plan['1_barbellbenchpress'])===planNormal);
+ok('deload session excluded from header bench estimate', lastBenchEst()===calc1RM(240,6));
+ok('deload session excluded from bench trend', benchSeries().length===1 && benchSeries()[0].v===calc1RM(240,6));
 
 // 15. loose-gate floor: one good set surrounded by a sub-floor set must NOT graduate
 fresh(); selDay=0; startWorkout(); let gf=SESSION.ex[0]; gf.weight=235;
@@ -161,6 +163,10 @@ for(let k=0;k<6;k++){ selDay=0; startWorkout(); let e=SESSION.ex[2]; e.weight=13
 const cp=DATA.plan['1_hammerstrengthchestpress'];
 ok('always-Hard lift is held, not graduated', cp.kind==='hardhold' && cp.w===130);
 ok('always-Hard lift eventually flags stale', cp.stale===true);
+
+// 18. first-run seed weights should only reference current, trackable exercises
+fresh();
+ok('seed weights do not include stale exercise ids', Object.keys(DATA.weights).every(id=>NAMEBYID[id] && !METABYID[id].peg));
 
 // 10. sync refuses to overwrite a non-empty remote with an empty local dataset
 (async()=>{

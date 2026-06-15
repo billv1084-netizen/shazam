@@ -169,6 +169,12 @@ svg{display:block;width:100%;}
 .hard-wk .hwd{display:block;font-size:9px;color:var(--muted);margin-top:3px;}
 .back-row{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
 .back-dot{width:16px;height:16px;border-radius:50%;display:inline-block;}
+.single-box{border:1.5px solid var(--bolt);border-radius:11px;padding:10px 12px;margin:10px 0;background:rgba(255,199,44,.08);}
+.single-h{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--bolt-deep);text-transform:uppercase;margin-bottom:9px;}
+.single-row{display:flex;align-items:center;gap:10px;}
+.sw-in{width:74px!important;}
+.sw-lb{font-size:12px;color:var(--muted);margin-left:-4px;}
+.sets-h{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;}
 .legend i{display:inline-block;width:10px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle;}
 
 /* SETTINGS */
@@ -225,7 +231,7 @@ svg{display:block;width:100%;}
 <body>
 
 <div class="header">
-  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v2.1</span></div>
+  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v2.2</span></div>
   <div class="hstat">
     <div class="hstat-l">Est. Bench 1RM</div>
     <div class="hstat-v" id="h-1rm">—<span class="sync-dot off" id="sync-dot"></span></div>
@@ -269,8 +275,8 @@ svg{display:block;width:100%;}
 /* ============ PROGRAM (data-driven) ============ */
 const PROGRAM = [
   { name:'Day 1', tag:'Bench Strength + Chest / Delts / Triceps', ex:[
-    {n:'Barbell Bench Press',t:'barbell',s:3,lo:4,hi:6,rest:'full',inc:1,primary:1,gate:'loose',
-      cue:'Ramp to 1 heavy single @ RPE 7\u20138 (leave gas in the tank), then your 3 working sets below. The single is skill practice \u2014 don\u2019t grind it.'},
+    {n:'Barbell Bench Press',t:'barbell',s:3,lo:4,hi:6,rest:'full',inc:1,primary:1,gate:'loose',single:1,
+      cue:'Ramp to your heavy single @ RPE 7\u20138 (leave gas in the tank), then your 3 working sets below. The single is skill practice \u2014 don\u2019t grind it.'},
     {n:'Hammer Incline Press',id:'1_inclinebarbellsmithpress',t:'machine',s:3,lo:6,hi:10,rest:'full',inc:5},
     {n:'Hammer Strength Chest Press',t:'machine',s:3,lo:8,hi:12,rest:'short',inc:5},
     {n:'Cable Lateral Raise',t:'cable',s:3,lo:10,hi:15,rest:'short',inc:2.5},
@@ -409,8 +415,10 @@ function updateHeader(){
   const e=lastBenchEst(); $('h-1rm').innerHTML=(e?e:'—')+'<span class="sync-dot '+syncDotClass()+'" id="sync-dot"></span>';
 }
 function lastBenchEst(){
-  for(let i=DATA.logs.length-1;i>=0;i--){if(DATA.logs[i].deload)continue;const e=DATA.logs[i].ex.find(x=>x.n==='Barbell Bench Press'&&x.sets.some(s=>s.status==='done'));
-    if(e){let best=0;e.sets.forEach(s=>{if(s.status==='done'&&s.reps){const v=calc1RM(s.weight,s.reps);if(v>best)best=v;}});if(best)return best;}}
+  for(let i=DATA.logs.length-1;i>=0;i--){if(DATA.logs[i].deload)continue;const e=DATA.logs[i].ex.find(x=>x.n==='Barbell Bench Press'&&(x.sets.some(s=>s.status==='done')||(x.single&&x.single.status==='done')));
+    if(e){let best=0;e.sets.forEach(s=>{if(s.status==='done'&&s.reps){const v=calc1RM(s.weight,s.reps);if(v>best)best=v;}});
+      if(e.single&&e.single.status==='done'&&e.single.reps){const v=calc1RM(e.single.weight,e.single.reps);if(v>best)best=v;}
+      if(best)return best;}}
   return 0;
 }
 
@@ -460,7 +468,8 @@ function startWorkout(){
       const sw=suggestWeight(x);
       let w=sw.w, sets=x.s;
       if(dl){ if(+w)w=roundLoad(+w*0.6,x); sets=Math.max(1,Math.ceil(x.s/2)); }   // ~60% load, half the sets
-      return{...x,s:sets,weight:w,suggest:sw,effort:null,sets:Array.from({length:sets},()=>({weight:w,reps:'',status:''}))};
+      const single=(x.single&&!dl&&+w)?{weight:roundLoad(+w*1.06,x),reps:1,status:''}:null;  // heavy single ≈ 106% of working, RPE 7–8; never on deload
+      return{...x,s:sets,weight:w,suggest:sw,effort:null,single,sets:Array.from({length:sets},()=>({weight:w,reps:'',status:''}))};
     })};
   savePending();renderActive();
 }
@@ -546,10 +555,21 @@ function exCard(x,i){
   const last=ls?`<div class="last">Last ${fmtD(ls.date)}: ${ls.e.sets.filter(s=>s.status).map(s=>`${esc(s.weight)}\u00d7${esc(s.reps)}${s.status==='fail'?'\u2717':''}`).join('  \u00b7  ')}${ls.e.effort?`  \u2014  felt <b>${esc(String(ls.e.effort).toUpperCase())}</b>`:''}</div>`:'';
   const sticky=`<div class="sticky"><textarea placeholder="Sticky note \u2014 you'll see this next time (e.g. form broke on set 4, hold here)" oninput="saveNote('${x.id}',this.value)">${esc(DATA.notes[x.id]||'')}</textarea></div>`;
   let warm='';
-  if(x.t==='barbell'&&x.primary&&+x.weight>bar){
-    const wu=buildWarmups(+x.weight,bar);
-    if(wu.length)warm=`<div class="warm"><div class="warm-h">&#128293; Warm-up to ${x.weight}</div>${wu.map(s=>`<span class="warm-s">${s.w}\u00d7${s.r}</span>`).join('')}</div>`;
+  const topW=(x.single&&x.single.weight)?+x.single.weight:+x.weight;   // ramp warm-ups to the heaviest first work (the single)
+  if(x.t==='barbell'&&x.primary&&topW>bar){
+    const wu=buildWarmups(topW,bar);
+    if(wu.length)warm=`<div class="warm"><div class="warm-h">&#128293; Warm-up to ${topW}</div>${wu.map(s=>`<span class="warm-s">${s.w}\u00d7${s.r}</span>`).join('')}</div>`;
   }
+  const single=x.single?`<div class="single-box">
+      <div class="single-h">&#9889; Heavy single \u2014 RPE 7\u20138, adjust to feel</div>
+      <div class="single-row">
+        <input class="sw-in" type="number" inputmode="decimal" value="${x.single.weight||''}" onchange="setSingleWeight(${i},this.value)"><span class="sw-lb">lb</span>
+        <span class="reps">reps <input type="number" inputmode="numeric" value="${x.single.reps}" onchange="setSingleReps(${i},this.value)"></span>
+        <div class="marks">
+          <button class="mark ok ${x.single.status==='done'?'on':''}" title="Made it" onclick="setSingleStatus(${i},'done','${x.rest}')">&#10003;</button>
+          <button class="mark no ${x.single.status==='fail'?'on':''}" title="Missed" onclick="setSingleStatus(${i},'fail','${x.rest}')">&#10007;</button>
+        </div>
+      </div></div>`:'';
   return`<div class="card ex" style="animation-delay:${i*.03}s">
     <div class="ex-head"><div class="ex-name ${x.primary?'primary':''}">${x.n}</div>
       <div class="ex-target">${x.s}\u00d7${x.lo}\u2013${x.hi}</div></div>
@@ -563,7 +583,8 @@ function exCard(x,i){
       <input type="number" inputmode="decimal" value="${x.weight}" onchange="setWeight(${i},this.value)">
       <span style="font-size:12px;color:var(--muted)">lb</span> ${plate}</div>`:''}
     ${warm}
-    <div class="sets">${x.sets.map((st,j)=>`
+    ${single}
+    <div class="sets"><div class="sets-h" style="${x.single?'':'display:none'}">Working sets</div>${x.sets.map((st,j)=>`
       <div class="set"><span class="set-n">${j+1}</span>
         ${x.t!=='core'?`<span class="setw mono">${st.weight||x.weight||''}</span>`:''}
         <span class="reps">${x.t==='core'?'hold/reps':'reps'} <input type="number" inputmode="numeric" value="${st.reps}" placeholder="${x.hi}" onchange="setReps(${i},${j},this.value)"></span>
@@ -578,6 +599,9 @@ function exCard(x,i){
   </div>`;
 }
 function setWeight(i,v){let n=Math.min(2000,Math.max(0,(+v||0)));SESSION.ex[i].weight=n;SESSION.ex[i].sets.forEach(s=>{if(!s.status)s.weight=n;});savePending();renderActive();}
+function setSingleWeight(i,v){SESSION.ex[i].single.weight=Math.min(2000,Math.max(0,(+v||0)));savePending();renderActive();}
+function setSingleReps(i,v){SESSION.ex[i].single.reps=v===''?'':Math.min(10,Math.max(0,Math.round(+v||0)));savePending();}
+function setSingleStatus(i,status,rest){const sg=SESSION.ex[i].single;const was=sg.status;sg.status=sg.status===status?'':status;if(sg.status==='done'&&!was)startRest(rest);savePending();renderActive();}
 function setReps(i,j,v){let n=v===''?'':Math.min(50,Math.max(0,Math.round(+v||0)));SESSION.ex[i].sets[j].reps=n;savePending();}
 function setEffort(i,e){SESSION.ex[i].effort=SESSION.ex[i].effort===e?null:e;savePending();renderActive();}
 function saveNote(id,v){DATA.notes[id]=v;save();}
@@ -603,10 +627,12 @@ function setStatus(i,j,status,rest){
 }
 function cancelWorkout(){confirmModal('Cancel workout?','Nothing will be saved.',()=>{SESSION=null;clearPending();closeModal();renderToday();});}
 function finishWorkout(){
-  const s=SESSION;const any=s.ex.some(x=>x.sets.some(st=>st.status));
+  const s=SESSION;const any=s.ex.some(x=>x.sets.some(st=>st.status)||(x.single&&x.single.status));
   if(!any){toast('Mark at least one set first.','err');return;}
   DATA.logs.push({date:s.date,name:s.name,tag:s.tag,deload:!!s.deload,
-    ex:s.ex.map(x=>({n:x.n,id:x.id,effort:x.effort||'',meta:{s:x.s,lo:x.lo,hi:x.hi,inc:x.inc,t:x.t,gate:x.gate,peg:x.peg},sets:x.sets.map(st=>({weight:+st.weight||0,reps:+st.reps||0,status:st.status||''}))}))});
+    ex:s.ex.map(x=>({n:x.n,id:x.id,effort:x.effort||'',meta:{s:x.s,lo:x.lo,hi:x.hi,inc:x.inc,t:x.t,gate:x.gate,peg:x.peg},
+      single:(x.single&&x.single.status)?{weight:+x.single.weight||0,reps:+x.single.reps||0,status:x.single.status}:null,
+      sets:x.sets.map(st=>({weight:+st.weight||0,reps:+st.reps||0,status:st.status||''}))}))});
   if(s.dayIdx===2)DATA.backDue=Date.now();   // Day 3 = posterior/leg day -> prompt a next-day back check
   if(!s.deload) s.ex.forEach(x=>updateProgression(x));   // deload sessions are logged but never move the plan
   DATA.nextDay=(s.dayIdx+1)%PROGRAM.length; selDay=DATA.nextDay;
@@ -677,7 +703,9 @@ function renderProgress(){
 function setGoal(v){const g=+v;if(g>0){DATA.settings.benchGoal=g;save();renderProgress();updateHeader();}}
 function setProgLift(n){progLift=n;renderProgress();}
 function benchSeries(){const out=[];DATA.logs.forEach(l=>{if(l.deload)return;const e=l.ex.find(x=>x.n==='Barbell Bench Press');
-  if(e){let best=0;e.sets.forEach(s=>{if(s.status==='done'&&s.reps){const v=calc1RM(s.weight,s.reps);if(v>best)best=v;}});if(best)out.push({d:l.date,v:best});}});return out;}
+  if(e){let best=0;e.sets.forEach(s=>{if(s.status==='done'&&s.reps){const v=calc1RM(s.weight,s.reps);if(v>best)best=v;}});
+    if(e.single&&e.single.status==='done'&&e.single.reps){const v=calc1RM(e.single.weight,e.single.reps);if(v>best)best=v;}
+    if(best)out.push({d:l.date,v:best});}});return out;}
 function trendTxt(p){const diff=p[p.length-1].v-p[0].v;return(diff>=0?'+':'')+diff+' lb';}
 // --- data views ---
 function weekStart(iso){const d=new Date(iso);d.setHours(0,0,0,0);d.setDate(d.getDate()-d.getDay());return d.getTime();}  // Sunday 00:00

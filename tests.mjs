@@ -164,6 +164,14 @@ const cp=DATA.plan['1_hammerstrengthchestpress'];
 ok('always-Hard lift is held, not graduated', cp.kind==='hardhold' && cp.w===130);
 ok('always-Hard lift eventually flags stale', cp.stale===true);
 
+// 18. heavy single: excluded from working-weight progression, but counts toward 1RM
+fresh(); selDay=0; startWorkout(); let sb=SESSION.ex[0]; sb.weight=235;
+sb.sets=[{weight:235,reps:4,status:'done'},{weight:235,reps:4,status:'done'},{weight:235,reps:4,status:'done'}];
+sb.single={weight:270,reps:1,status:'done'};
+finishWorkout();
+ok('heavy single does not raise the working weight', DATA.weights['1_barbellbenchpress']===235);
+ok('heavy single counts toward estimated 1RM', lastBenchEst()===calc1RM(270,1) && calc1RM(270,1)>calc1RM(235,4));
+
 // 18. first-run seed weights should only reference current, trackable exercises
 fresh();
 ok('seed weights do not include stale exercise ids', Object.keys(DATA.weights).every(id=>NAMEBYID[id] && !METABYID[id].peg));

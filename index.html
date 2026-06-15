@@ -158,6 +158,17 @@ input[type=number]:focus{outline:none;border-color:var(--accent);}
 .chart-wrap{overflow:hidden;border-radius:10px;}
 svg{display:block;width:100%;}
 .legend{display:flex;gap:16px;font-size:11px;color:var(--muted);margin-top:8px;}
+.lift-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.lift-chip{font-size:11px;padding:6px 10px;border-radius:999px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;}
+.lift-chip.on{border-color:var(--accent);background:var(--tint);color:var(--accent);font-weight:600;}
+.hard-row{display:flex;gap:6px;flex-wrap:wrap;}
+.hard-wk{flex:1;min-width:38px;text-align:center;background:var(--surface2);border-radius:8px;padding:8px 4px;}
+.hard-wk.hot{background:var(--tint);border:1.5px solid var(--red);}
+.hard-wk .hwn{display:block;font-family:'Bebas Neue',sans-serif;font-size:20px;line-height:1;color:var(--ink);}
+.hard-wk.hot .hwn{color:var(--red);}
+.hard-wk .hwd{display:block;font-size:9px;color:var(--muted);margin-top:3px;}
+.back-row{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+.back-dot{width:16px;height:16px;border-radius:50%;display:inline-block;}
 .legend i{display:inline-block;width:10px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle;}
 
 /* SETTINGS */
@@ -214,7 +225,7 @@ svg{display:block;width:100%;}
 <body>
 
 <div class="header">
-  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v1.9</span></div>
+  <div class="logo"><span class="bolt">&#9889;</span>SHAZAM<span class="ver">v2.0</span></div>
   <div class="hstat">
     <div class="hstat-l">Est. Bench 1RM</div>
     <div class="hstat-v" id="h-1rm">—<span class="sync-dot off" id="sync-dot"></span></div>
@@ -277,10 +288,10 @@ const PROGRAM = [
   { name:'Day 3', tag:'Posterior Chain + Lower + Shoulders', ex:[
     {n:'Hack Squat',t:'machine',s:4,lo:6,hi:10,rest:'full',inc:10,primary:1,
       note:'1\u20132 reps in reserve. Pelvis stays on the pad \u2014 no tuck at the bottom. Kill the set if form slips.'},
-    {n:'Hip Thrust',t:'machine',s:3,lo:8,hi:12,rest:'full',inc:10,
-      cue:'Ribs down, brace, full lockout \u2014 squeeze the glutes, don\u2019t hyperextend the low back.'},
-    {n:'45\u00b0 Back Extension',t:'machine',s:3,lo:10,hi:15,rest:'short',inc:5,
-      cue:'Bodyweight to start (leave weight blank). Neutral spine, glute-focused. Add a held plate only once 15 is easy.'},
+    {n:'Hip Thrust',t:'machine',s:2,lo:8,hi:12,rest:'full',inc:10,
+      cue:'Ribs down, brace, full lockout \u2014 squeeze the glutes, do NOT hyperextend the low back at the top. Starts at 2 sets; earn the 3rd once your back feels good for a few weeks.'},
+    {n:'45\u00b0 Back Extension',t:'machine',s:2,lo:10,hi:15,rest:'short',inc:5,
+      cue:'Bodyweight only until 2\u00d715 is boringly clean \u2014 neutral spine, no hyperextension at the top, no next-day ache. Then add a plate held high on the chest. Starts at 2 sets.'},
     {n:'Seated / Lying Leg Curl',t:'machine',s:3,lo:8,hi:12,rest:'short',inc:5},
     {n:'Leg Extension',t:'machine',s:2,lo:8,hi:12,rest:'short',inc:5},
     {n:'Seated Calf Raise',t:'machine',s:3,lo:10,hi:15,rest:'short',inc:5},
@@ -289,15 +300,15 @@ const PROGRAM = [
       note:'Anti-movement core \u2014 keep the spine neutral. No loaded crunches, no heavy carries.'},
   ]},
   { name:'Day 4', tag:'Second Bench (Volume) + Width / Arms', ex:[
-    {n:'Barbell Bench Press',t:'barbell',s:4,lo:6,hi:8,rest:'full',inc:1,primary:1,gate:'loose',
-      cue:'Volume day, ~90% of your Day 1 working weight. 1\u20132 reps in reserve, crisp reps \u2014 not a second max day.'},
+    {n:'Barbell Bench Press',t:'barbell',s:4,lo:6,hi:8,rest:'full',inc:1,primary:1,peg:'1_barbellbenchpress',pegPct:0.9,
+      cue:'Auto-set to ~90% of your Day 1 bench \u2014 a volume echo, not a second max day. 1\u20132 reps in reserve, crisp reps.'},
     {n:'Lat Pulldown',t:'machine',s:3,lo:8,hi:12,rest:'full',inc:5},
     {n:'Machine / Chest-Supported Row',t:'machine',s:3,lo:8,hi:12,rest:'short',inc:5},
     {n:'Pec Deck',t:'machine',s:2,lo:10,hi:12,rest:'short',inc:5},
     {n:'Cable Lateral Raise',t:'cable',s:3,lo:10,hi:15,rest:'short',inc:2.5},
     {n:'Face Pull / Rear Delt',t:'cable',s:3,lo:10,hi:15,rest:'short',inc:2.5},
-    {n:'Skull Crusher',t:'barbell',s:3,lo:8,hi:12,rest:'short',inc:5,
-      cue:'Long-head stretch work. EZ bar, slow eccentric, elbows tucked. Stop if the elbows complain.'},
+    {n:'Skull Crusher',t:'barbell',s:2,lo:8,hi:12,rest:'short',inc:5,
+      cue:'Long-head stretch work, 2 sets. EZ bar, slow eccentric, elbows tucked. If elbows complain, swap for a rope pushdown.'},
   ]},
 ];
 // give every slot a unique id (so Day-1 and Day-4 bench track separately)
@@ -330,7 +341,7 @@ function seedWeights(){return{
   '4_barbellbenchpress':205, '4_latpulldown':160, '4_machinechestsupportedrow':245,
   '4_pecdeck':120, '4_facepullreardelt':60, '4_cablecurl':65, '4_ropepushdown':70
 };}
-function defaultData(){return{v:SCHEMA,settings:{barWeight:45,smallestPlate:0.5,benchGoal:300,deload:false},weights:seedWeights(),failStreak:{},plan:{},holds:{},notes:{},sync:{},logs:[],nextDay:0};}
+function defaultData(){return{v:SCHEMA,settings:{barWeight:45,smallestPlate:0.5,benchGoal:300,deload:false},weights:seedWeights(),failStreak:{},plan:{},holds:{},notes:{},sync:{},back:[],backDue:0,logs:[],nextDay:0};}
 function validData(d){return d&&typeof d==='object'&&Array.isArray(d.logs)&&d.logs.every(l=>l&&typeof l==='object'&&Array.isArray(l.ex))&&d.settings&&typeof d.settings==='object';}
 function merge(s){const b=defaultData();return {...b,...s,settings:{...b.settings,...(s.settings||{})}};}
 // backfill rep-scheme snapshots onto pre-v1.7 logs so future program edits can't reinterpret them
@@ -410,8 +421,16 @@ function renderToday(){
   if(SESSION){renderActive();return;}
   if(selDay==null||selDay<0||selDay>=PROGRAM.length)selDay=DATA.nextDay||0;
   const d=PROGRAM[selDay];
+  const backPrompt=DATA.backDue?`<div class="card" style="border-color:var(--bolt);">
+    <div class="eyebrow" style="margin-bottom:8px;">Lower back today \u2014 morning after leg day?</div>
+    <div class="btn-row">
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="logBack('better')">Better</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="logBack('same')">Same</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="logBack('worse')">Worse</button>
+    </div>
+    <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px;color:var(--muted);" onclick="logBack('skip')">Skip</button></div>`:'';
   const dlBanner=DATA.settings.deload?`<div class="card" style="border-color:var(--bolt);"><div class="sub" style="color:var(--bolt);font-weight:700;margin:0;">&#9889; DELOAD WEEK ON \u2014 workouts are light (~60%, half sets) and won\u2019t change your weights. Turn off in Settings when you\u2019re ready to push again.</div></div>`:'';
-  el.innerHTML=`${dlBanner}
+  el.innerHTML=`${backPrompt}${dlBanner}
     <div class="card"><div class="eyebrow" style="margin-bottom:10px;">Pick today's workout</div>
       <div class="day-pick">${PROGRAM.map((dd,i)=>`
         <button class="day-b ${i===selDay?'sel':''}" onclick="pickDay(${i})">
@@ -433,6 +452,7 @@ function renderToday(){
     <button class="btn btn-bolt" onclick="startWorkout()">&#9889; Start ${d.name}</button>`;
 }
 function pickDay(i){selDay=i;renderToday();}
+function logBack(val){if(val!=='skip'){DATA.back=DATA.back||[];DATA.back.push({d:Date.now(),val});}DATA.backDue=0;save();renderToday();if(val!=='skip'){if(ghReady())autoSync();toast('Back check logged','ok');}}
 function startWorkout(){
   const d=PROGRAM[selDay], dl=!!DATA.settings.deload;
   SESSION={dayIdx:selDay,name:d.name,tag:d.tag,date:new Date().toISOString(),deload:dl,
@@ -446,6 +466,10 @@ function startWorkout(){
 }
 function suggestWeight(x){
   if(x.t==='core'||x.inc===0)return{w:'',kind:'core',msg:''};
+  if(x.peg){const base=DATA.weights[x.peg];                  // pegged lift (Day 4 bench) follows Day 1, never its own counter
+    if(base)return{w:roundLoad(base*x.pegPct,x),kind:'peg',msg:`Auto-set to ${Math.round(x.pegPct*100)}% of your Day 1 bench (${base} lb).`};
+    return{w:'',kind:'start',msg:'Do a Day 1 bench first \u2014 this auto-sets from it.'};
+  }
   const saved=DATA.weights[x.id];
   const p=DATA.plan[x.id];
   if(p){
@@ -470,13 +494,13 @@ function classify(x){
   const ok=x.sets.filter(s=>s.status==='done'&&+s.reps>0);
   if(ok.length===0)return'skip';
   const best=Math.max(...ok.map(s=>+s.reps));
-  if(x.gate==='loose')return best>=x.hi?'success':'hold';     // bench: top SET at the top earns the microplate (small, frequent jumps)
+  if(x.gate==='loose')return(ok.length>=x.s&&best>=x.hi&&ok.every(s=>+s.reps>=x.lo))?'success':'hold';  // top set at top AND no set below the floor
   if(ok.length>=x.s&&ok.every(s=>+s.reps>=x.hi))return'success';
   return'hold';                                               // completed but not all-top, OR fewer sets = hold (no penalty)
 }
 // update weight, fail streak, and next plan from a completed session exercise
 function updateProgression(x){
-  if(x.t==='core'||x.inc===0)return;
+  if(x.t==='core'||x.inc===0||x.peg)return;   // pegged lifts derive their weight from another lift — no own progression
   let out=classify(x); if(out==='skip')return;
   let hardHold=false;
   if(out==='success'&&x.effort==='hard'){out='hold';hardHold=true;}   // hit reps but graded Hard -> don't graduate
@@ -514,7 +538,7 @@ function renderActive(){
 function exCard(x,i){
   const sm=DATA.settings.smallestPlate,bar=DATA.settings.barWeight;
   const plate=(x.t==='barbell'&&x.weight)?`<span class="plate">${plateBreakdown(+x.weight,bar,sm)}</span>`:'';
-  const hk=(x.suggest&&x.suggest.stale)?'down':({up:'',down:'down',retry:'same',hold:'same',hardhold:'down',start:'same'}[x.suggest&&x.suggest.kind]||'same');
+  const hk=(x.suggest&&x.suggest.stale)?'down':({up:'',down:'down',retry:'same',hold:'same',hardhold:'down',peg:'',start:'same'}[x.suggest&&x.suggest.kind]||'same');
   const hint=x.suggest&&x.suggest.msg?`<div class="hint ${hk}">${x.suggest.msg}</div>`:'';
   const note=x.note?`<div class="prev" style="color:var(--red);">&#9888; ${x.note}</div>`:'';
   const cue=x.cue?`<div class="prev" style="color:var(--accent);">${esc(x.cue)}</div>`:'';
@@ -582,7 +606,8 @@ function finishWorkout(){
   const s=SESSION;const any=s.ex.some(x=>x.sets.some(st=>st.status));
   if(!any){toast('Mark at least one set first.','err');return;}
   DATA.logs.push({date:s.date,name:s.name,tag:s.tag,deload:!!s.deload,
-    ex:s.ex.map(x=>({n:x.n,id:x.id,effort:x.effort||'',meta:{s:x.s,lo:x.lo,hi:x.hi,inc:x.inc,t:x.t,gate:x.gate},sets:x.sets.map(st=>({weight:+st.weight||0,reps:+st.reps||0,status:st.status||''}))}))});
+    ex:s.ex.map(x=>({n:x.n,id:x.id,effort:x.effort||'',meta:{s:x.s,lo:x.lo,hi:x.hi,inc:x.inc,t:x.t,gate:x.gate,peg:x.peg},sets:x.sets.map(st=>({weight:+st.weight||0,reps:+st.reps||0,status:st.status||''}))}))});
+  if(s.dayIdx===2)DATA.backDue=Date.now();   // Day 3 = posterior/leg day -> prompt a next-day back check
   if(!s.deload) s.ex.forEach(x=>updateProgression(x));   // deload sessions are logged but never move the plan
   DATA.nextDay=(s.dayIdx+1)%PROGRAM.length; selDay=DATA.nextDay;
   SESSION=null;clearPending();save();stopRest();
@@ -604,27 +629,69 @@ function adjustRest(d){restEnd+=d*1000;tickRest();}
 function paintRest(left){if(left==null)left=Math.max(0,Math.round((restEnd-Date.now())/1000));const m=Math.floor(left/60),s=left%60;$('rest-time').textContent=m+':'+String(s).padStart(2,'0');}
 
 /* ---- PROGRESS ---- */
+let progLift='Barbell Bench Press';
 function renderProgress(){
   const el=$('page-progress');
   const pts=benchSeries();
   const goal=DATA.settings.benchGoal;
+  const ton=weeklyTonnage();
+  const lifts=liftNames();
+  if(lifts.length&&!lifts.includes(progLift))progLift=lifts[0];
+  const ls=progLift?liftSeries(progLift):[];
+  const hb=hardByWeek().slice(-8);
+  const back=(DATA.back||[]).slice(-14);
+  const bc={better:'var(--bolt)',same:'var(--muted)',worse:'var(--red)'};
   el.innerHTML=`
     <div class="card hero"><div class="eyebrow">Goal Bench 1RM &bull; tap to change</div>
       <div class="title-xl" style="color:#fff;"><input type="number" class="goal-in" value="${goal}" onchange="setGoal(this.value)"> lb</div>
       <div class="sub">Estimated now: ${lastBenchEst()||'—'} lb${pts.length>1?' &bull; '+trendTxt(pts):''}</div></div>
+
     <div class="card"><div class="eyebrow" style="margin-bottom:12px;">Estimated Bench 1RM (Epley)</div>
       ${pts.length<1?'<div class="empty">Log a bench session to start the trend.</div>':chartSVG(pts,goal)}
       <div class="legend"><span><i style="background:var(--accent)"></i>Est. 1RM</span><span><i style="background:var(--bolt)"></i>Goal ${goal}</span></div>
     </div>
+
+    <div class="card"><div class="eyebrow" style="margin-bottom:6px;">Weekly Volume (tonnage)</div>
+      <div class="help" style="margin-bottom:10px;">Total weight moved per week (weight \u00d7 reps, all lifts). The clearest read on whether you\u2019re progressively overloading.</div>
+      ${barSVG(ton)}
+    </div>
+
+    <div class="card"><div class="eyebrow" style="margin-bottom:10px;">Per-Lift Progress \u2014 top set</div>
+      ${lifts.length?`<div class="lift-chips">${lifts.map(n=>`<button class="lift-chip ${n===progLift?'on':''}" onclick="setProgLift('${esc(n).replace(/'/g,"\\'")}')">${esc(n)}</button>`).join('')}</div>
+      ${lineSVG(ls)}`:'<div class="empty">No lifts logged yet.</div>'}
+    </div>
+
+    <div class="card"><div class="eyebrow" style="margin-bottom:6px;">Recovery</div>
+      <div class="help" style="margin-bottom:10px;">\u201cHard\u201d ratings per week \u2014 a run of them is your cue to consider a deload.</div>
+      <div class="hard-row">${hb.length?hb.map(w=>`<div class="hard-wk ${w.v>=3?'hot':''}"><span class="hwn">${w.v}</span><span class="hwd">${fmtD(w.d)}</span></div>`).join(''):'<div class="empty">No data yet.</div>'}</div>
+      ${back.length?`<div class="eyebrow" style="margin:14px 0 8px;">Lower back, morning after leg day</div>
+        <div class="back-row">${back.map(b=>`<span class="back-dot" title="${fmtD(b.d)}: ${b.val}" style="background:${bc[b.val]||'var(--muted)'}"></span>`).join('')}</div>
+        <div class="help" style="margin-top:6px;">Newest on the right. <b style="color:var(--bolt)">Better</b> &middot; <span style="color:var(--muted)">Same</span> &middot; <b style="color:var(--red)">Worse</b></div>`:''}
+    </div>
+
     <div class="card"><div class="eyebrow" style="margin-bottom:8px;">Working Weights</div>
       ${Object.keys(DATA.weights).length?Object.entries(DATA.weights).map(([id,w])=>
-        `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--surface2);font-size:13px;"><span>${(NAMEBYID[id]||id)} <span style="color:var(--light);font-size:11px">D${(id.split('_')[0])}</span></span><span class="mono">${w} lb</span></div>`).join(''):'<div class="empty">No data yet.</div>'}
+        `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--surface2);font-size:13px;"><span>${esc(NAMEBYID[id]||id)} <span style="color:var(--light);font-size:11px">D${esc(id.split('_')[0])}</span></span><span class="mono">${w} lb</span></div>`).join(''):'<div class="empty">No data yet.</div>'}
     </div>`;
 }
 function setGoal(v){const g=+v;if(g>0){DATA.settings.benchGoal=g;save();renderProgress();updateHeader();}}
+function setProgLift(n){progLift=n;renderProgress();}
 function benchSeries(){const out=[];DATA.logs.forEach(l=>{const e=l.ex.find(x=>x.n==='Barbell Bench Press');
   if(e){let best=0;e.sets.forEach(s=>{if(s.status==='done'&&s.reps){const v=calc1RM(s.weight,s.reps);if(v>best)best=v;}});if(best)out.push({d:l.date,v:best});}});return out;}
 function trendTxt(p){const diff=p[p.length-1].v-p[0].v;return(diff>=0?'+':'')+diff+' lb';}
+// --- data views ---
+function weekStart(iso){const d=new Date(iso);d.setHours(0,0,0,0);d.setDate(d.getDate()-d.getDay());return d.getTime();}  // Sunday 00:00
+function weeklyTonnage(){const m=new Map();
+  DATA.logs.forEach(l=>{const ws=weekStart(l.date);let t=0;
+    l.ex.forEach(x=>x.sets.forEach(s=>{if(s.status==='done')t+=(+s.weight||0)*(+s.reps||0);}));
+    m.set(ws,(m.get(ws)||0)+t);});
+  return [...m.entries()].sort((a,b)=>a[0]-b[0]).map(([d,v])=>({d,v:Math.round(v)}));}
+function hardByWeek(){const m=new Map();
+  DATA.logs.forEach(l=>{const ws=weekStart(l.date);const h=l.ex.filter(x=>x.effort==='hard').length;m.set(ws,(m.get(ws)||0)+h);});
+  return [...m.entries()].sort((a,b)=>a[0]-b[0]).map(([d,v])=>({d,v}));}
+function liftNames(){const seen=[];DATA.logs.forEach(l=>l.ex.forEach(x=>{if(x.sets.some(s=>s.status==='done'&&+s.weight>0)&&!seen.includes(x.n))seen.push(x.n);}));return seen;}
+function liftSeries(name){const out=[];DATA.logs.forEach(l=>{const e=l.ex.find(x=>x.n===name);
+  if(e){let top=0;e.sets.forEach(s=>{if(s.status==='done'&&+s.weight>top)top=+s.weight;});if(top)out.push({d:l.date,v:top});}});return out;}
 function chartSVG(pts,goal){
   const W=560,H=200,pad=34;
   const vals=pts.map(p=>p.v).concat([goal]);
@@ -640,8 +707,35 @@ function chartSVG(pts,goal){
     <path d="${area}" fill="url(#g)"/>
     <path d="${line}" fill="none" stroke="#1A44C8" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
     ${pts.map((p,i)=>`<circle cx="${x(i)}" cy="${y(p.v)}" r="4" fill="#fff" stroke="#1A44C8" stroke-width="2.5"/>`).join('')}
-    <text x="${pad}" y="${H-10}" font-size="11" fill="#9CA3AF" font-family="DM Mono">${fmtD(pts[0].d)}</text>
-    <text x="${W-pad}" y="${H-10}" font-size="11" fill="#9CA3AF" font-family="DM Mono" text-anchor="end">${fmtD(pts[pts.length-1].d)}</text>
+    <text x="${pad}" y="${H-10}" font-size="11" fill="#727A86" font-family="DM Mono">${fmtD(pts[0].d)}</text>
+    <text x="${W-pad}" y="${H-10}" font-size="11" fill="#727A86" font-family="DM Mono" text-anchor="end">${fmtD(pts[pts.length-1].d)}</text>
+  </svg></div>`;
+}
+function lineSVG(pts){
+  if(pts.length<1)return'<div class="empty">No data for this lift.</div>';
+  const W=560,H=170,pad=34;
+  let mn=Math.min(...pts.map(p=>p.v)),mx=Math.max(...pts.map(p=>p.v));if(mx-mn<10){mn-=5;mx+=5;}
+  const x=i=>pad+(pts.length<2?(W-2*pad)/2:i*(W-2*pad)/(pts.length-1));
+  const y=v=>H-pad-(v-mn)/(mx-mn)*(H-2*pad);
+  const line=pts.map((p,i)=>(i?'L':'M')+x(i)+' '+y(p.v)).join(' ');
+  return`<div class="chart-wrap"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="height:170px">
+    <path d="${line}" fill="none" stroke="#1A44C8" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+    ${pts.map((p,i)=>`<circle cx="${x(i)}" cy="${y(p.v)}" r="4" fill="#fff" stroke="#1A44C8" stroke-width="2.5"/>`).join('')}
+    <text x="${pad}" y="${H-8}" font-size="11" fill="#727A86" font-family="DM Mono">${pts[0].v} lb</text>
+    <text x="${W-pad}" y="${H-8}" font-size="11" fill="#727A86" font-family="DM Mono" text-anchor="end">${pts[pts.length-1].v} lb</text>
+  </svg></div>`;
+}
+function barSVG(pts){
+  if(!pts.length)return'<div class="empty">No data yet.</div>';
+  const W=560,H=180,pad=34;
+  const mx=Math.max(...pts.map(p=>p.v))*1.12||1;
+  const n=pts.length,gap=(W-2*pad)/n,bw=Math.min(gap*0.7,46);
+  const bars=pts.map((p,i)=>{const h=(p.v/mx)*(H-2*pad);const bx=pad+i*gap+(gap-bw)/2;const by=H-pad-h;
+    return`<rect x="${bx}" y="${by}" width="${bw}" height="${Math.max(1,h)}" rx="3" fill="#1A44C8"/>`;}).join('');
+  return`<div class="chart-wrap"><svg viewBox="0 0 ${W} ${H}" style="height:180px">
+    ${bars}
+    <text x="${pad}" y="${H-8}" font-size="11" fill="#727A86" font-family="DM Mono">${fmtD(pts[0].d)}</text>
+    <text x="${W-pad}" y="${H-8}" font-size="11" fill="#727A86" font-family="DM Mono" text-anchor="end">${fmtD(pts[pts.length-1].d)}</text>
   </svg></div>`;
 }
 function fmtD(iso){const d=new Date(iso);return(d.getMonth()+1)+'/'+d.getDate();}

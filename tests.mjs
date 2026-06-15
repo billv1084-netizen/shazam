@@ -133,6 +133,35 @@ db.sets.forEach(s=>{s.status='done';s.reps=db.lo;});
 finishWorkout(); DATA.settings.deload=false; recomputeProgression();
 ok('deload session excluded from progression', JSON.stringify(DATA.plan['1_barbellbenchpress'])===planNormal);
 
+// 15. loose-gate floor: one good set surrounded by a sub-floor set must NOT graduate
+fresh(); selDay=0; startWorkout(); let gf=SESSION.ex[0]; gf.weight=235;
+gf.sets=[{weight:235,reps:6,status:'done'},{weight:235,reps:5,status:'done'},{weight:235,reps:3,status:'done'}]; // a set at 3 < floor 4
+finishWorkout();
+ok('gate floor holds when a set drops below the floor', DATA.plan['1_barbellbenchpress'].kind==='hold');
+fresh(); selDay=0; startWorkout(); let gp=SESSION.ex[0]; gp.weight=235;
+gp.sets=[{weight:235,reps:6,status:'done'},{weight:235,reps:5,status:'done'},{weight:235,reps:4,status:'done'}]; // top 6, all >=4
+finishWorkout();
+ok('gate floor graduates when top hits hi and all >= floor', DATA.plan['1_barbellbenchpress'].kind==='up');
+
+// 16. Day 4 bench is pegged to ~90% of the Day 1 working weight and tracks no own plan
+fresh(); selDay=0; startWorkout(); let d1=SESSION.ex[0]; d1.weight=240;
+d1.sets=[{weight:240,reps:6,status:'done'},{weight:240,reps:6,status:'done'},{weight:240,reps:6,status:'done'}];
+finishWorkout();                                  // Day 1 working weight = 240
+selDay=3; let d4=PROGRAM[3].ex[0];
+const sug=suggestWeight(d4);
+ok('Day 4 bench pegs to ~90% of Day 1', sug.kind==='peg' && sug.w===roundLoad(240*0.9,d4));
+ok('Day 4 bench keeps no own progression plan', !DATA.plan['4_barbellbenchpress']);
+
+// 17. a chronically-Hard lift: held by the override, then correctly trips the stagnation flag
+fresh();
+for(let k=0;k<6;k++){ selDay=0; startWorkout(); let e=SESSION.ex[2]; e.weight=130; e.effort='hard';   // top reps but always Hard
+  e.sets=[{weight:130,reps:12,status:'done'},{weight:130,reps:12,status:'done'},{weight:130,reps:12,status:'done'}];
+  for(let i=0;i<SESSION.ex.length;i++)if(i!==2)SESSION.ex[i].sets.forEach(s=>s.status='');
+  finishWorkout(); }
+const cp=DATA.plan['1_hammerstrengthchestpress'];
+ok('always-Hard lift is held, not graduated', cp.kind==='hardhold' && cp.w===130);
+ok('always-Hard lift eventually flags stale', cp.stale===true);
+
 // 10. sync refuses to overwrite a non-empty remote with an empty local dataset
 (async()=>{
   localStorage.setItem('shz_token','t');localStorage.setItem('shz_user','u');localStorage.setItem('shz_repo','r');

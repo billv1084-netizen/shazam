@@ -284,7 +284,7 @@ const PROGRAM = [
       cue:'Heavy, elbow-friendly triceps. Keep it tight \u2014 not a skull crusher.'},
   ]},
   { name:'Day 2', tag:'Back Width + Arms', ex:[
-    {n:'Neutral-Grip Lat Pulldown',t:'machine',s:4,lo:8,hi:12,rest:'full',inc:5},
+    {n:'Neutral-Grip Lat Pulldown',t:'machine',s:4,lo:6,hi:10,rest:'full',inc:5,gate:'loose'},
     {n:'Chest-Supported Row',t:'machine',s:4,lo:6,hi:10,rest:'full',inc:5},
     {n:'Straight-Arm Pulldown',t:'cable',s:2,lo:10,hi:12,rest:'short',inc:5},
     {n:'Rear Delt Machine',t:'machine',s:3,lo:10,hi:15,rest:'short',inc:2.5},
@@ -308,7 +308,7 @@ const PROGRAM = [
   { name:'Day 4', tag:'Second Bench (Volume) + Width / Arms', ex:[
     {n:'Barbell Bench Press',t:'barbell',s:4,lo:6,hi:8,rest:'full',inc:1,primary:1,peg:'1_barbellbenchpress',pegPct:0.9,
       cue:'Auto-set to ~90% of your Day 1 bench \u2014 a volume echo, not a second max day. 1\u20132 reps in reserve, crisp reps.'},
-    {n:'Lat Pulldown',t:'machine',s:3,lo:8,hi:12,rest:'full',inc:5},
+    {n:'Lat Pulldown',t:'machine',s:3,lo:6,hi:10,rest:'full',inc:5,gate:'loose'},
     {n:'Machine / Chest-Supported Row',t:'machine',s:3,lo:8,hi:12,rest:'short',inc:5},
     {n:'Pec Deck',t:'machine',s:2,lo:10,hi:12,rest:'short',inc:5},
     {n:'Cable Lateral Raise',t:'cable',s:3,lo:10,hi:15,rest:'short',inc:2.5},
@@ -336,6 +336,29 @@ function recomputeProgression(){
   });
 }
 
+// training weeks since the last deload — Day 1 marks the start of each week.
+function weeksSinceDeload(){
+  let n=0;
+  for(let i=DATA.logs.length-1;i>=0;i--){
+    if(DATA.logs[i].deload) break;
+    if(DATA.logs[i].name==='Day 1') n++;
+  }
+  return n;
+}
+// Lifts flagged stale (5+ holds with no rep PR) — surfaced by name in the deload prompt.
+function staleLifts(){
+  const out=[];
+  for(const id in DATA.plan){ const p=DATA.plan[id]; if(p&&p.stale){ const m=METABYID[id]; out.push({id,name:m?m.n:id}); } }
+  return out;
+}
+// Record a recovery week taken outside the app. Excluded from progression (weights unchanged); resets the block count.
+function logRestWeek(){
+  DATA.logs.push({date:new Date().toISOString(),name:'Rest Week',tag:'Deload / recovery',deload:true,ex:[]});
+  save(); toast('Rest week logged \u2014 block counter reset','ok');
+  if(ghReady())autoSync();
+  showPage('today');
+}
+
 /* ============ DATA ============ */
 const KEY='shazam_data', LASTGOOD='shazam_lastgood', SCHEMA=2;
 // Starting weights seeded from the IRON 300 export (used only on first launch / full reset).
@@ -347,7 +370,7 @@ function seedWeights(){return{
   '4_latpulldown':160, '4_machinechestsupportedrow':245, '4_pecdeck':120,
   '4_cablelateralraise':15, '4_facepullreardelt':60, '4_skullcrusher':65
 };}
-function defaultData(){return{v:SCHEMA,settings:{barWeight:45,smallestPlate:0.5,benchGoal:300,deload:false},weights:seedWeights(),failStreak:{},plan:{},holds:{},notes:{},sync:{},back:[],backDue:0,logs:[],nextDay:0};}
+function defaultData(){return{v:SCHEMA,settings:{barWeight:45,smallestPlate:0.5,benchGoal:300,deload:false,blockWeeks:4},weights:seedWeights(),failStreak:{},plan:{},holds:{},notes:{},sync:{},back:[],backDue:0,logs:[],nextDay:0};}
 function validData(d){return d&&typeof d==='object'&&Array.isArray(d.logs)&&d.logs.every(l=>l&&typeof l==='object'&&Array.isArray(l.ex))&&d.settings&&typeof d.settings==='object';}
 function merge(s){const b=defaultData();return {...b,...s,settings:{...b.settings,...(s.settings||{})}};}
 // backfill rep-scheme snapshots onto pre-v1.7 logs so future program edits can't reinterpret them
@@ -438,7 +461,12 @@ function renderToday(){
     </div>
     <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px;color:var(--muted);" onclick="logBack('skip')">Skip</button></div>`:'';
   const dlBanner=DATA.settings.deload?`<div class="card" style="border-color:var(--bolt);"><div class="sub" style="color:var(--bolt);font-weight:700;margin:0;">&#9889; DELOAD WEEK ON \u2014 workouts are light (~60%, half sets) and won\u2019t change your weights. Turn off in Settings when you\u2019re ready to push again.</div></div>`:'';
-  el.innerHTML=`${backPrompt}${dlBanner}
+  const _blk=DATA.settings.blockWeeks||4, _wks=weeksSinceDeload(), _stale=staleLifts();
+  let _dueMsg='';
+  if(_stale.length) _dueMsg=`${_stale.map(x=>esc(x.name)).join(', ')} ${_stale.length>1?'have':'has'} stalled (5+ weeks, no progress) \u2014 a deload may unstick ${_stale.length>1?'them':'it'}.`;
+  else if(_wks>=_blk) _dueMsg=`${_wks} weeks in \u2014 block deload due. Take a light week, then come back and rebuild.`;
+  const dueBanner=(!DATA.settings.deload&&_dueMsg)?`<div class="card" style="border-color:var(--bolt);"><div class="sub" style="color:var(--bolt);font-weight:700;margin:0 0 8px;">&#9889; ${_dueMsg}</div><button class="btn btn-bolt btn-sm" onclick="toggleDeload()">Start deload week</button></div>`:'';
+  el.innerHTML=`${backPrompt}${dlBanner}${dueBanner}
     <div class="card"><div class="eyebrow" style="margin-bottom:10px;">Pick today's workout</div>
       <div class="day-pick">${PROGRAM.map((dd,i)=>`
         <button class="day-b ${i===selDay?'sel':''}" onclick="pickDay(${i})">
@@ -512,7 +540,7 @@ function updateProgression(x){
   if(x.t==='core'||x.inc===0||x.peg)return;   // pegged lifts derive their weight from another lift — no own progression
   let out=classify(x); if(out==='skip')return;
   let hardHold=false;
-  if(out==='success'&&x.effort==='hard'){out='hold';hardHold=true;}   // hit reps but graded Hard -> don't graduate
+  if(out==='success'&&x.effort==='hard'&&!(x.gate==='loose'&&x.t==='machine')){out='hold';hardHold=true;}   // true-failure machine accessories aren't held for being Hard   // hit reps but graded Hard -> don't graduate
   const w=Math.max(...x.sets.filter(s=>s.status&&+s.weight>0).map(s=>+s.weight),0);
   if(!w)return;
   DATA.weights[x.id]=w;
@@ -859,6 +887,13 @@ function renderSettings(){
         <button class="btn ${DATA.settings.deload?'btn-bolt':'btn-ghost'} btn-sm" onclick="toggleDeload()">${DATA.settings.deload?'Turn off':'Turn on'}</button>
       </div>
       <div class="help">When on, every workout drops to ~60% load and half the sets, and won\u2019t move your progression. Turn it on for a planned light week every 6\u20138 weeks (or after a run of Hard sessions), then turn it off to resume where you left off.</div>
+      <div class="field" style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;">
+        <label style="margin:0;">Weeks per block before a deload</label>
+        <input type="number" min="2" max="8" value="${DATA.settings.blockWeeks||4}" style="width:64px;" onchange="setSetting('blockWeeks',this.value)">
+      </div>
+      <div class="help">After this many training weeks, the Today screen shows a deload prompt on its own. Default 4.</div>
+      <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:12px;" onclick="logRestWeek()">I took a rest / deload week \u2014 reset the counter</button>
+      <div class="help">Tap this if you skipped training to recover. It logs a light week (your weights don\u2019t change) and restarts the block count.</div>
     </div>
     <div class="card"><div class="eyebrow" style="margin-bottom:10px;">Data</div>
       <button class="btn btn-ghost btn-sm" style="width:100%;color:var(--red)" onclick="resetAll()">Reset all data</button>

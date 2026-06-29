@@ -176,6 +176,40 @@ ok('heavy single counts toward estimated 1RM', lastBenchEst()===calc1RM(270,1) &
 fresh();
 ok('seed weights do not include stale exercise ids', Object.keys(DATA.weights).every(id=>NAMEBYID[id] && !METABYID[id].peg));
 
+// 11. scheduled block deload
+fresh(); ok('blockWeeks defaults to 4', defaultData().settings.blockWeeks===4);
+fresh(); bench([5,5,5],'ok','done',235); bench([5,5,5],'ok','done',235); bench([5,5,5],'ok','done',235);
+ok('weeksSinceDeload counts training weeks', weeksSinceDeload()===3);
+const wBeforeRest=DATA.weights['1_barbellbenchpress'];
+logRestWeek();
+ok('rest week resets the block counter', weeksSinceDeload()===0);
+ok('rest week does not change weights', DATA.weights['1_barbellbenchpress']===wBeforeRest);
+
+// 12. pulldown: loose-gate machine graduates on a strong top set even when rated Hard
+fresh(); selDay=1; startWorkout();
+{ let p=SESSION.ex[0]; p.effort='hard'; p.weight=160;
+  p.sets=[{weight:160,reps:12,status:'done'},{weight:160,reps:10,status:'done'},{weight:160,reps:9,status:'done'},{weight:160,reps:7,status:'done'}];
+  for(let i=1;i<SESSION.ex.length;i++)SESSION.ex[i].sets.forEach(x=>x.status='');
+  finishWorkout(); }
+ok('loose machine graduates despite Hard rating', DATA.plan['2_neutralgriplatpulldown'].kind==='up');
+
+// 13. barbell loose-gate lift is still held when rated Hard (compounds keep the guardrail)
+fresh(); { const pb=bench([6,6,6],'hard','done',240); ok('barbell loose still holds on Hard', pb.kind==='hardhold'); }
+
+// 14. floor still applies on loose machine: a set below the new floor holds
+fresh(); selDay=1; startWorkout();
+{ let p=SESSION.ex[0]; p.effort='ok'; p.weight=160;
+  p.sets=[{weight:160,reps:12,status:'done'},{weight:160,reps:10,status:'done'},{weight:160,reps:8,status:'done'},{weight:160,reps:5,status:'done'}];
+  for(let i=1;i<SESSION.ex.length;i++)SESSION.ex[i].sets.forEach(x=>x.status='');
+  finishWorkout(); }
+ok('loose machine holds when a set drops below floor', DATA.plan['2_neutralgriplatpulldown'].kind==='hold');
+
+// 15. stale lifts surface by name for the deload prompt
+fresh(); DATA.plan['2_neutralgriplatpulldown']={w:160,kind:'hold',stale:true};
+{ const sl=staleLifts(); ok('stale lift surfaces by name', sl.length===1 && sl[0].name==='Neutral-Grip Lat Pulldown'); }
+fresh(); DATA.plan['2_neutralgriplatpulldown']={w:160,kind:'hold',stale:false};
+ok('non-stale lift is not surfaced', staleLifts().length===0);
+
 // 10. sync refuses to overwrite a non-empty remote with an empty local dataset
 (async()=>{
   localStorage.setItem('shz_token','t');localStorage.setItem('shz_user','u');localStorage.setItem('shz_repo','r');

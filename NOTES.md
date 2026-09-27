@@ -5,6 +5,23 @@ _Last updated: 2026-09-27_
 ## Goal
 Improve and combine the two workout apps (**SHAZAM** and **IRON 300**) into one app.
 
+## Working on two computers
+Both computers have the project at `C:\Users\billv\code\shazam` (second computer set up 2026-09-27). Bill expects to do most future work on the second computer.
+
+**Starting a session (either computer):**
+1. Open PowerShell.
+2. `cd C:\Users\billv\code\shazam`
+3. `git pull`
+4. Open the Claude app, start a session in the `shazam` folder (not "No folder"), and say: "Read NOTES.md and pick up where we left off."
+
+**Ending a session:**
+1. Claude updates NOTES.md, pushes to a branch, and opens a pull request.
+2. Bill merges the pull request on GitHub.
+
+**Rule:** pull before you start, merge before you switch computers.
+
+**Not yet on the second computer:** the private `shazam-backup` repo. Clone it there when we start the StrongSplit import work (`cd C:\Users\billv\code`, then `git clone https://github.com/billv1084-netizen/shazam-backup.git`).
+
 ## What we have
 
 | | IRON 300 | SHAZAM |

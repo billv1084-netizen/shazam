@@ -22,6 +22,10 @@ Both computers have the project at `C:\Users\billv\code\shazam` (second computer
 
 **Not yet on the second computer:** the private `shazam-backup` repo. Clone it there when we start the StrongSplit import work (`cd C:\Users\billv\code`, then `git clone https://github.com/billv1084-netizen/shazam-backup.git`).
 
+**Claude preferences:** `CLAUDE.md` in this folder is a copy of Bill's personal preferences (from `C:\Users\billv\.claude\CLAUDE.md` on the first computer), so Claude follows them on either computer. It only applies to this project. If Bill changes the preferences, update both copies. Note: this repo is public, so the file is visible to anyone (it has nothing sensitive).
+
+**Second computer may still need:** the Claude app, Node.js (for tests), and the GitHub CLI (`gh`, signed in) so Claude can open pull requests.
+
 ## What we have
 
 | | IRON 300 | SHAZAM |

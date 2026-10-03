@@ -29,7 +29,14 @@ Both computers have the project at `C:\Users\billv\code\shazam` (second computer
 **Second computer setup (checked 2026-09-27):** Node.js v24.15.0 installed. GitHub CLI v2.101.0 installed and signed in as `billv1084-netizen`, with access to both `shazam` and `shazam-backup`. Nothing left to install.
 
 ## Where the data is
-- **StrongSplit (the real record):** export `strongsplit_sessions_2026-09-24.csv`, 24 sessions, Jun 29 to Sep 22.
+- **StrongSplit (the real record):** export `strongsplit_sessions_2026-09-24.csv`, 24 sessions, Jun 29 to Sep 22. Newer export `strongsplit_sessions_2026-10-03.csv` (in Downloads on the second computer) has only 3 sessions: Sep 29 (Day 1), Oct 1 (Day 2), Oct 2 (Upper 2). It does not repeat the older sessions.
+
+### What the Oct 3 export shows (matters for the importer)
+- **Unfinished sets are in the file.** `is_completed=false` rows are planned sets that weren't done. On Oct 2, only bench, shoulder press and Arsenal Lat Machine were done; pulldown, row, pec deck, face pull, triceps and curl were not. The importer must skip these, and this is a way to spot short sessions automatically.
+- **Warm-ups can't be found by "lighter than the top set."** Sep 29 bench: 135x10, 185x4, 205x2, 225x1, 240x1, then a heavy single 255x1 (RPE 9.5), then 235x4 x3. The real work sets (235) are lighter than the top single. RPE 10 on the 135x10 warm-up confirms warm-up RPEs are junk.
+- **Session end time can be wrong.** Oct 2 shows 20:54 to 00:37 (almost 4 hours); the last set was done at 21:44. Use set times, not end time.
+- **Exercise names vary.** "Bench Press" (Day 1) vs "Bench Press-Volume" (Upper 2); "Hammer Strength  ISO-Lateral Low Row" (with a double space) on Day 2 vs "Hammer Iso Lateral Row" on Upper 2. SHAZAM needs a name list that says which names are the same exercise.
+- **Routines don't fully match the Sep 24 leg plan yet.** Pendulum Squat is on Day 1 as planned. Hip Thrust is still on Day 2 (plan: move to Upper 2). Lying Leg Curl isn't in Day 2 yet.
 - **SHAZAM phone data (insurance only):** exported 2026-09-27 via History > Export CSV to `C:\Users\billv\Downloads\shazam_export.csv` on the second computer (not in this public repo). 485 sets, 41 sessions, Jun 15 to Sep 22. Exercise names are unreliable because of swaps (e.g. "Hammer Flat Bench" was really machine incline fly). Jun 9 to 11 aren't in it but are on GitHub.
 - **Old public data files:** `shazam_data.json` in the public `shazam` repo, and `iron300_data.json` + `legs_data.json` in the public `iron300` repo. To be deleted (see Decisions).
 
@@ -57,6 +64,13 @@ Both computers have the project at `C:\Users\billv\code\shazam` (second computer
 - 2026-09-27: The old idea of combining SHAZAM and IRON 300 into one app is dropped. IRON 300's only remaining task is deleting its public data files.
 
 ## Open questions for Bill
+- **Is StrongSplit the right logging app? (raised 2026-10-03)** StrongSplit has no API, so the plan needs a manual export plus a Shortcut after every workout, and the routine import is untested. Hevy Pro has a public API that can read workouts and create/update routines, which could remove both problems. Cost of switching: about $24/yr, learning a new app in a busy season. Old StrongSplit CSVs can still be imported into SHAZAM once. Not decided.
+  - Hevy API checked 2026-10-03 (spec at api.hevyapp.com/docs, version 0.0.1). Workouts: read list, read one, and `GET /v1/workouts/events` (changes since a date, so SHAZAM only fetches what's new). Each logged set has `type` (`normal`, `warmup`, `dropset`, `failure`), `weight_kg`, `reps`, `rpe`. Routines: create and update (`PUT /v1/routines/{id}`); each routine set can have `type`, `weight_kg`, `reps`, `rep_range`. No target RPE on routine sets. Weights are kilograms only, so SHAZAM converts lb to kg and back. Needs Hevy Pro and an `api-key` header. Hevy warns the API is new and may change or be dropped ("use at your own risk").
+  - Not verified yet: whether a web page on the phone can call the API directly (browser security rules may block it), how Hevy handles planned sets that weren't done, and whether kg conversion shows clean lb numbers in the app.
+  - Bill logs RPE on working sets only, not warm-ups. Hevy logs RPE per set, and its `warmup` set type would mark warm-ups directly.
+  - RPE in Hevy: logged per set, and SHAZAM can read it. It's for logging only: routines can't hold a target RPE, just weight and reps. RPE may need to be switched on in Hevy's settings (not confirmed; check during a trial).
+  - Proposed next step: a 1 to 2 week Hevy Pro trial so Claude can test the three unknowns with Bill's account before he decides. Bill will decide at the end of planning.
+- **Real-life schedule (2026-10-03):** football season and Q4 at work. Bill skips exercises, moves days, and sometimes does two routines back to back (Oct 1 and 2: Day 2, then Upper 2 with back work skipped). SHAZAM's targets should probably work per exercise, not depend on a fixed day order, and skipped exercises shouldn't count as stalls. To discuss in the build plan.
 - **Warm-up rule:** StrongSplit marks every set as `working`. How should SHAZAM tell warm-ups apart (e.g. any set well below the top weight for that exercise)?
 - **Short sessions:** Should you be able to mark a session as "cut short" so it doesn't count toward progression, or should SHAZAM detect it on its own (e.g. fewer sets than planned)?
 - **SHAZAM's logging screens:** retire them completely, or keep a simplified version?

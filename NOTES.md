@@ -40,6 +40,38 @@ Both computers have the project at `C:\Users\billv\code\shazam` (second computer
 - **SHAZAM phone data (insurance only):** exported 2026-09-27 via History > Export CSV to `C:\Users\billv\Downloads\shazam_export.csv` on the second computer (not in this public repo). 485 sets, 41 sessions, Jun 15 to Sep 22. Exercise names are unreliable because of swaps (e.g. "Hammer Flat Bench" was really machine incline fly). Jun 9 to 11 aren't in it but are on GitHub.
 - **Old public data files:** `shazam_data.json` in the public `shazam` repo, and `iron300_data.json` + `legs_data.json` in the public `iron300` repo. To be deleted (see Decisions).
 
+## Current program (from StrongSplit, week of Sep 29)
+Monday is Day 1, Thursday is Day 2, Friday is Upper 2, but days move around during football season and Q4.
+- **Shazam Day 1 (heavy bench):** Bench Press (ramp to a heavy single, then back-off sets), Hammer Strength Incline Press, Machine Chest Fly, Seated Machine Lateral Raise (standard machine), Pendulum Squat, Overhead Cable Triceps Extension.
+- **Shazam Day 2 (pull):** Lat Pulldown, Hammer Strength ISO-Lateral Low Row, Straight Arm Lat Pulldown, Reverse Pec Dec, Cable Curl, Hammer Curl, Hip Thrust.
+- **Shazam Upper 2 (volume bench):** Bench Press-Volume, Narrow Grip Pulldown, Hammer Iso Lateral Row, Hammer Shoulder Press, Pec Deck, Arsenal Lat Machine, Face Pull, Overhead Cable Triceps Extension, Cable Curl.
+
+### Changes since the original SHAZAM program (Bill, 2026-10-03)
+- **Wrist:** tendonitis again; second cortisone shot in the same wrist. The doctor recommended a procedure if it comes back. **JM Press stopped** because of this. Bill likes JM Press but doesn't want the tendonitis back. Overhead Cable Triceps Extension looks like the replacement.
+- **Gym equipment changes:** the Hammer chest-supported row machine is gone. Replaced by the **Hammer ISO-Lateral Row**.
+- New **Arsenal Reloaded Incline Fly** replaces the Hammer flat chest press ("Hammer Strength Chest Press" in SHAZAM).
+- New **Arsenal Selectorized Standing Lateral Raise** is the second lateral raise: standard lateral raise machine on Monday, Arsenal machine on Friday.
+- Confirmed: StrongSplit "Machine Chest Fly" (Day 1) = Arsenal Reloaded Incline Fly.
+- Confirmed: StrongSplit "Arsenal Lat Machine" (Upper 2) = Arsenal Selectorized Standing Lateral Raise.
+- Confirmed: "Hammer Strength ISO-Lateral Low Row" (Day 2) and "Hammer Iso Lateral Row" (Upper 2) are **different machines**. Track them as separate exercises.
+- Decided 2026-10-03: new machines **start fresh**. Old chest-supported row history (up to 180 lb, Sep 8) is kept for reference only, not used for new targets.
+
+### Program review (Claude, 2026-10-03; nothing decided yet)
+- Upper body is well covered (chest about 17 sets a week, back about 17 if Upper 2's back work actually gets done, shoulders and arms fine).
+- **Hamstrings get zero direct work.** Legs total about 5 sets a week (Pendulum Squat 3, Hip Thrust 2). Lying Leg Curl was planned but never added.
+- **Sessions are too long for this season:** Day 1 ran 1h40m, Day 2 1h32m. The Day 1 bench ramp alone (9 sets, 5 of them singles) took about 38 minutes.
+- Upper 2 has 9 exercises and its back work was the first thing cut on Oct 2.
+- Overlap that could be trimmed: two rear delt moves (Reverse Pec Dec, Face Pull), cable curl on two days plus hammer curl, two flies (incline fly, pec deck), straight-arm pulldown.
+- No core work since Pallof Press / Dead Bug dropped out.
+- Idea to discuss: a short "busy week" version of each day (priority lifts only) alongside the full version.
+
+### Training goal (Bill, 2026-10-03)
+- **Until early November: maintain.** Get through football season and Q4 without losing ground. Coaching ends early November, maybe sooner depending on playoffs.
+- After that: push again. A **fourth training day** is possible after football if needed.
+- Time in the gym is fine on Monday and Thursday. **Friday (Upper 2, chest/back) is too long.**
+- **Decided 2026-10-03: trimmed Friday (Upper 2) until November**, 5 exercises, 3 sets each, in this order: Bench Press-Volume, Hammer Iso Lateral Row, Narrow Grip Pulldown, Hammer Shoulder Press, Arsenal Standing Lateral Raise. Dropped until November: Pec Deck, Face Pull, Overhead Cable Triceps Extension, Cable Curl. Keep weights heavy; cut sets, not load. Revisit in November (bring them back or move them to a fourth day).
+- Open: the Sep 24 plan moved Hip Thrust to Friday. With Friday trimmed, it probably stays on Thursday for now. Not decided.
+
 ## Issues found
 1. **Workout data is in public repos.** Anyone can see it. Can't just make the repos private: free GitHub Pages hosting needs public repos. Fix: have the app sync to the private `shazam-backup` repo instead.
 2. **`shazam-backup` is empty** (`{}`), so it isn't actually backing anything up.
@@ -48,7 +80,7 @@ Both computers have the project at `C:\Users\billv\code\shazam` (second computer
 5. The app falls back to the public `shazam` repo for backups if no repo is set. Until fixed, don't press "Back up now" in SHAZAM.
 
 ## Decisions
-- 2026-09-24: Data: **StrongSplit is the accurate record.** SHAZAM's data is off because exercises were swapped for equipment availability and a wrist issue (now resolved by a cortisone shot), and new machines were tried (e.g. Pendulum Squat, first logged Sept 22).
+- 2026-09-24: Data: **StrongSplit is the accurate record.** SHAZAM's data is off because exercises were swapped for equipment availability and a wrist issue (tendonitis; see "Changes since the original SHAZAM program"), and new machines were tried (e.g. Pendulum Squat, first logged Sept 22).
 - 2026-09-24: Public data files: once the private `shazam-backup` repo holds a verified copy, delete `shazam_data.json` from the public `shazam` repo and `iron300_data.json` + `legs_data.json` from the public `iron300` repo. Don't rewrite git history.
 - 2026-09-24: **SHAZAM's role: prescription engine.** Bill logs only in StrongSplit. After a workout: Export in StrongSplit, then an Apple Shortcut ("Send to SHAZAM") uploads the CSV to the private `shazam-backup` repo; SHAZAM imports it on open and computes next targets. SHAZAM's own logging screens get retired or simplified. StrongSplit has no API/auto-export (checked 2026-09-24); its Shortcut actions only start routines and read recovery scores.
   - Bonus to test: StrongSplit routine import. The routines CSV (`routine,exercise,set_index,set_type,weight_lb,reps,rest_s,rpe`) carries per-set targets, so SHAZAM could generate "Shazam ..." routines with next targets filled in. Only touch routines named "Shazam ...".

@@ -128,18 +128,19 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - 2026-09-24: Deploy workflow: Claude pushes changes to a branch and opens a pull request; Bill reviews and merges on GitHub. No more manual web uploads.
 - 2026-09-27: NOTES.md is now committed to the repo so plans sync between Bill's two computers. Routine: `git pull` before starting, merge the PR before switching computers.
 - 2026-10-11: **Hevy is the logging app. StrongSplit is retired.** Old StrongSplit exports are imported once for history.
+- 2026-10-11: **Warm-up rules for the one-time StrongSplit history import:** (1) Day 1 bench: every set before the heavy single is a warm-up. (2) Everything else: in each session, find the weight used for the most sets; any set more than 15% lighter is a warm-up. Claude runs the rules on the data and shows Bill odd-looking sessions before anything is saved. Hevy marks warm-ups itself, so this is history only.
 - 2026-10-11: **SHAZAM ignores day order.** Bill moves days, skips exercises and sometimes does two routines back to back in football season and Q4. Each Hevy routine keeps its own targets and only gets new ones when that routine is done. Skipped exercises are ignored. No "next day" in SHAZAM. The one link: Upper 2 bench stays at 90% of Day 1's working weight.
 - 2026-10-11: **SHAZAM's logging screens are retired.** SHAZAM keeps three jobs: next targets with the "Send to Hevy" button, the progressive overload view, and the plate calculator (it knows Bill's microplates). Old code stays in git history if logging is ever needed again (e.g. Hevy drops its API).
 - 2026-09-27: The old idea of combining SHAZAM and IRON 300 into one app is dropped. IRON 300's only remaining task is deleting its public data files.
 
 ## Open questions for Bill
-- **Warm-ups in the old StrongSplit history:** StrongSplit marks every set as `working`. For the one-time import, how should SHAZAM tell warm-ups apart? (Not an issue going forward: Hevy has a `warmup` set type.)
+- None right now. Next: the detailed build plan (see Next steps).
 
 ## Next steps
 - [x] Install Node.js and GitHub CLI on the second computer (2026-09-27)
 - [x] Back up current SHAZAM phone data (2026-09-27, CSV export)
 - [x] Commit NOTES.md to GitHub so both computers have it (2026-09-27)
-- [ ] Answer the open questions above
+- [x] Answer the open questions above (2026-10-11)
 - [x] Switch logging to Hevy, set up routines, agree on progression rules (2026-10-11)
 - [ ] Bill: fix Oct 6 Incline Fly sets 2 and 3 to 135 in Hevy
 - [ ] Bill: check how rep ranges look in the Hevy routines

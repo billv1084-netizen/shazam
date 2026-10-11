@@ -128,11 +128,11 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - 2026-09-24: Deploy workflow: Claude pushes changes to a branch and opens a pull request; Bill reviews and merges on GitHub. No more manual web uploads.
 - 2026-09-27: NOTES.md is now committed to the repo so plans sync between Bill's two computers. Routine: `git pull` before starting, merge the PR before switching computers.
 - 2026-10-11: **Hevy is the logging app. StrongSplit is retired.** Old StrongSplit exports are imported once for history.
+- 2026-10-11: **SHAZAM ignores day order.** Bill moves days, skips exercises and sometimes does two routines back to back in football season and Q4. Each Hevy routine keeps its own targets and only gets new ones when that routine is done. Skipped exercises are ignored. No "next day" in SHAZAM. The one link: Upper 2 bench stays at 90% of Day 1's working weight.
 - 2026-10-11: **SHAZAM's logging screens are retired.** SHAZAM keeps three jobs: next targets with the "Send to Hevy" button, the progressive overload view, and the plate calculator (it knows Bill's microplates). Old code stays in git history if logging is ever needed again (e.g. Hevy drops its API).
 - 2026-09-27: The old idea of combining SHAZAM and IRON 300 into one app is dropped. IRON 300's only remaining task is deleting its public data files.
 
 ## Open questions for Bill
-- **Real-life schedule (2026-10-03):** football season and Q4 at work. Bill skips exercises, moves days, and sometimes does two routines back to back (Oct 1 and 2: Day 2, then Upper 2 with back work skipped). SHAZAM's targets should probably work per exercise, not depend on a fixed day order, and skipped exercises shouldn't count as stalls. To discuss in the build plan.
 - **Warm-ups in the old StrongSplit history:** StrongSplit marks every set as `working`. For the one-time import, how should SHAZAM tell warm-ups apart? (Not an issue going forward: Hevy has a `warmup` set type.)
 
 ## Next steps

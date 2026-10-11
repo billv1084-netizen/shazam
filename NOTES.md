@@ -1,6 +1,6 @@
 # SHAZAM: Project Notes
 
-_Last updated: 2026-09-27_
+_Last updated: 2026-10-11_
 
 ## Goal
 Bill logs every workout in **StrongSplit**. **SHAZAM** reads the StrongSplit exports and:
@@ -107,6 +107,14 @@ Monday is Day 1, Thursday is Day 2, Friday is Upper 2, but days move around duri
   - Exercise mapping (StrongSplit to Hevy): Bench Press and Bench Press-Volume to Bench Press (Barbell); Hammer Strength Incline Press to Incline Chest Press (Machine); Machine Chest Fly to Incline Fly (Arsenal); Seated Machine Lateral Raise to Lateral Raise (Machine); Pendulum Squat to Pendulum Squat (Machine); Overhead Cable Triceps Extension to Overhead Triceps Extension (Cable); Lat Pulldown to Lat Pulldown (Cable); Hammer Strength ISO-Lateral Low Row to Iso-Lateral Low Row; Straight Arm Lat Pulldown to Straight Arm Lat Pulldown (Cable); Reverse Pec Dec to Rear Delt Reverse Fly (Machine); Cable Curl to Bicep Curl (Cable); Hammer Curl to Hammer Curl (Dumbbell); Hip Thrust to Hip Thrust (Machine) (plate loaded); Hammer Iso Lateral Row to Iso-Lateral Row (Machine); Narrow Grip Pulldown to Lat Pulldown - Close Grip (Cable); Hammer Shoulder Press to Shoulder Press (Machine Plates); Arsenal Lat Machine to Standing Lateral Raise (Arsenal).
   - Hevy API quirks found (differ from its docs): creating a custom exercise returns a bare id, not JSON; an empty routine folder list comes back under the key `routines`, not `routine_folders`. Weights round-trip with tiny float noise (75 lb comes back as 74.99999999999999), so SHAZAM must round when converting kg to lb.
   - Unknown #2 answered 2026-10-06: the Hevy app shows clean pound numbers (75, 185) and warm-up markers. Remaining unknown: what Hevy does with planned sets that weren't done. Test with Bill's next real workout.
+  - **First week in Hevy (checked 2026-10-11):** 3 workouts logged: Day 1 (Oct 6), Day 2 (Oct 8), Upper 2 (Oct 9). SHAZAM can read them all through the API.
+    - Unknown #3 answered: **sets that weren't done are left out of the workout.** Oct 8 Iso-Lateral Low Row: 2 of 4 sets. Oct 9 Shoulder Press: 1 of 3. Oct 6 Pendulum Squat: 2 of 3. So a short exercise can only be spotted by comparing with the plan, and SHAZAM has to keep its own copy of the plan.
+    - **Hevy overwrites the routine after each workout** with what was actually lifted (routine `updated_at` matches each workout's end time). Skipped sets stay in the routine at the old numbers. Same behavior StrongSplit had. Means SHAZAM's targets get replaced unless SHAZAM rewrites the routines after each workout.
+    - **Exercise notes work as a "cut short" marker.** Bill wrote "Work call. Had to stop." on the Low Row. SHAZAM can read this.
+    - RPE logged on Day 1 bench working sets and Day 2 Lat Pulldown only.
+    - Hevy sets have no timestamps, so a wrong session end time can't be fixed from set times. Oct 9 shows 3h22m, probably finished late in the app.
+    - Progress already visible: Day 1 bench back-offs 235x5/5/4 (Sep 29: 235x4 x3); heavy single 255 at RPE 9 (was 9.5).
+    - Oct 9 bench working sets logged at exactly 212 lb x8 x4. Ask Bill if that's a typo (215?).
   - Proposed next step: a 1 to 2 week Hevy Pro trial so Claude can test the three unknowns with Bill's account before he decides. Bill will decide at the end of planning.
 - **Real-life schedule (2026-10-03):** football season and Q4 at work. Bill skips exercises, moves days, and sometimes does two routines back to back (Oct 1 and 2: Day 2, then Upper 2 with back work skipped). SHAZAM's targets should probably work per exercise, not depend on a fixed day order, and skipped exercises shouldn't count as stalls. To discuss in the build plan.
 - **Warm-up rule:** StrongSplit marks every set as `working`. How should SHAZAM tell warm-ups apart (e.g. any set well below the top weight for that exercise)?

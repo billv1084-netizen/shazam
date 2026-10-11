@@ -71,7 +71,7 @@ Monday is Day 1, Thursday is Day 2, Friday is Upper 2, but days move around duri
 - **Until early November: maintain.** Get through football season and Q4 without losing ground. Coaching ends early November, maybe sooner depending on playoffs.
 - After that: push again. A **fourth training day** is possible after football if needed.
 - Time in the gym is fine on Monday and Thursday. **Friday (Upper 2, chest/back) is too long.**
-- **Decided 2026-10-03: trimmed Friday (Upper 2) until November**, 5 exercises, 3 sets each, in this order: Bench Press-Volume, Hammer Iso Lateral Row, Narrow Grip Pulldown, Hammer Shoulder Press, Arsenal Standing Lateral Raise. Dropped until November: Pec Deck, Face Pull, Overhead Cable Triceps Extension, Cable Curl. Keep weights heavy; cut sets, not load. Revisit in November (bring them back or move them to a fourth day).
+- **Decided 2026-10-03: trimmed Friday (Upper 2) until November**, 5 exercises, 3 sets each, in this order: Bench Press-Volume, Hammer Iso Lateral Row, Narrow Grip Pulldown, Hammer Shoulder Press, Arsenal Standing Lateral Raise. Dropped until November: Pec Deck, Face Pull, Overhead Cable Triceps Extension, Cable Curl. Keep weights heavy; cut sets, not load. Revisit in November (bring them back or move them to a fourth day). Also in November: add Lying Leg Curl (Claude suggested Day 2, 2x8-12, at the end).
 - Open: the Sep 24 plan moved Hip Thrust to Friday. With Friday trimmed, it probably stays on Thursday for now. Not decided.
 
 ## Hevy
@@ -133,7 +133,7 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 ## Open questions for Bill
 - **Real-life schedule (2026-10-03):** football season and Q4 at work. Bill skips exercises, moves days, and sometimes does two routines back to back (Oct 1 and 2: Day 2, then Upper 2 with back work skipped). SHAZAM's targets should probably work per exercise, not depend on a fixed day order, and skipped exercises shouldn't count as stalls. To discuss in the build plan.
 - **Warm-ups in the old StrongSplit history:** StrongSplit marks every set as `working`. For the one-time import, how should SHAZAM tell warm-ups apart? (Not an issue going forward: Hevy has a `warmup` set type.)
-- **Hip Thrust and Lying Leg Curl:** Hip Thrust stays on Thursday for now? Add Lying Leg Curl (zero hamstring work today)?
+- **Hip Thrust:** stays on Thursday for now? (Lying Leg Curl: Bill decided 2026-10-11 to wait until November. Revisit with the other November changes.)
 - **SHAZAM's logging screens:** retire them completely, or keep a simplified version?
 
 ## Next steps

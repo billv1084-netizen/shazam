@@ -109,6 +109,7 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - **Week of Oct 12 (checked 2026-10-18):** Day 1 (Oct 12) and Upper 2 (Oct 16); no Day 2. Day 1 skipped Lateral Raise and Pendulum Squat (ignored). Bench single 245 at RPE 8 (on target), back-offs 235 x 6, 6, 5 (up from 5, 5, 4). Bill raised two weights himself on good days: Overhead Triceps Extension 50 to 55, Arsenal Lateral Raise 35 to 37.5, and Friday bench 212 to 215 (4 x 8). SHAZAM treats what he lifted as the new starting point.
   - Typos fixed by Claude via the API (with Bill's OK): Oct 6 Incline Fly sets 2 and 3, 130 to 135; Oct 16 Arsenal Lateral Raise set 3, 37.2 to 37.5. Backups in the session scratchpad.
   - Routines updated 2026-10-18. Day 1: single 245, 235 x 4-6 x3, Incline Chest Press 180, Incline Fly 135, Lateral Raise 75, Pendulum Squat 5, Overhead Triceps Extension 55. Corrected the same day for the loose rule: Day 1 bench back-offs 236 x 4-6, Day 2 Lat Pulldown 190. Upper 2: Bench Press-Volume 216 x 6-8 x4, Close Grip Pulldown 180, Iso-Lateral Row 180, Shoulder Press 130, Arsenal Lateral Raise 37.5. Day 2 otherwise unchanged (not done this week).
+- **Coaching notes in Hevy (decided 2026-10-18):** short "SHAZAM:" notes go in each exercise's notes field in the Hevy routines, so Bill sees them at the gym. Added now for bench only (Day 1: single at RPE 7-8, don't grind it, then 3 back-off sets; Upper 2: volume day, 1-2 reps in reserve). Notes for every other exercise get written at the post-football audit. To check after the next workout: does Hevy keep routine notes when it rewrites the routine?
 - **How targets will reach Hevy once SHAZAM is built (planned):** Bill logs in Hevy as usual. Then he opens SHAZAM on his phone; SHAZAM reads the new workout from Hevy, applies the rules, and writes next targets back into the three "Shazam" routines. Hevy overwrites a routine with what was lifted when a workout is finished, so SHAZAM must run after the workout, not before. Until it's built, Bill asks Claude to update the routines.
   - **Decided 2026-10-11:** SHAZAM shows the new targets first and Bill taps a "Send to Hevy" button to update the routines (no automatic update for now, so typos can be caught). Revisit after a few weeks.
 
@@ -150,6 +151,8 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - [x] Switch logging to Hevy, set up routines, agree on progression rules (2026-10-11)
 - [x] Fix Oct 6 Incline Fly sets 2 and 3 to 135 in Hevy (Claude, 2026-10-18)
 - [ ] Bill: check how rep ranges look in the Hevy routines
+- [ ] Claude: after next workout, check Hevy kept the bench notes in the routines
+- [ ] Full program audit after football ends (about Oct 24), including coaching notes for every exercise
 - [ ] Until SHAZAM is built: after each workout, Claude updates the Hevy routines by the rules
 - [ ] Clone `shazam-backup` on the second computer; put the StrongSplit exports and `shazam_export.csv` in it
 - [ ] Write the detailed build plan here (Hevy connection, rules for the new exercises in `PROGRAM`, "Send to Hevy" button, progressive overload view, one-time StrongSplit history import, fixes for issues 3 to 5)

@@ -104,6 +104,9 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
   - Weight steps (Bill, 2026-10-11): any machine or cable can go up 2.5 or 5 lb, because Bill hooks a plate to the pin when the stack has no add-on. So the jump is picked per exercise: +2.5 for small isolation moves (lateral raises, rear delts, triceps, cable curl), +5 for bigger machines, +10 for Hip Thrust. Dumbbells stay +5 (next dumbbell up).
 - **2026-10-11: Hevy routines updated by Claude via the API** to the approved rules (backup of the old routines in the session scratchpad only). Every working set now has a rep range (e.g. 180 x 6-10) instead of a fixed rep count; the API accepts `rep_range` on routine sets. Day 1 bench: warm-ups 135x10, 185x4, 205x2, 225x1, then single 245 (RPE 7 to 8), then 235 x 4-6 x3 (the 240 warm-up was dropped since the single is 245). Straight Arm Pulldown now 2 sets. Not yet checked: how rep ranges look in the Hevy app.
 - **2026-10-11: Bench Press-Volume set up in Hevy.** Custom exercise created; Upper 2 routine now uses it with warm-ups 135x10, 185x4, 205x1, then 4 x 212 x 6-8. The Oct 9 workout's bench was moved to it (edited via `PUT /v1/workouts/{id}`; backup in the session scratchpad). API notes: the workout update rejects `routine_id` but keeps the link to the routine anyway; editing a past workout does not rewrite the routine.
+- **Week of Oct 12 (checked 2026-10-18):** Day 1 (Oct 12) and Upper 2 (Oct 16); no Day 2. Day 1 skipped Lateral Raise and Pendulum Squat (ignored). Bench single 245 at RPE 8 (on target), back-offs 235 x 6, 6, 5 (up from 5, 5, 4). Bill raised two weights himself on good days: Overhead Triceps Extension 50 to 55, Arsenal Lateral Raise 35 to 37.5, and Friday bench 212 to 215 (4 x 8). SHAZAM treats what he lifted as the new starting point.
+  - Typos fixed by Claude via the API (with Bill's OK): Oct 6 Incline Fly sets 2 and 3, 130 to 135; Oct 16 Arsenal Lateral Raise set 3, 37.2 to 37.5. Backups in the session scratchpad.
+  - Routines updated 2026-10-18. Day 1: single 245, 235 x 4-6 x3, Incline Chest Press 180, Incline Fly 135, Lateral Raise 75, Pendulum Squat 5, Overhead Triceps Extension 55. Upper 2: Bench Press-Volume 216 x 6-8 x4, Close Grip Pulldown 180, Iso-Lateral Row 180, Shoulder Press 130, Arsenal Lateral Raise 37.5. Day 2 unchanged (not done this week).
 - **How targets will reach Hevy once SHAZAM is built (planned):** Bill logs in Hevy as usual. Then he opens SHAZAM on his phone; SHAZAM reads the new workout from Hevy, applies the rules, and writes next targets back into the three "Shazam" routines. Hevy overwrites a routine with what was lifted when a workout is finished, so SHAZAM must run after the workout, not before. Until it's built, Bill asks Claude to update the routines.
   - **Decided 2026-10-11:** SHAZAM shows the new targets first and Bill taps a "Send to Hevy" button to update the routines (no automatic update for now, so typos can be caught). Revisit after a few weeks.
 
@@ -143,7 +146,7 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - [x] Commit NOTES.md to GitHub so both computers have it (2026-09-27)
 - [x] Answer the open questions above (2026-10-11)
 - [x] Switch logging to Hevy, set up routines, agree on progression rules (2026-10-11)
-- [ ] Bill: fix Oct 6 Incline Fly sets 2 and 3 to 135 in Hevy
+- [x] Fix Oct 6 Incline Fly sets 2 and 3 to 135 in Hevy (Claude, 2026-10-18)
 - [ ] Bill: check how rep ranges look in the Hevy routines
 - [ ] Until SHAZAM is built: after each workout, Claude updates the Hevy routines by the rules
 - [ ] Clone `shazam-backup` on the second computer; put the StrongSplit exports and `shazam_export.csv` in it

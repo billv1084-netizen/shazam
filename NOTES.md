@@ -25,7 +25,7 @@ Both computers have the project at `C:\Users\billv\code\shazam` (second computer
 
 **Not yet on the second computer:** the private `shazam-backup` repo. Clone it there when we start the history import work (`cd C:\Users\billv\code`, then `git clone https://github.com/billv1084-netizen/shazam-backup.git`).
 
-**Claude preferences:** `CLAUDE.md` in this folder is a copy of Bill's personal preferences (from `C:\Users\billv\.claude\CLAUDE.md` on the first computer), so Claude follows them on either computer. It only applies to this project. If Bill changes the preferences, update both copies. Note: this repo is public, so the file is visible to anyone (it has nothing sensitive).
+**Claude preferences:** `CLAUDE.md` in this folder is a copy of Bill's personal preferences (from `C:\Users\billv\.claude\CLAUDE.md` on the first computer), so Claude follows them on either computer. It only applies to this project. If Bill changes the preferences, update both copies. **2026-10-18: added a "remind me to start a new chat" rule to this folder's copy. The personal copy on the first computer still needs the same lines** (there is no personal copy on the second computer). Note: this repo is public, so the file is visible to anyone (it has nothing sensitive).
 
 **Second computer setup (checked 2026-09-27):** Node.js v24.15.0 installed. GitHub CLI v2.101.0 installed and signed in as `billv1084-netizen`, with access to both `shazam` and `shazam-backup`. Nothing left to install.
 
@@ -152,6 +152,7 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - [x] Fix Oct 6 Incline Fly sets 2 and 3 to 135 in Hevy (Claude, 2026-10-18)
 - [ ] Bill: check how rep ranges look in the Hevy routines
 - [ ] Claude: after next workout, check Hevy kept the bench notes in the routines
+- [ ] On the first computer: copy the new-chat reminder rule from this folder's `CLAUDE.md` into `C:\Users\billv\.claude\CLAUDE.md`
 - [ ] Full program audit after football ends (about Oct 24), including coaching notes for every exercise
 - [ ] Until SHAZAM is built: after each workout, Claude updates the Hevy routines by the rules
 - [ ] Clone `shazam-backup` on the second computer; put the StrongSplit exports and `shazam_export.csv` in it

@@ -141,7 +141,7 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - 2026-09-27: The old idea of combining SHAZAM and IRON 300 into one app is dropped. IRON 300's only remaining task is deleting its public data files.
 
 ## Open questions for Bill
-- None right now. Next: the detailed build plan (see Next steps).
+- None right now. Order (2026-10-18): weekly routine updates by Claude, then the post-football audit, then the build plan.
 
 ## Next steps
 - [x] Install Node.js and GitHub CLI on the second computer (2026-09-27)
@@ -155,5 +155,5 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - [ ] Full program audit after football ends (about Oct 24), including coaching notes for every exercise
 - [ ] Until SHAZAM is built: after each workout, Claude updates the Hevy routines by the rules
 - [ ] Clone `shazam-backup` on the second computer; put the StrongSplit exports and `shazam_export.csv` in it
-- [ ] Write the detailed build plan here (Hevy connection, rules for the new exercises in `PROGRAM`, "Send to Hevy" button, progressive overload view, one-time StrongSplit history import, fixes for issues 3 to 5)
+- [ ] Write the detailed build plan here, **after the audit** (decided 2026-10-18, since the audit may change exercises and rules) (Hevy connection, rules for the new exercises in `PROGRAM`, "Send to Hevy" button, progressive overload view, one-time StrongSplit history import, fixes for issues 3 to 5)
 - [ ] Once `shazam-backup` has a verified copy, delete the public data files

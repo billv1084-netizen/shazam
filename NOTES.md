@@ -1,6 +1,6 @@
 # SHAZAM: Project Notes
 
-_Last updated: 2026-10-25_
+_Last updated: 2026-10-31_
 
 ## Goal
 Bill logs every workout in **Hevy** (since 2026-10-06; StrongSplit retired 2026-10-11). **SHAZAM** reads the workouts from Hevy's API and:
@@ -71,6 +71,7 @@ Monday is Day 1, Thursday is Day 2, Friday is Upper 2, but days move around duri
 - **Until early November: maintain.** Get through football season and Q4 without losing ground. Coaching ends early November, maybe sooner depending on playoffs.
 - Update 2026-10-18: football season likely ends **Saturday, Oct 24**. Bill wants a **full program audit** after it ends (exercises, sets, rep ranges, the November items). Bill prefers rep ranges capped at 12 (bored after 10, 12 OK, not a fan of 15 unless it's clearly best).
 - Update 2026-10-25: football **may not be over** (possible playoffs or a bowl game; Bill finds out Oct 25). At least one more week of football. **Keep everything as is until it ends.**
+- Update 2026-10-31: **football is over.** The post-football program starts now.
 - After that: push again. A **fourth training day** is possible after football if needed.
 
 ### Post-football program (worked out 2026-10-25; starts when football ends)
@@ -110,12 +111,19 @@ How we got here: Claude drafted a 3-day and a 4-day option. Bill ran them past C
   - Wrist: no JM Press, skull crushers with a straight bar, or close-grip bench. Bill suspects the JM Press caused the tendonitis (close grip, wrist angle). His doctor gave no loading guidance.
   - Hammer Curl replaced by Bayesian Cable Curl (Bill): trains the biceps in a stretched position, and cable weight goes up in small steps.
   - RPE 10 means "could not have done one more rep" (Bill's definition, same as Claude's).
-- **Proposed progression rules (Claude, 2026-10-25; Bill has not approved yet):**
+- **Progression rules (proposed by Claude 2026-10-25, approved by Bill 2026-10-31, all four as written):**
   - Accessories: unchanged. Every set at the top of the range: weight up. A miss = any set below the bottom of the range; two sessions in a row with a miss: drop about 10%. New: 3 sessions in a row at the same weight with no added reps = "stall," flagged in SHAZAM for review, no automatic drop.
   - Day 1 back-offs: loose rule, +1 lb. New: hold the weight if any back-off is logged at RPE 10. Back-off total reps flat for 3 Mondays: drop about 5% and rebuild.
   - Day 1 single: RPE 7 or less two weeks in a row: +2 to 3 lb. RPE 9 or more: drop 5 lb next week.
   - Volume bench: every set at 8 and last set RPE 8.5 or less: +1 lb. Last set RPE 9.5 or more: hold. Replace the 90-95% band with a warning only (SHAZAM flags it if Friday passes 95% of Monday).
-- **Still to do:** Bill's OK on the progression rules; starting weights for the new exercises and Friday's Pendulum Squat; build the new Hevy routines (a fourth "Shazam" routine) when football ends; SHAZAM coaching notes for every exercise.
+- **Starting weights for the new exercises (Claude suggested, Bill approved 2026-10-31; aimed light on purpose):** Lying Leg Curl (Machine) 50, Crunch (Machine) 50, Triceps Rope Pushdown 50, Bayesian Cable Curl 15 per arm (Hevy logs one arm's weight), Friday Pendulum Squat 5 added (same as Monday). First week: if set 1 is way too easy (15+ reps) or too heavy (under 8), change the weight for the next sets and log what was lifted; the rules start from that.
+- **Routine names (Bill, 2026-10-31):** Shazam Monday, Shazam Tuesday, Shazam Thursday, Shazam Friday. Labels only; days can still move.
+- **2026-10-31: the 4 Hevy routines are built** (Claude, via the API; backup of the old routines in the session scratchpad). The 3 old routines were rewritten and renamed so their history stays linked: Day 1 is now Shazam Monday (`3da7a17b-...`), Day 2 is Shazam Tuesday (`2e981d41-...`), Upper 2 is Shazam Thursday (`cda7bfed-...`). Shazam Friday is new (`ce53f711-...`), in the "Shazam" folder. Bayesian Cable Curl created as a custom exercise (`cf54d5eb-...`). Targets, from the approved rules and the week of Oct 26:
+  - Monday: bench warm-ups 135x10, 185x4, 205x2, 225x1, single 250 (RPE 8.5, holds), back-offs 237 x 4-6 x3 (best set 5, holds); Pendulum Squat 5; Incline Chest Press 180; Lateral Raise (Machine) 80 (up from 77.5); Overhead Triceps Extension 57.5.
+  - Tuesday: Lat Pulldown 190 x4; Iso-Lateral Low Row 180 x3 (was 4 sets); Lying Leg Curl 50; Rear Delt Reverse Fly 100 (up from 97.5); Bicep Curl (Cable) 42.5 x2 (was 3 sets).
+  - Thursday: Bench Press-Volume warm-ups 135x10, 185x4, 205x1, then 216 x 6-8 x4; Close Grip Pulldown 180; Iso-Lateral Row 180; Hip Thrust 160 (up from 150); Arsenal Lateral Raise 37.5; Crunch (Machine) 50.
+  - Friday: Pendulum Squat 5 x2; Incline Fly 140 x2 (note: stop 2 reps short); Bayesian Cable Curl 15 x2 (note: log one arm); Rope Pushdown 50 x2.
+- **Still to do:** SHAZAM coaching notes for every exercise (only bench, Friday's fly and the Bayesian curl have notes so far); Bill to check the new routines look right in the Hevy app.
 - Time in the gym is fine on Monday and Thursday. **Friday (Upper 2, chest/back) is too long.**
 - **Decided 2026-10-03: trimmed Friday (Upper 2) until November**, 5 exercises, 3 sets each except bench (4 sets, clarified 2026-10-11), in this order: Bench Press-Volume, Narrow Grip Pulldown, Hammer Iso Lateral Row, Hammer Shoulder Press, Arsenal Standing Lateral Raise. Dropped until November: Pec Deck, Face Pull, Overhead Cable Triceps Extension, Cable Curl. Keep weights heavy; cut sets, not load. Order and priority (Bill, 2026-10-11): bench first, then the close-grip pulldown, then the row. Bill does the pulldown early on purpose: he likes it least, so doing it early means it gets done, and it wears him out, so it would suffer later. The pulldown is the back work that has to happen; the Hevy routine already has this order. Revisit in November (bring them back or move them to a fourth day). Also in November: add Lying Leg Curl (Claude suggested Day 2, 2x8-12, at the end).
 - **Decided 2026-10-11:** Hip Thrust stays on Thursday (Day 2) until November, so Friday stays short. Lying Leg Curl also waits until November. Revisit both then.
@@ -158,6 +166,9 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
   - Day 1 routine updated 2026-10-25: single **stays 246** (Bill's call: it felt heavy, RPE 8 is the top of the target), back-offs 237 x 4-6 (loose rule), Incline Fly 140, Overhead Triceps Extension 57.5. Everything else unchanged. Backup in the session scratchpad.
   - Watch: bench back-offs are getting hard (RPE 9 on sets 2 and 3).
   - Confirmed: when Hevy rewrites a routine after a workout, it **keeps the exercise notes and the rep ranges** and only changes weights. Fixed-rep sets (warm-ups, the single) come back from the API as a rep range with no top end; send them back as plain reps.
+- **Week of Oct 26 (checked 2026-10-31; last week on the old program):** Day 1 (Tue Oct 27) and Day 2 (Wed Oct 28); no Upper 2.
+  - Day 1: Bill raised the single to 250 himself (routine said 246), RPE 8.5, above the 7-8 target. Back-offs 237 x 5, 5, 5 at RPE 8.5, 9.5, 9.5 (harder than last week's 8.5, 9, 9). Bench is near its limit for now. Incline Chest Press 180 x 8, 8, 7 because the flyes were done first (equipment), not a stall. Incline Fly 140 x 12, 12, 11. Lateral Raise 77.5 x 12 x3. Pendulum Squat 5 x 10 x3. Overhead Triceps Extension 57.5 x 12, 12, 11.
+  - Day 2: Lat Pulldown 190 x 8, 7, 7, 6, RPE 9.5 to 10 (grinding). Iso-Lateral Low Row 180 x 10, 10, 9, 8. Straight Arm Pulldown 75 x 8 x2 at RPE 10. Rear Delt 97.5 x 12 x3. Bicep Curl (Cable) 42.5 x 12, 12, 10, 10 (4 sets, plan was 3; asked Bill if on purpose). Hip Thrust 150 x 12 x2. Hammer Curl not done.
 - **Coaching notes in Hevy (decided 2026-10-18):** short "SHAZAM:" notes go in each exercise's notes field in the Hevy routines, so Bill sees them at the gym. Added now for bench only (Day 1: single at RPE 7-8, don't grind it, then 3 back-off sets; Upper 2: volume day, 1-2 reps in reserve). Notes for every other exercise get written at the post-football audit. To check after the next workout: does Hevy keep routine notes when it rewrites the routine?
 - **How targets will reach Hevy once SHAZAM is built (planned):** Bill logs in Hevy as usual. Then he opens SHAZAM on his phone; SHAZAM reads the new workout from Hevy, applies the rules, and writes next targets back into the three "Shazam" routines. Hevy overwrites a routine with what was lifted when a workout is finished, so SHAZAM must run after the workout, not before. Until it's built, Bill asks Claude to update the routines.
   - **Decided 2026-10-11:** SHAZAM shows the new targets first and Bill taps a "Send to Hevy" button to update the routines (no automatic update for now, so typos can be caught). Revisit after a few weeks.
@@ -190,8 +201,7 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - 2026-09-27: The old idea of combining SHAZAM and IRON 300 into one app is dropped. IRON 300's only remaining task is deleting its public data files.
 
 ## Open questions for Bill
-- Does Bill approve the proposed progression rules (see "Post-football program")?
-- Order (updated 2026-10-25): weekly routine updates by Claude until football ends, then switch to the post-football program, then the build plan.
+- Order (updated 2026-10-31): football is over, so switch to the post-football program now, then the build plan.
 
 ## Next steps
 - [x] Install Node.js and GitHub CLI on the second computer (2026-09-27)
@@ -204,8 +214,10 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - [x] Claude: after next workout, check Hevy kept the bench notes in the routines (kept, 2026-10-25)
 - [ ] On the first computer: copy the new-chat reminder rule from this folder's `CLAUDE.md` into `C:\Users\billv\.claude\CLAUDE.md`
 - [x] Post-football program worked out (2026-10-25; see "Post-football program")
-- [ ] Bill: approve or change the proposed progression rules
-- [ ] When football ends: set starting weights, build the 4 Hevy routines, write coaching notes for every exercise
+- [x] Bill: approve or change the proposed progression rules (all four approved 2026-10-31)
+- [x] Football ended: starting weights set, 4 Hevy routines built (2026-10-31)
+- [ ] Bill: check the 4 new routines in the Hevy app
+- [ ] Write SHAZAM coaching notes for every exercise
 - [ ] Until SHAZAM is built: after each workout, Claude updates the Hevy routines by the rules
 - [ ] Clone `shazam-backup` on the second computer; put the StrongSplit exports and `shazam_export.csv` in it
 - [ ] Write the detailed build plan here, **after the audit** (decided 2026-10-18, since the audit may change exercises and rules) (Hevy connection, rules for the new exercises in `PROGRAM`, "Send to Hevy" button, progressive overload view, one-time StrongSplit history import, fixes for issues 3 to 5)

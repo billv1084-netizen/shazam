@@ -25,7 +25,7 @@ Both computers have the project at `C:\Users\billv\code\shazam` (second computer
 
 **Not yet on the second computer:** the private `shazam-backup` repo. Clone it there when we start the history import work (`cd C:\Users\billv\code`, then `git clone https://github.com/billv1084-netizen/shazam-backup.git`).
 
-**Claude preferences:** `CLAUDE.md` in this folder is a copy of Bill's personal preferences (from `C:\Users\billv\.claude\CLAUDE.md` on the first computer), so Claude follows them on either computer. It only applies to this project. If Bill changes the preferences, update both copies. **2026-10-18: added a "remind me to start a new chat" rule to this folder's copy. The personal copy on the first computer still needs the same lines** (there is no personal copy on the second computer). Note: this repo is public, so the file is visible to anyone (it has nothing sensitive).
+**Claude preferences:** `CLAUDE.md` in this folder is a copy of Bill's personal preferences (from `C:\Users\billv\.claude\CLAUDE.md` on the first computer), so Claude follows them on either computer. It only applies to this project. If Bill changes the preferences, update both copies. 2026-10-18: added a "remind me to start a new chat" rule to this folder's copy. (Copying it to the personal copy on the first computer was dropped 2026-10-31: Bill won't use that computer much for this project.) There is no personal copy on the second computer. Note: this repo is public, so the file is visible to anyone (it has nothing sensitive).
 
 **Second computer setup (checked 2026-09-27):** Node.js v24.15.0 installed. GitHub CLI v2.101.0 installed and signed in as `billv1084-netizen`, with access to both `shazam` and `shazam-backup`. Nothing left to install.
 
@@ -82,22 +82,22 @@ How we got here: Claude drafted a 3-day and a 4-day option. Bill ran them past C
 | Day | Exercise | Sets x reps |
 |---|---|---|
 | Monday | Bench Press (Barbell) | single at RPE 7-8, then 3 x 4-6 |
-| | Pendulum Squat | 3 x 8-12 |
+| | Pendulum Squat | 3 x 6-10 (was 8-12; changed 2026-10-31) |
 | | Hammer Strength Incline Press | 3 x 6-10 |
 | | Seated Machine Lateral Raise | 3 x 8-12 |
 | | Overhead Cable Triceps Extension | 3 x 8-12 |
 | Tuesday | Lat Pulldown | 4 x 6-10 |
 | | Hammer Strength ISO-Lateral Low Row | 3 x 6-10 |
-| | Lying Leg Curl (new) | 3 x 8-12 |
+| | Lying Leg Curl (new) | 3 x 6-10 (was 8-12; changed 2026-10-31) |
 | | Reverse Pec Deck | 3 x 8-12 |
 | | Cable Bicep Curl | 4 x 8-12 (was 2; changed 2026-10-31) |
 | Thursday | Bench Press-Volume | 4 x 6-8 |
 | | Close Grip Lat Pulldown | 3 x 6-10 |
 | | Hammer Strength ISO-Lateral Row | 3 x 8-12 |
-| | Machine Hip Thrust | 2 x 8-12 |
+| | Machine Hip Thrust | 2 x 6-10 (was 8-12; changed 2026-10-31) |
 | | Arsenal Standing Lateral Raise | 3 x 8-12 |
 | | Machine Ab Crunch (new) | 2 x 8-12 |
-| Friday (optional) | Pendulum Squat | 2 x 8-12 |
+| Friday (optional) | Pendulum Squat | 2 x 6-10 (was 8-12; changed 2026-10-31) |
 | | Arsenal Reloaded Incline Fly | 2 x 8-12, stop 2 reps short |
 | | Rope Pushdown (new) | 2 x 8-12 |
 
@@ -117,13 +117,16 @@ How we got here: Claude drafted a 3-day and a 4-day option. Bill ran them past C
   - Day 1 single: RPE 7 or less two weeks in a row: +2 to 3 lb. RPE 9 or more: drop 5 lb next week.
   - Volume bench: every set at 8 and last set RPE 8.5 or less: +1 lb. Last set RPE 9.5 or more: hold. Replace the 90-95% band with a warning only (SHAZAM flags it if Friday passes 95% of Monday).
 - **Starting weights for the new exercises (Claude suggested, Bill approved 2026-10-31; aimed light on purpose):** Lying Leg Curl (Machine) 50, Crunch (Machine) 50, Triceps Rope Pushdown 50, Bayesian Cable Curl 15 per arm (Hevy logs one arm's weight), Friday Pendulum Squat 5 added (same as Monday). First week: if set 1 is way too easy (15+ reps) or too heavy (under 8), change the weight for the next sets and log what was lifted; the rules start from that.
+- **Leg rep cap (Bill, 2026-10-31):** leg exercises (Pendulum Squat Mon and Fri, Lying Leg Curl, Hip Thrust) top out at **10 reps**, not 12. Range is **6-10** (Bill, 2026-10-31, Claude's recommendation). Pendulum Squat jump: Bill wants **2.5 lb per side** (5 lb total). The 5 logged in Hevy is the total (Bill). Monday's Pendulum Squat hit 10 x3 at 5, so it goes to **10 total** (5 per side). **Done in Hevy 2026-10-31** (Claude, via the API): all leg sets in the 4 routines now 6-10, Monday Pendulum Squat 10; nothing else changed (backup in the session scratchpad). Friday Pendulum Squat stays at 5.
 - **Routine names (Bill, 2026-10-31):** Shazam Monday, Shazam Tuesday, Shazam Thursday, Shazam Friday. Labels only; days can still move.
 - **2026-10-31: the 4 Hevy routines are built** (Claude, via the API; backup of the old routines in the session scratchpad). The 3 old routines were rewritten and renamed so their history stays linked: Day 1 is now Shazam Monday (`3da7a17b-...`), Day 2 is Shazam Tuesday (`2e981d41-...`), Upper 2 is Shazam Thursday (`cda7bfed-...`). Shazam Friday is new (`ce53f711-...`), in the "Shazam" folder. Bayesian Cable Curl created as a custom exercise (`cf54d5eb-...`). Targets, from the approved rules and the week of Oct 26:
   - Monday: bench warm-ups 135x10, 185x4, 205x2, 225x1, single 250 (RPE 8.5, holds), back-offs 237 x 4-6 x3 (best set 5, holds); Pendulum Squat 5; Incline Chest Press 180; Lateral Raise (Machine) 80 (up from 77.5); Overhead Triceps Extension 57.5.
   - Tuesday: Lat Pulldown 190 x4; Iso-Lateral Low Row 180 x3 (was 4 sets); Lying Leg Curl 50; Rear Delt Reverse Fly 100 (up from 97.5); Bicep Curl (Cable) 42.5 x4 (changed from x2 later the same day).
   - Thursday: Bench Press-Volume warm-ups 135x10, 185x4, 205x1, then 216 x 6-8 x4; Close Grip Pulldown 180; Iso-Lateral Row 180; Hip Thrust 160 (up from 150); Arsenal Lateral Raise 37.5; Crunch (Machine) 50.
   - Friday: Pendulum Squat 5 x2; Incline Fly 140 x2 (note: stop 2 reps short); Rope Pushdown 50 x2. (Bayesian Cable Curl 15 x2 was removed later the same day; the custom exercise stays in Hevy, unused.)
-- **Still to do:** SHAZAM coaching notes for every exercise (only bench and Friday's fly have notes so far); Bill to check the new routines look right in the Hevy app.
+- Bill checked the new routines in the Hevy app 2026-10-31: all four there, fly note shows.
+- **2026-10-31: coaching notes added to every exercise in the 4 Hevy routines** (Claude drafted, Bill approved "for now"; added via the API, weights and sets unchanged, backup in the session scratchpad). Each note starts "SHAZAM:" and gives the machine setting (where known), when the weight goes up, and a form or wrist cue. Bench notes kept; Thursday bench and Friday fly got their "up when" line added. Claude's calls that Bill accepted with the notes: weight jumps Lying Leg Curl +5, Crunch +5, Rope Pushdown +2.5; Leg Curl first-day check is 13+ or under 6 (because of the 6-10 range). Not added: a "leave a rep in reserve" note on Lat Pulldown (last session was RPE 9.5 to 10); Bill's call if wanted.
+- **Machine settings (Bill's old SHAZAM sticky notes, sent 2026-10-31).** These are now in the Hevy notes. Lateral Raise (Machine), Monday: set on 8 (the old SHAZAM "Cable Lateral" note, Bill confirmed it's this machine). Overhead Triceps Extension (Cable), Monday: set at 9. Iso-Lateral Low Row, Tuesday: set at 6. Rear Delt Reverse Fly (Machine), Tuesday: set at 4. Pec Deck: set at 6 (Pec Deck is dropped from the program; kept here for reference). Old note in the public data file: "Inside grip" on the EZ bar cable curl (old, not confirmed for the current Cable Curl).
 - Time in the gym is fine on Monday and Thursday. **Friday (Upper 2, chest/back) is too long.**
 - **Decided 2026-10-03: trimmed Friday (Upper 2) until November**, 5 exercises, 3 sets each except bench (4 sets, clarified 2026-10-11), in this order: Bench Press-Volume, Narrow Grip Pulldown, Hammer Iso Lateral Row, Hammer Shoulder Press, Arsenal Standing Lateral Raise. Dropped until November: Pec Deck, Face Pull, Overhead Cable Triceps Extension, Cable Curl. Keep weights heavy; cut sets, not load. Order and priority (Bill, 2026-10-11): bench first, then the close-grip pulldown, then the row. Bill does the pulldown early on purpose: he likes it least, so doing it early means it gets done, and it wears him out, so it would suffer later. The pulldown is the back work that has to happen; the Hevy routine already has this order. Revisit in November (bring them back or move them to a fourth day). Also in November: add Lying Leg Curl (Claude suggested Day 2, 2x8-12, at the end).
 - **Decided 2026-10-11:** Hip Thrust stays on Thursday (Day 2) until November, so Friday stays short. Lying Leg Curl also waits until November. Revisit both then.
@@ -212,12 +215,12 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - [x] Fix Oct 6 Incline Fly sets 2 and 3 to 135 in Hevy (Claude, 2026-10-18)
 - [ ] Bill: check how rep ranges look in the Hevy routines
 - [x] Claude: after next workout, check Hevy kept the bench notes in the routines (kept, 2026-10-25)
-- [ ] On the first computer: copy the new-chat reminder rule from this folder's `CLAUDE.md` into `C:\Users\billv\.claude\CLAUDE.md`
 - [x] Post-football program worked out (2026-10-25; see "Post-football program")
 - [x] Bill: approve or change the proposed progression rules (all four approved 2026-10-31)
 - [x] Football ended: starting weights set, 4 Hevy routines built (2026-10-31)
-- [ ] Bill: check the 4 new routines in the Hevy app
-- [ ] Write SHAZAM coaching notes for every exercise
+- [x] Bill: check the 4 new routines in the Hevy app (all four there, Friday fly note shows, 2026-10-31)
+- [x] Write SHAZAM coaching notes for every exercise, with machine settings (in Hevy 2026-10-31)
+- [x] Leg exercises changed to 6-10 reps in Hevy (2026-10-31)
 - [ ] Until SHAZAM is built: after each workout, Claude updates the Hevy routines by the rules
 - [ ] Clone `shazam-backup` on the second computer; put the StrongSplit exports and `shazam_export.csv` in it
 - [ ] Write the detailed build plan here, **after the audit** (decided 2026-10-18, since the audit may change exercises and rules) (Hevy connection, rules for the new exercises in `PROGRAM`, "Send to Hevy" button, progressive overload view, one-time StrongSplit history import, fixes for issues 3 to 5)

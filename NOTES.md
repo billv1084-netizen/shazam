@@ -90,7 +90,7 @@ How we got here: Claude drafted a 3-day and a 4-day option. Bill ran them past C
 | | Hammer Strength ISO-Lateral Low Row | 3 x 6-10 |
 | | Lying Leg Curl (new) | 3 x 8-12 |
 | | Reverse Pec Deck | 3 x 8-12 |
-| | Cable Bicep Curl | 2 x 8-12 |
+| | Cable Bicep Curl | 4 x 8-12 (was 2; changed 2026-10-31) |
 | Thursday | Bench Press-Volume | 4 x 6-8 |
 | | Close Grip Lat Pulldown | 3 x 6-10 |
 | | Hammer Strength ISO-Lateral Row | 3 x 8-12 |
@@ -99,17 +99,17 @@ How we got here: Claude drafted a 3-day and a 4-day option. Bill ran them past C
 | | Machine Ab Crunch (new) | 2 x 8-12 |
 | Friday (optional) | Pendulum Squat | 2 x 8-12 |
 | | Arsenal Reloaded Incline Fly | 2 x 8-12, stop 2 reps short |
-| | Bayesian Cable Curl (new, replaces Hammer Curl) | 2 x 8-12 |
 | | Rope Pushdown (new) | 2 x 8-12 |
 
-- Weekly hard sets: chest 12, back 13, side delts 6, rear delts 3, triceps 5 direct, biceps 4, quads 5, hamstrings 3, glutes 2, core 2. About 55 sets, Friday about 8.
+- Weekly hard sets: chest 12, back 13, side delts 6, rear delts 3, triceps 5 direct, biceps 4, quads 5, hamstrings 3, glutes 2, core 2. About 55 sets, Friday about 6 (updated 2026-10-31 for the curl change).
 - **Dropped:** Shoulder Press (two bench days plus incline press cover front delts), Straight Arm Pulldown, Pec Deck, Face Pull, Dumbbell Hammer Curl.
 - **Missed days:** skip Friday if needed, or occasionally do it Saturday; never make up sets. If Tuesday is missed, do Tuesday's session on Friday instead of Friday's. Always protect both bench days.
 - **Decisions and reasons (2026-10-25):**
   - Keep the heavy single (Bill). Bench is touch-and-go on the single and the back-offs. Bill's back-offs look strong compared to his single (237 x 6 predicts a max in the 280s, 246 at RPE 8 says about 265). His logs are accurate; he's relatively stronger for reps, so the single is the honest test of his max and good practice with heavy weight.
   - Second triceps exercise from day one (Bill): Rope Pushdown, the most wrist-friendly option (neutral grip). Overhead Cable Extension stays the main one (best evidence for triceps size, and the wrist tolerates it). Watch the wrist the morning after, especially the first few weeks. The last cortisone shot was in August and may be wearing off.
   - Wrist: no JM Press, skull crushers with a straight bar, or close-grip bench. Bill suspects the JM Press caused the tendonitis (close grip, wrist angle). His doctor gave no loading guidance.
-  - Hammer Curl replaced by Bayesian Cable Curl (Bill): trains the biceps in a stretched position, and cable weight goes up in small steps.
+  - Hammer Curl replaced by Bayesian Cable Curl (Bill): trains the biceps in a stretched position, and cable weight goes up in small steps. **Changed 2026-10-31 (Bill):** Bayesian dropped from Friday; Tuesday Cable Curl goes from 2 to 4 sets instead. Same 4 biceps sets a week, but they happen even when the optional Friday is skipped. Friday is now 3 exercises.
+  - Curl grip (discussed 2026-10-31): Bill did 2 sets narrow and 2 wide on a straight bar on Oct 28. Claude's view: grip width shifts work only slightly between the biceps heads and makes little difference to growth; total hard sets matter. A straight bar bends the wrists more at narrow or wide grips, so an EZ bar or rope is easier on the tendonitis wrist. One grip per session keeps the progression rule clean. Not decided; Bill's call at the gym.
   - RPE 10 means "could not have done one more rep" (Bill's definition, same as Claude's).
 - **Progression rules (proposed by Claude 2026-10-25, approved by Bill 2026-10-31, all four as written):**
   - Accessories: unchanged. Every set at the top of the range: weight up. A miss = any set below the bottom of the range; two sessions in a row with a miss: drop about 10%. New: 3 sessions in a row at the same weight with no added reps = "stall," flagged in SHAZAM for review, no automatic drop.
@@ -120,10 +120,10 @@ How we got here: Claude drafted a 3-day and a 4-day option. Bill ran them past C
 - **Routine names (Bill, 2026-10-31):** Shazam Monday, Shazam Tuesday, Shazam Thursday, Shazam Friday. Labels only; days can still move.
 - **2026-10-31: the 4 Hevy routines are built** (Claude, via the API; backup of the old routines in the session scratchpad). The 3 old routines were rewritten and renamed so their history stays linked: Day 1 is now Shazam Monday (`3da7a17b-...`), Day 2 is Shazam Tuesday (`2e981d41-...`), Upper 2 is Shazam Thursday (`cda7bfed-...`). Shazam Friday is new (`ce53f711-...`), in the "Shazam" folder. Bayesian Cable Curl created as a custom exercise (`cf54d5eb-...`). Targets, from the approved rules and the week of Oct 26:
   - Monday: bench warm-ups 135x10, 185x4, 205x2, 225x1, single 250 (RPE 8.5, holds), back-offs 237 x 4-6 x3 (best set 5, holds); Pendulum Squat 5; Incline Chest Press 180; Lateral Raise (Machine) 80 (up from 77.5); Overhead Triceps Extension 57.5.
-  - Tuesday: Lat Pulldown 190 x4; Iso-Lateral Low Row 180 x3 (was 4 sets); Lying Leg Curl 50; Rear Delt Reverse Fly 100 (up from 97.5); Bicep Curl (Cable) 42.5 x2 (was 3 sets).
+  - Tuesday: Lat Pulldown 190 x4; Iso-Lateral Low Row 180 x3 (was 4 sets); Lying Leg Curl 50; Rear Delt Reverse Fly 100 (up from 97.5); Bicep Curl (Cable) 42.5 x4 (changed from x2 later the same day).
   - Thursday: Bench Press-Volume warm-ups 135x10, 185x4, 205x1, then 216 x 6-8 x4; Close Grip Pulldown 180; Iso-Lateral Row 180; Hip Thrust 160 (up from 150); Arsenal Lateral Raise 37.5; Crunch (Machine) 50.
-  - Friday: Pendulum Squat 5 x2; Incline Fly 140 x2 (note: stop 2 reps short); Bayesian Cable Curl 15 x2 (note: log one arm); Rope Pushdown 50 x2.
-- **Still to do:** SHAZAM coaching notes for every exercise (only bench, Friday's fly and the Bayesian curl have notes so far); Bill to check the new routines look right in the Hevy app.
+  - Friday: Pendulum Squat 5 x2; Incline Fly 140 x2 (note: stop 2 reps short); Rope Pushdown 50 x2. (Bayesian Cable Curl 15 x2 was removed later the same day; the custom exercise stays in Hevy, unused.)
+- **Still to do:** SHAZAM coaching notes for every exercise (only bench and Friday's fly have notes so far); Bill to check the new routines look right in the Hevy app.
 - Time in the gym is fine on Monday and Thursday. **Friday (Upper 2, chest/back) is too long.**
 - **Decided 2026-10-03: trimmed Friday (Upper 2) until November**, 5 exercises, 3 sets each except bench (4 sets, clarified 2026-10-11), in this order: Bench Press-Volume, Narrow Grip Pulldown, Hammer Iso Lateral Row, Hammer Shoulder Press, Arsenal Standing Lateral Raise. Dropped until November: Pec Deck, Face Pull, Overhead Cable Triceps Extension, Cable Curl. Keep weights heavy; cut sets, not load. Order and priority (Bill, 2026-10-11): bench first, then the close-grip pulldown, then the row. Bill does the pulldown early on purpose: he likes it least, so doing it early means it gets done, and it wears him out, so it would suffer later. The pulldown is the back work that has to happen; the Hevy routine already has this order. Revisit in November (bring them back or move them to a fourth day). Also in November: add Lying Leg Curl (Claude suggested Day 2, 2x8-12, at the end).
 - **Decided 2026-10-11:** Hip Thrust stays on Thursday (Day 2) until November, so Friday stays short. Lying Leg Curl also waits until November. Revisit both then.
@@ -168,7 +168,7 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
   - Confirmed: when Hevy rewrites a routine after a workout, it **keeps the exercise notes and the rep ranges** and only changes weights. Fixed-rep sets (warm-ups, the single) come back from the API as a rep range with no top end; send them back as plain reps.
 - **Week of Oct 26 (checked 2026-10-31; last week on the old program):** Day 1 (Tue Oct 27) and Day 2 (Wed Oct 28); no Upper 2.
   - Day 1: Bill raised the single to 250 himself (routine said 246), RPE 8.5, above the 7-8 target. Back-offs 237 x 5, 5, 5 at RPE 8.5, 9.5, 9.5 (harder than last week's 8.5, 9, 9). Bench is near its limit for now. Incline Chest Press 180 x 8, 8, 7 because the flyes were done first (equipment), not a stall. Incline Fly 140 x 12, 12, 11. Lateral Raise 77.5 x 12 x3. Pendulum Squat 5 x 10 x3. Overhead Triceps Extension 57.5 x 12, 12, 11.
-  - Day 2: Lat Pulldown 190 x 8, 7, 7, 6, RPE 9.5 to 10 (grinding). Iso-Lateral Low Row 180 x 10, 10, 9, 8. Straight Arm Pulldown 75 x 8 x2 at RPE 10. Rear Delt 97.5 x 12 x3. Bicep Curl (Cable) 42.5 x 12, 12, 10, 10 (4 sets, plan was 3; asked Bill if on purpose). Hip Thrust 150 x 12 x2. Hammer Curl not done.
+  - Day 2: Lat Pulldown 190 x 8, 7, 7, 6, RPE 9.5 to 10 (grinding). Iso-Lateral Low Row 180 x 10, 10, 9, 8. Straight Arm Pulldown 75 x 8 x2 at RPE 10. Rear Delt 97.5 x 12 x3. Bicep Curl (Cable) 42.5 x 12, 12, 10, 10 (4 sets, plan was 3; on purpose, 2 narrow and 2 wide grip). Hip Thrust 150 x 12 x2. Hammer Curl not done.
 - **Coaching notes in Hevy (decided 2026-10-18):** short "SHAZAM:" notes go in each exercise's notes field in the Hevy routines, so Bill sees them at the gym. Added now for bench only (Day 1: single at RPE 7-8, don't grind it, then 3 back-off sets; Upper 2: volume day, 1-2 reps in reserve). Notes for every other exercise get written at the post-football audit. To check after the next workout: does Hevy keep routine notes when it rewrites the routine?
 - **How targets will reach Hevy once SHAZAM is built (planned):** Bill logs in Hevy as usual. Then he opens SHAZAM on his phone; SHAZAM reads the new workout from Hevy, applies the rules, and writes next targets back into the three "Shazam" routines. Hevy overwrites a routine with what was lifted when a workout is finished, so SHAZAM must run after the workout, not before. Until it's built, Bill asks Claude to update the routines.
   - **Decided 2026-10-11:** SHAZAM shows the new targets first and Bill taps a "Send to Hevy" button to update the routines (no automatic update for now, so typos can be caught). Revisit after a few weeks.

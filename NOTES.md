@@ -82,26 +82,35 @@ How we got here: Claude drafted a 3-day and a 4-day option. Bill ran them past C
 | Day | Exercise | Sets x reps |
 |---|---|---|
 | Monday | Bench Press (Barbell) | single at RPE 7-8, then 3 x 4-6 |
-| | Pendulum Squat | 3 x 6-10 (was 8-12; changed 2026-10-31) |
+| | Pendulum Squat | 4 x 6-10 (was 3 x 8-12; changed 2026-10-31) |
 | | Hammer Strength Incline Press | 3 x 6-10 |
-| | Seated Machine Lateral Raise | 3 x 8-12 |
-| | Overhead Cable Triceps Extension | 3 x 8-12 |
+| | Seated Machine Lateral Raise | 4 x 8-12 (was 3) |
+| | Overhead Cable Triceps Extension | 4 x 8-12 (was 3) |
 | Tuesday | Lat Pulldown | 4 x 6-10 |
 | | Hammer Strength ISO-Lateral Low Row | 3 x 6-10 |
-| | Lying Leg Curl (new) | 3 x 6-10 (was 8-12; changed 2026-10-31) |
-| | Reverse Pec Deck | 3 x 8-12 |
+| | Lying Leg Curl (new) | 4 x 6-10 (was 3 x 8-12; changed 2026-10-31) |
+| | Reverse Pec Deck | 4 x 8-12 (was 3) |
 | | Cable Bicep Curl | 4 x 8-12 (was 2; changed 2026-10-31) |
 | Thursday | Bench Press-Volume | 4 x 6-8 |
 | | Close Grip Lat Pulldown | 3 x 6-10 |
 | | Hammer Strength ISO-Lateral Row | 3 x 8-12 |
 | | Machine Hip Thrust | 2 x 6-10 (was 8-12; changed 2026-10-31) |
-| | Arsenal Standing Lateral Raise | 3 x 8-12 |
-| | Machine Ab Crunch (new) | 2 x 8-12 |
+| | Arsenal Standing Lateral Raise | 4 x 8-12 (was 3) |
+| | Rope Pushdown (added 2026-10-31) | 2 x 8-12 |
+| | Bayesian Cable Curl (added 2026-10-31) | 2 x 8-12 |
+| | ~~Machine Ab Crunch~~ | removed 2026-10-31 |
 | Friday (optional) | Pendulum Squat | 2 x 6-10 (was 8-12; changed 2026-10-31) |
 | | Arsenal Reloaded Incline Fly | 2 x 8-12, stop 2 reps short |
 | | Rope Pushdown (new) | 2 x 8-12 |
 
-- Weekly hard sets: chest 12, back 13, side delts 6, rear delts 3, triceps 5 direct, biceps 4, quads 5, hamstrings 3, glutes 2, core 2. About 55 sets, Friday about 6 (updated 2026-10-31 for the curl change).
+- Weekly hard sets (updated 2026-10-31 after the volume review below): chest 12, back 13, side delts 8, rear delts 4, triceps 8 direct (6 without Friday), biceps 6, quads 6 (4 without Friday), hamstrings 4, glutes 2, core 0. About 63 sets, Friday about 6.
+- **Volume review, Dr. Mike Israetel lens (2026-10-31).** Bill follows Dr. Mike (Renaissance Periodization) and the first audit wasn't what he expected, so Claude reviewed the program against RP ideas. Findings: great exercise choices; chest and back at growth volume, but legs, delts and arms at roughly maintenance (below RP's rough MEV, the minimum sets to grow: side delts 8, rear delts 6-8, biceps 8, triceps 6, quads 8, hamstrings 6); no mesocycles or deloads; heavy bench is strength work, not muscle work; RP says 5-30 reps all grow muscle, so the 10/12 rep caps are a preference, not a rule; Pendulum Squat on Friday is unreliable because Friday is optional.
+  - **Bill's goal (2026-10-31): both muscle size and a bigger bench.** So the heavy Monday bench stays (strength practice), and most other work aims at muscle.
+  - Bill can give Monday, Tuesday and Thursday about 10 extra minutes each (about 3 sets each). No supersets (Bill: the second exercise suffers and rest is too short). Myo-reps explained, not used. Crunch dropped to free time (RP puts abs MEV at 0).
+  - Bill's priority for the extra sets: triceps, delts, biceps, legs. Rear delts 4 sets, not 5 (Bill). The spare Tuesday set was left out, so Tuesday grows about 7 minutes. Second curl: Bayesian Cable Curl on Thursday (Bill).
+  - **Done in Hevy 2026-10-31** (Claude, via the API; backup in the session scratchpad): Monday Pendulum Squat, Lateral Raise and Overhead Triceps Extension 3 to 4 sets; Tuesday Lying Leg Curl and Rear Delt Reverse Fly 3 to 4 sets; Thursday Crunch removed, Arsenal Lateral Raise 3 to 4 sets, Triceps Rope Pushdown 50 x 8-12 x2 and Bayesian Cable Curl 15 per arm x 8-12 x2 added at the end, with SHAZAM notes. Extra sets use the same weight as the others. Friday unchanged.
+  - Still short of RP minimums: quads, hamstrings, rear delts (accepted for now; a later block can focus on legs).
+  - Next to discuss: deloads and mesocycles (blocks of 4-6 weeks). Later: whether Thursday bench moves to 8-12 (one strength bench day, one muscle bench day).
 - **Dropped:** Shoulder Press (two bench days plus incline press cover front delts), Straight Arm Pulldown, Pec Deck, Face Pull, Dumbbell Hammer Curl.
 - **Missed days:** skip Friday if needed, or occasionally do it Saturday; never make up sets. If Tuesday is missed, do Tuesday's session on Friday instead of Friday's. Always protect both bench days.
 - **Decisions and reasons (2026-10-25):**
@@ -204,7 +213,7 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - 2026-09-27: The old idea of combining SHAZAM and IRON 300 into one app is dropped. IRON 300's only remaining task is deleting its public data files.
 
 ## Open questions for Bill
-- Order (updated 2026-10-31): football is over, so switch to the post-football program now, then the build plan.
+- Next (2026-10-31): talk through deloads and mesocycles. Then Thursday bench rep range. Then the build plan.
 
 ## Next steps
 - [x] Install Node.js and GitHub CLI on the second computer (2026-09-27)
@@ -213,7 +222,6 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - [x] Answer the open questions above (2026-10-11)
 - [x] Switch logging to Hevy, set up routines, agree on progression rules (2026-10-11)
 - [x] Fix Oct 6 Incline Fly sets 2 and 3 to 135 in Hevy (Claude, 2026-10-18)
-- [ ] Bill: check how rep ranges look in the Hevy routines
 - [x] Claude: after next workout, check Hevy kept the bench notes in the routines (kept, 2026-10-25)
 - [x] Post-football program worked out (2026-10-25; see "Post-football program")
 - [x] Bill: approve or change the proposed progression rules (all four approved 2026-10-31)
@@ -221,6 +229,9 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - [x] Bill: check the 4 new routines in the Hevy app (all four there, Friday fly note shows, 2026-10-31)
 - [x] Write SHAZAM coaching notes for every exercise, with machine settings (in Hevy 2026-10-31)
 - [x] Leg exercises changed to 6-10 reps in Hevy (2026-10-31)
+- [x] Volume review (Dr. Mike lens): extra sets for triceps, delts, biceps, legs in Hevy (2026-10-31)
+- [ ] Decide on deloads and mesocycles
+- [ ] Decide Thursday bench rep range (6-8 or 8-12)
 - [ ] Until SHAZAM is built: after each workout, Claude updates the Hevy routines by the rules
 - [ ] Clone `shazam-backup` on the second computer; put the StrongSplit exports and `shazam_export.csv` in it
 - [ ] Write the detailed build plan here, **after the audit** (decided 2026-10-18, since the audit may change exercises and rules) (Hevy connection, rules for the new exercises in `PROGRAM`, "Send to Hevy" button, progressive overload view, one-time StrongSplit history import, fixes for issues 3 to 5)

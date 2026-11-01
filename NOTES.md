@@ -111,7 +111,7 @@ How we got here: Claude drafted a 3-day and a 4-day option. Bill ran them past C
   - **Done in Hevy 2026-10-31** (Claude, via the API; backup in the session scratchpad): Monday Pendulum Squat, Lateral Raise and Overhead Triceps Extension 3 to 4 sets; Tuesday Lying Leg Curl and Rear Delt Reverse Fly 3 to 4 sets; Thursday Crunch removed, Arsenal Lateral Raise 3 to 4 sets, Triceps Rope Pushdown 50 x 8-12 x2 and Bayesian Cable Curl 15 per arm x 8-12 x2 added at the end, with SHAZAM notes. Extra sets use the same weight as the others. Friday unchanged.
   - Still short of RP minimums: quads, hamstrings, rear delts (accepted for now; a later block can focus on legs).
   - **Deloads (discussion started 2026-10-31):** Claude explained deloads (a planned easy week: about half the sets, lighter weights, far from failure) and offered A (keep the program, deload every 5-6 weeks) or B (full RP blocks with sets rising weekly). Not decided. Bill has unavoidable work weeks the **week of Nov 16** and the **week of Dec 7**. Claude's idea: use those busy weeks as the deloads instead of planning separate ones. Bill: **no training at all the week of Nov 16** (a week off counts as the deload; nothing to change in Hevy). Dec 7 week: unknown yet; if Bill can train, Claude designs deload versions of the routines, otherwise it's a week off too. Ask Bill about Dec 7 in early December. Through Dec the blocks are only 2 weeks, so option B (sets rising weekly) can't work yet; the A vs B choice waits until the longer block from Dec 14.
-  - Next to discuss: deloads and mesocycles (blocks of 4-6 weeks). Later: whether Thursday bench moves to 8-12 (one strength bench day, one muscle bench day).
+  - Next to discuss: deloads and mesocycles (blocks of 4-6 weeks). **Decided 2026-10-31 (Bill, Claude's recommendation): Thursday bench stays 4 x 6-8.** 6-8 already builds muscle and carries over to Monday. Revisit if the wrist complains or Thursday bench stalls.
 - **Dropped:** Shoulder Press (two bench days plus incline press cover front delts), Straight Arm Pulldown, Pec Deck, Face Pull, Dumbbell Hammer Curl.
 - **Missed days:** skip Friday if needed, or occasionally do it Saturday; never make up sets. If Tuesday is missed, do Tuesday's session on Friday instead of Friday's. Always protect both bench days.
 - **Decisions and reasons (2026-10-25):**
@@ -215,7 +215,7 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - 2026-09-27: The old idea of combining SHAZAM and IRON 300 into one app is dropped. IRON 300's only remaining task is deleting its public data files.
 
 ## Open questions for Bill
-- Next (2026-10-31): talk through deloads and mesocycles. Then Thursday bench rep range. Then the build plan.
+- Next (2026-10-31): program discussion is done for now. Next piece of work: the SHAZAM build plan (new chat). Early December: ask Bill about the Dec 7 week. Mid-December: choose deload approach A or B for the block starting Dec 14.
 
 ## Next steps
 - [x] Install Node.js and GitHub CLI on the second computer (2026-09-27)
@@ -232,8 +232,9 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - [x] Write SHAZAM coaching notes for every exercise, with machine settings (in Hevy 2026-10-31)
 - [x] Leg exercises changed to 6-10 reps in Hevy (2026-10-31)
 - [x] Volume review (Dr. Mike lens): extra sets for triceps, delts, biceps, legs in Hevy (2026-10-31)
-- [ ] Decide on deloads and mesocycles
-- [ ] Decide Thursday bench rep range (6-8 or 8-12)
+- [x] Deloads for now: Nov 16 week off is the deload; Dec 7 week to be decided in early December (2026-10-31)
+- [ ] Choose deload approach A or B for the block starting Dec 14
+- [x] Thursday bench rep range: stays 6-8 (2026-10-31)
 - [ ] Until SHAZAM is built: after each workout, Claude updates the Hevy routines by the rules
 - [ ] Clone `shazam-backup` on the second computer; put the StrongSplit exports and `shazam_export.csv` in it
 - [ ] Write the detailed build plan here, **after the audit** (decided 2026-10-18, since the audit may change exercises and rules) (Hevy connection, rules for the new exercises in `PROGRAM`, "Send to Hevy" button, progressive overload view, one-time StrongSplit history import, fixes for issues 3 to 5)

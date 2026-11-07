@@ -12,6 +12,7 @@
   1. Merge any open pull request on GitHub.
   2. In PowerShell: `cd C:\Users\billv\code\<project folder>`, then `git pull` (each as its own Run-button block).
   3. Start a new session in the project folder and say: "Read NOTES.md and pick up where we left off."
+- Rename each session to a tiny summary of what we did (for example "SHAZAM stage 1 built + color key"), not "Continue from NOTES.md". Do it when we wrap up, and again if the work changes direction.
 
 ## Project notes (always do this)
 

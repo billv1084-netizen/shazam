@@ -259,6 +259,7 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
   - Weight raised partway (too easy at first): judged on the sets at the final weight.
   - The 10% drop rounds to the exercise's weight jump (180 to 160 on a +5 lift; bench 5% rounds to 1 lb).
   - Sending replaces the whole routine with the plan: warm-ups, sets, rep ranges, notes and rest timers from `program.js`.
+- **2026-11-07, after merging (PR #14):** Bill added the API key on the phone ("Connected as Bill V"); all 4 routines show up to date. Bill asked about the colored exercise names, so a color key was added under the top card (Bill picked a key over words or no change): green up, black same, red down, blue planned reset. v3.1.
 - **Not checkable here:** the offline helper (the browser pane used for testing doesn't allow service workers), and a real Send to Hevy. Both get checked on Bill's phone.
 - **How to start using it (after merging):** open SHAZAM on the phone (same address and icon), go to Settings, paste the Hevy API key (Hevy app: Settings, Developer, or the copy in `C:\Users\billv\.hevy\api_key.txt`), tap "Save and test." Then Targets. **Don't tap Send yet**: 1 to 2 weeks side by side first.
 
@@ -316,7 +317,8 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - [x] Write the detailed build plan (2026-11-07; see "SHAZAM build plan")
 - [x] Build stage 1: targets and Send to Hevy (2026-11-07, PR from `build/stage-1`)
 - [ ] Side by side 1 to 2 weeks: SHAZAM's targets vs Claude's by hand; then Bill starts tapping Send
-- [ ] Check on the phone: API key saves, targets load, app opens offline
+- [x] Check on the phone: API key saves, targets load (2026-11-07)
+- [ ] Check on the phone: app opens offline
 - [ ] Build stage 2: progressive overload view (list plus chart) (plate calculator already carried over in stage 1)
 - [ ] Build stage 3: clean-up (issues 3 to 5, public data files)
 - [ ] Build stage 4: one-time StrongSplit history import

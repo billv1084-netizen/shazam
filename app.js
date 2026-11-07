@@ -3,7 +3,7 @@ import { PROGRAM } from './program.js';
 import { computeTargets, diffRoutine, buildRoutineBody, keptInHevy, fmtSets, localDay } from './rules.js';
 import { Hevy } from './hevy.js';
 
-const VERSION = 'v3.0';
+const VERSION = 'v3.1';
 const KEY_STORE = 'shazam_hevy_key';
 
 const $ = id => document.getElementById(id);
@@ -137,6 +137,7 @@ function renderTargets() {
   let html = `<div class="card hero"><div class="eyebrow">Next targets</div><div class="title-xl">Review &amp; send</div>
     <div class="sub">${S.loading ? 'Reading Hevy…' : S.loadedAt ? `Read from Hevy at ${esc(S.loadedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }))}. ${n} workouts since ${esc(fmtDay(PROGRAM.startDate))}.` : ''}</div>
     <div style="margin-top:12px"><button class="btn btn-ghost btn-sm" data-refresh ${S.loading ? 'disabled' : ''}>Refresh</button></div></div>`;
+  html += `<div class="key"><span class="k-up">&#9679; Up</span><span>&#9679; Same</span><span class="k-down">&#9679; Down</span><span class="k-reset">&#9679; Planned reset</span></div>`;
   if (S.error) html += `<div class="err">${esc(S.error)}</div>`;
   if (S.targets.length) html += S.targets.map(routineCard).join('');
   el.innerHTML = html;

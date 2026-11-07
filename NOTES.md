@@ -1,6 +1,6 @@
 # SHAZAM: Project Notes
 
-_Last updated: 2026-11-07 (stage 1 built)_
+_Last updated: 2026-11-07 (stage 2 built)_
 
 ## Goal
 Bill logs every workout in **Hevy** (since 2026-10-06; StrongSplit retired 2026-10-11). **SHAZAM** reads the workouts from Hevy's API and:
@@ -263,6 +263,29 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - **Not checkable here:** the offline helper (the browser pane used for testing doesn't allow service workers), and a real Send to Hevy. Both get checked on Bill's phone.
 - **How to start using it (after merging):** open SHAZAM on the phone (same address and icon), go to Settings, paste the Hevy API key (Hevy app: Settings, Developer, or the copy in `C:\Users\billv\.hevy\api_key.txt`), tap "Save and test." Then Targets. **Don't tap Send yet**: 1 to 2 weeks side by side first.
 
+### Stage 2 details (decided 2026-11-07, Bill, all Claude's pick)
+- **History starts Oct 6** (first Hevy workout), not Nov 2, so the trend shows. A "new program" marker at Nov 2: a dashed line on the charts and a divider in the session list. The first session of each exercise on or after Nov 2 is not judged ("New program started").
+- **Dropped exercises** (logged since Oct 6, not in the program now) go in a closed "No longer in the program" section at the bottom, under their Hevy names.
+- **List grouped by routine, in gym order.** Rear Delt Reverse Fly and Bayesian Cable Curl show under both days with the same history (the view goes by exercise).
+- **Monday bench:** two chart lines, back-offs (solid blue) and the single (dashed orange). The marker is judged on the back-offs. Total reps chart is back-offs only.
+- **The marker rule:** compared with the session before. Weight up = better ("More weight"), even if reps drop. Same weight: more total reps = better, fewer = worse, equal = same. Weight down = worse. Reps are compared over the sets both sessions have, so an extra or missing set doesn't count. Not judged (hollow gray): first session, cut short (fewer sets than the plan), first session after a week off (8+ days with no workout), first session of the new program.
+- **Total weight moved: not used** (Bill asked; Claude's pick). It makes a weight jump look worse (180 x 10, 9, 8 = 4,860; 185 x 9, 8, 7 = 4,440) and a 10% drop look better.
+
+### Stage 2 built (2026-11-07, branch `build/stage-2`, v3.2)
+- **Files:** `progress.js` (history and markers; no screens, no network), `tests/progress.test.js` (15 tests, 45 in all), Progress tab in `app.js` + `index.html`. `rules.js` now shares its "find the bench single" helper. `program.js` has `historyStart: '2026-10-06'`. SHAZAM now reads workouts from Oct 6 (targets still only use Nov 2 on).
+- **Screen:** Progress tab between Targets and Plates. List: each exercise with its last session and marker. Tap one: weight chart, total reps chart, tap a dot or bar for that session, then every session newest first with the routine name it was logged under (old ones say "Shazam Day 1" etc.).
+- **Checked on Bill's real workouts** (copied from Hevy read-only into a local test server; real Hevy untouched): Monday bench Oct 12 "More reps (14 to 17)", Oct 20 and Oct 27 "More weight", Nov 2 "New program started". Targets screen unchanged (all 4 up to date).
+- **Claude's calls while coding (tell Claude to change any):**
+  - Before Nov 2 there's no plan to check "cut short" against, so a session with fewer sets than the one before is not judged ("Fewer sets than last time"). Side effect: Straight Arm Pulldown Oct 28 (2 sets, on purpose after the Oct 11 change) shows that label.
+  - A session after a cut-short one compares only over the sets both have. Example: Low Row Oct 28 (180 x 10, 10, 9, 8) after Oct 8 (180 x 10, 10, cut short) shows "Same weight and reps (20 over the first 2 sets)".
+  - The chart shows the top weight of the session; mixed-weight sessions (raised partway) show the heaviest.
+  - The single's dots are always solid (the single is never judged).
+
+### Future idea: written coaching summary (Bill, 2026-11-07; not now)
+- Every workout day: a short note per session. What went well last time, what didn't, what to focus on today.
+- First workout of the week: also a review of last week and a big-picture focus for the week ahead.
+- To decide later: written by SHAZAM from fixed rules (free, predictable, sounds like a checklist) or by an AI such as Claude through Anthropic's API (reads like a coach, small cost per use, needs an API key kept safe; a phone web page can't hide a key by itself, so it needs extra setup).
+
 ## Issues found
 1. **Workout data is in public repos.** Anyone can see it. Can't just make the repos private: free GitHub Pages hosting needs public repos. Fix: have the app sync to the private `shazam-backup` repo instead.
 2. **`shazam-backup` is empty** (`{}`), so it isn't actually backing anything up.
@@ -291,7 +314,7 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - 2026-09-27: The old idea of combining SHAZAM and IRON 300 into one app is dropped. IRON 300's only remaining task is deleting its public data files.
 
 ## Open questions for Bill
-- Next (2026-11-07): stage 1 built (PR open). Bill: merge, add the API key on the phone, check targets look right, don't Send yet. Review the "small rule calls" in "Stage 1 built". Then side by side for 1 to 2 weeks: after each workout Claude works out targets by hand as usual and compares with SHAZAM. Early December: ask Bill about the Dec 7 week. (Deload approach: A, decided 2026-11-07.)
+- Next (2026-11-07): stage 2 built (PR open). Bill: merge, open the Progress tab on the phone, look at Monday bench. Review Claude's calls in "Stage 2 built" and the "small rule calls" in "Stage 1 built" (not reviewed yet). Don't Send yet. Then side by side for 1 to 2 weeks: after each workout Claude works out targets by hand as usual and compares with SHAZAM. Early December: ask Bill about the Dec 7 week. (Deload approach: A, decided 2026-11-07.)
 
 ## Next steps
 - [x] Install Node.js and GitHub CLI on the second computer (2026-09-27)
@@ -319,7 +342,9 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - [ ] Side by side 1 to 2 weeks: SHAZAM's targets vs Claude's by hand; then Bill starts tapping Send
 - [x] Check on the phone: API key saves, targets load (2026-11-07)
 - [ ] Check on the phone: app opens offline
-- [ ] Build stage 2: progressive overload view (list plus chart) (plate calculator already carried over in stage 1)
+- [x] Build stage 2: progressive overload view (list plus chart) (2026-11-07, PR from `build/stage-2`)
+- [ ] Check on the phone: Progress tab looks right
+- [ ] Later: written coaching summary (see "Future idea")
 - [ ] Build stage 3: clean-up (issues 3 to 5, public data files)
 - [ ] Build stage 4: one-time StrongSplit history import
 - [ ] Once `shazam-backup` has a verified copy, delete the public data files

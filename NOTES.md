@@ -1,6 +1,6 @@
 # SHAZAM: Project Notes
 
-_Last updated: 2026-10-31_
+_Last updated: 2026-11-07_
 
 ## Goal
 Bill logs every workout in **Hevy** (since 2026-10-06; StrongSplit retired 2026-10-11). **SHAZAM** reads the workouts from Hevy's API and:
@@ -98,11 +98,15 @@ How we got here: Claude drafted a 3-day and a 4-day option. Bill ran them past C
 | | Arsenal Standing Lateral Raise | 4 x 8-12 (was 3) |
 | | Rope Pushdown (added 2026-10-31) | 2 x 8-12 |
 | | Bayesian Cable Curl (added 2026-10-31) | 2 x 8-12 |
+| | Leg Press + 10 calf raises after each set (moved from Friday 2026-11-07) | 2 x 6-10 |
 | | ~~Machine Ab Crunch~~ | removed 2026-10-31 |
-| Friday (optional) | Leg Press (replaced Pendulum Squat 2026-11-07, Bill) | 2 x 6-10 |
-| | Arsenal Reloaded Incline Fly | 3 x 8-12, stop 2 reps short (was 2 sets; Bill 2026-11-07) |
+| Friday (optional) | Arsenal Reloaded Incline Fly | 3 x 8-12, stop 2 reps short (was 2 sets; Bill 2026-11-07) |
 | | Seated Dip Machine, Hoist ROC-IT (added 2026-11-07) | 3 x 8-12 |
 | | Dumbbell Skull Crusher, palms facing (replaced Rope Pushdown 2026-11-07) | 2 x 8-12 |
+| | Reverse Pec Deck (added 2026-11-07; cable reverse fly if the machine is taken) | 3 x 8-12 |
+| | Bayesian Cable Curl (added 2026-11-07) | 2 x 8-12 |
+
+- **Weekly hard sets (2026-11-07, after the ChatGPT review), with Friday / without:** chest 13 / 10, triceps 11 / 6 direct, rear delts 7 / 4, biceps 8 / 6, side delts 8, quads 6, calves 2, hamstrings 4, glutes 2. Friday is about 40 minutes.
 
 - Update 2026-11-07: Friday changes add chest +1 (fly 3 sets) and triceps +3 (dip 3 + skull crusher 2 instead of rope 2), so chest 13, triceps 11 direct (6 without Friday).
 - Weekly hard sets (updated 2026-10-31 after the volume review below): chest 12, back 13, side delts 8, rear delts 4, triceps 8 direct (6 without Friday), biceps 6, quads 6 (4 without Friday), hamstrings 4, glutes 2, core 0. About 63 sets, Friday about 6.
@@ -193,6 +197,18 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
   - **Decisions 2026-11-07 (Bill):** Friday keeps Leg Press and the dip machine. Friday triceps machine replaced by Dumbbell Skull Crusher, palms facing (Bill asked about JM Press or skull crushers; Claude said no to JM Press, the suspected tendonitis cause; dumbbell neutral grip is the wrist-friendly skull crusher; any twinge and it's gone). Rope Pushdown stays on Thursday only (Bill asked about moving it all to Friday; Claude: triceps would fall to 4 sets on weeks Friday is skipped). Katana extension offered, Bill didn't like it. Incline Fly 3 sets on Friday. **Both pulldowns hold this week** instead of the loose rule's +5 (set 1 goes to RPE 10 and later sets fall off): stop set 1 with 1-2 reps left, aim for sets closer together.
   - Routines updated in Hevy 2026-11-07 (backup in session scratchpad): Mon Pendulum 10 (note: "Up 2.5 total"), rest hold. Tue Lat Pulldown 185 hold, Low Row 185, Leg Curl 100, Rear Delt 100, Curl 45. Thu Bench 217 x4, Close Grip 180 hold, Iso Row 180 x3 sets, Hip Thrust 170, Arsenal 37.5, Rope 67.5, Bayesian 20. Fri Leg Press 150 (+10 jumps, Claude's pick; tell Bill to say if his leg press steps differ), Fly 150 x3, Seated Dip 205 x 8-12 x3 (+5 jumps), Skull Crusher 20 x 8-12 x2 (+5 jumps). Notes: "stop set 1 with 1-2 reps left" added to both pulldowns; stale "New"/first-day notes removed from Leg Curl, Rope, Bayesian.
   - Watch: bench back-offs RPE 9.5-10 again (week off Nov 16 is well timed).
+- **ChatGPT review (2026-11-07).** Bill was still skeptical, so Claude wrote a prompt for ChatGPT (no age or limitations mentioned, judged only on bench and muscle growth). Bill then refined it with ChatGPT himself. New facts from that: Bill's leg goal is some muscle plus strength and mobility for everyday life, not maximum leg growth (so current leg volume is fine). Bill does calf raises on the leg press after each leg press set (10 + 10). Claude's verdict on the review: bench grinding is the real problem (250 single at RPE 8 puts the max near 262, so 237 back-offs are about 90%); pulldowns to the strict rule, RPE limits on bench progression, drop the Thursday 90% floor, deload option A, rep caps fine: all agreed. Weak points: cutting Friday dips (Claude disagrees, triceps only 6 sets without Friday); skull crusher is the weakest Friday lift; moving leg press to Thursday adds work on weeks Friday is skipped (still a good idea, about 8 minutes).
+  - **Decided 2026-11-07 (Bill, Claude's pick): Monday back-offs start at 230 after the Nov 16 week off** (from 237, about a 3% cut), then adjust by RPE. Week of Nov 9 stays at 237.
+  - **Decided 2026-11-07 (Bill, Claude's pick): Monday back-off progression.** +1 lb when the best set hits 6, no set is below 4, **and every set is RPE 8.5 or lower.** Otherwise hold. (Replaces "hold if any set is RPE 10.")
+  - **Decided 2026-11-07 (Bill, Claude's pick): Thursday volume bench starts at 212 after the week off** (from 217, about 92% of Monday's 230). Thursday Nov 12 stays at 217.
+  - **Decided 2026-11-07 (Bill, Claude's pick): Thursday bench progresses on its own.** The 90% floor (automatic jump up to 90% of Monday) is gone; the 95% warning stays. All 4 sets at 8 and last set RPE 8.5 or lower: +1 lb. Last set RPE 9.5 or higher: hold. **Two Thursdays in a row with the last set at 9.5 or higher: drop about 5 lb.**
+  - **Decided 2026-11-07 (Bill, Claude's pick): both pulldowns move to the strict rule** (every set at 10 before +5). The loose rule now applies only to Monday bench back-offs. The "stop set 1 with 1-2 reps left" notes stay.
+  - **Decided 2026-11-07 (Bill, Claude's pick): accessory misses keep the automatic ~10% drop** after two sessions in a row with a set below the range, but SHAZAM shows the reason ("2 misses in a row") so Bill can override before "Send to Hevy".
+  - **Decided 2026-11-07 (Bill): Leg Press (2 sets, each followed by 10 calf raises on the leg press) moves from Friday to the end of Thursday,** after hip thrusts. Bill doesn't want Friday too short (not 15 minutes, not 2 hours).
+  - **Decided 2026-11-07 (Bill, Claude's pick): Friday adds Reverse Pec Deck 3 x 8-12 and Bayesian Cable Curl 2 x 8-12** (about 40 minutes total). Rear delts 7 and biceps 8 on Friday weeks. Back-to-back biceps (Thu then Fri) accepted: small muscle, low sets. The machine is often taken; Bill prefers it (cleaner form), so the routine keeps Reverse Pec Deck with a note that the cable reverse fly is the stand-in if the machine is busy. (Claude's view: face pulls are slightly worse for rear delts; cable reverse fly is the closest swap.) If Bill uses the cable version, he swaps the exercise in Hevy so the machine's history stays clean.
+  - **Decided 2026-11-07 (Bill, Claude's pick): accessory sets aim for RPE 8-9** (1-2 reps left). RPE 10 is allowed now and then on the last set of an isolation exercise.
+  - **Decided 2026-11-07 (Bill, Claude's pick): deload option A.** Same sets every week; review fatigue and performance about every 5-6 weeks; deload when performance and recovery call for it, not on a fixed date. A training deload is about half the sets at RPE 6-7. Nov 16 week off counts as one.
+  - **Done in Hevy 2026-11-07** (Claude, via the API; backup in the session scratchpad): Thursday gets Leg Press 150 x 6-10 x2 at the end (note: 10 calf raises after each set); Friday loses Leg Press, gains Rear Delt Reverse Fly (Machine) 100 x 8-12 x3 (note: cable reverse fly if taken) and Bayesian Cable Curl 20 x 8-12 x2; both pulldown notes now say "Up 5 when every set hits 10." Bench weights not changed yet: **after the Nov 16 week off, set Monday back-offs to 230 and Thursday to 212, and update the bench notes for the new RPE rules.**
   - **Hevy quirk found:** after a workout with swapped exercises or extra sets, Hevy's "update routine" rewrites the routine's exercises and set counts too, not just weights (Friday got Leg Press, triceps machine and dip; Thursday row got 5 sets). Check routine structure each week.
 - **Coaching notes in Hevy (decided 2026-10-18):** short "SHAZAM:" notes go in each exercise's notes field in the Hevy routines, so Bill sees them at the gym. Added now for bench only (Day 1: single at RPE 7-8, don't grind it, then 3 back-off sets; Upper 2: volume day, 1-2 reps in reserve). Notes for every other exercise get written at the post-football audit. To check after the next workout: does Hevy keep routine notes when it rewrites the routine?
 - **How targets will reach Hevy once SHAZAM is built (planned):** Bill logs in Hevy as usual. Then he opens SHAZAM on his phone; SHAZAM reads the new workout from Hevy, applies the rules, and writes next targets back into the three "Shazam" routines. Hevy overwrites a routine with what was lifted when a workout is finished, so SHAZAM must run after the workout, not before. Until it's built, Bill asks Claude to update the routines.
@@ -226,7 +242,7 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - 2026-09-27: The old idea of combining SHAZAM and IRON 300 into one app is dropped. IRON 300's only remaining task is deleting its public data files.
 
 ## Open questions for Bill
-- Next (2026-10-31): program discussion is done for now. Next piece of work: the SHAZAM build plan (new chat). Early December: ask Bill about the Dec 7 week. Mid-December: choose deload approach A or B for the block starting Dec 14.
+- Next (2026-10-31): program discussion is done for now. Next piece of work: the SHAZAM build plan (new chat). Early December: ask Bill about the Dec 7 week. (Deload approach: A, decided 2026-11-07.)
 
 ## Next steps
 - [x] Install Node.js and GitHub CLI on the second computer (2026-09-27)
@@ -244,9 +260,10 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - [x] Leg exercises changed to 6-10 reps in Hevy (2026-10-31)
 - [x] Volume review (Dr. Mike lens): extra sets for triceps, delts, biceps, legs in Hevy (2026-10-31)
 - [x] Deloads for now: Nov 16 week off is the deload; Dec 7 week to be decided in early December (2026-10-31)
-- [ ] Choose deload approach A or B for the block starting Dec 14
+- [x] Deload approach: option A (2026-11-07)
 - [x] Thursday bench rep range: stays 6-8 (2026-10-31)
 - [ ] Until SHAZAM is built: after each workout, Claude updates the Hevy routines by the rules
+- [ ] After the Nov 16 week off: Monday back-offs 230, Thursday bench 212, bench notes updated for the new RPE rules
 - [ ] Clone `shazam-backup` on the second computer; put the StrongSplit exports and `shazam_export.csv` in it
 - [ ] Write the detailed build plan here, **after the audit** (decided 2026-10-18, since the audit may change exercises and rules) (Hevy connection, rules for the new exercises in `PROGRAM`, "Send to Hevy" button, progressive overload view, one-time StrongSplit history import, fixes for issues 3 to 5)
 - [ ] Once `shazam-backup` has a verified copy, delete the public data files

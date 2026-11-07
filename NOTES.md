@@ -1,6 +1,6 @@
 # SHAZAM: Project Notes
 
-_Last updated: 2026-11-07 (build plan)_
+_Last updated: 2026-11-07 (stage 1 built)_
 
 ## Goal
 Bill logs every workout in **Hevy** (since 2026-10-06; StrongSplit retired 2026-10-11). **SHAZAM** reads the workouts from Hevy's API and:
@@ -240,10 +240,27 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 3. **Clean-up:** fix issues 3 to 5 below (or drop them if the rebuild removes them), move the public data files to `shazam-backup` and delete them from the public repos.
 4. **One-time StrongSplit history import** (Jun 29 to Oct 2), using the warm-up rules in Decisions, into the overload view. Needs `shazam-backup` cloned on the second computer.
 
-### Details to settle while building stage 1 (Claude will ask)
-- How many days off count as "a week off" for the after-a-break rule.
-- How far back SHAZAM reads (enough sessions per routine for "two misses in a row," "3 sessions stalled," "two Thursdays in a row"; about the last 4 sessions of each routine).
-- How the one-time bench reset after Nov 16 (Monday back-offs 230, Thursday 212) goes in: likely a dated starting point in the program file.
+### Stage 1 details (decided 2026-11-07, Bill, all Claude's pick)
+- **"A week off" = 8 or more days with no workout at all** (any routine). Skipping one routine while training on other days doesn't count; that routine carries on under the normal rules.
+- **SHAZAM reads every workout since the new program started (Mon Nov 2, 2026)** and replays the rules in order. If it ever gets slow, move the start date forward in the program file.
+- **Planned resets are dated entries in the program file.** First one: from Nov 16, Monday back-offs 230 and Thursday bench 212. SHAZAM uses it for the first target after that date, shows "planned reset after week off" on the card, then the normal rules take over.
+
+### Stage 1 built (2026-11-07, branch `build/stage-1`)
+- **Files:** `program.js` (the 4 routines: Hevy exercise ids, sets, ranges, jumps, rule, notes, start weights, resets), `rules.js` (the rules; no screens, no network), `hevy.js` (Hevy API), `app.js` + `index.html` (screens), `sw.js` (offline helper), `tests/rules.test.js` (30 tests; run `npm test`). Old `tests.mjs` deleted (it tested the old app; fixes issue 3). Old app is in git history.
+- **Screens:** Targets (one card per routine: what changes and why, flags, tap a weight to edit, "Show all", Send to Hevy), Plates (plate calculator, brought over now instead of stage 2 so it isn't missing in between), Settings (Hevy API key, saved only on that device).
+- **Checked on real data:** the rules applied to the week of Nov 2 reproduce every target Claude set by hand on Nov 7 (all 4 routines "up to date"). With the date set to Nov 16, Monday shows 237 to 230 and Thursday 217 to 212. A test Send to a fake Hevy (local test server, real Hevy untouched) produced exactly the current Thursday routine.
+- **New behavior found while testing (Claude's call, tell Claude to change):** if a routine was changed in Hevy *after* its last workout (a Send, Claude by hand, or Bill in the app), SHAZAM keeps Hevy's weights until the next workout, and shows "Changed in Hevy to 70 (SHAZAM's pick: 67.5)". Without this, an edited target would show "needs sending" again right after sending. A planned reset dated after that change still shows.
+- **`sw.js` fixed (issue 4):** loads the newest version first (no more stale cache name), and never caches Hevy.
+- **Small rule calls Claude made while coding (tell Claude to change any):**
+  - Monday single: "+2 to 3 lb" became **+2**.
+  - After a week off, the miss count resets, and that session doesn't count toward a stall or the 3-Monday flat rule.
+  - Bench sets with no RPE logged: hold (can't confirm 8.5 or less).
+  - Extra sets beyond the plan are ignored (the first planned sets are judged).
+  - Weight raised partway (too easy at first): judged on the sets at the final weight.
+  - The 10% drop rounds to the exercise's weight jump (180 to 160 on a +5 lift; bench 5% rounds to 1 lb).
+  - Sending replaces the whole routine with the plan: warm-ups, sets, rep ranges, notes and rest timers from `program.js`.
+- **Not checkable here:** the offline helper (the browser pane used for testing doesn't allow service workers), and a real Send to Hevy. Both get checked on Bill's phone.
+- **How to start using it (after merging):** open SHAZAM on the phone (same address and icon), go to Settings, paste the Hevy API key (Hevy app: Settings, Developer, or the copy in `C:\Users\billv\.hevy\api_key.txt`), tap "Save and test." Then Targets. **Don't tap Send yet**: 1 to 2 weeks side by side first.
 
 ## Issues found
 1. **Workout data is in public repos.** Anyone can see it. Can't just make the repos private: free GitHub Pages hosting needs public repos. Fix: have the app sync to the private `shazam-backup` repo instead.
@@ -273,7 +290,7 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - 2026-09-27: The old idea of combining SHAZAM and IRON 300 into one app is dropped. IRON 300's only remaining task is deleting its public data files.
 
 ## Open questions for Bill
-- Next (2026-11-07): build plan written (see "SHAZAM build plan"). Next piece of work: build stage 1 (new chat). Early December: ask Bill about the Dec 7 week. (Deload approach: A, decided 2026-11-07.)
+- Next (2026-11-07): stage 1 built (PR open). Bill: merge, add the API key on the phone, check targets look right, don't Send yet. Review the "small rule calls" in "Stage 1 built". Then side by side for 1 to 2 weeks: after each workout Claude works out targets by hand as usual and compares with SHAZAM. Early December: ask Bill about the Dec 7 week. (Deload approach: A, decided 2026-11-07.)
 
 ## Next steps
 - [x] Install Node.js and GitHub CLI on the second computer (2026-09-27)
@@ -297,8 +314,10 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - [ ] After the Nov 16 week off: Monday back-offs 230, Thursday bench 212, bench notes updated for the new RPE rules
 - [ ] Clone `shazam-backup` on the second computer; put the StrongSplit exports and `shazam_export.csv` in it
 - [x] Write the detailed build plan (2026-11-07; see "SHAZAM build plan")
-- [ ] Build stage 1: targets and Send to Hevy, then 1 to 2 weeks side by side before Bill sends
-- [ ] Build stage 2: progressive overload view (list plus chart) and plate calculator
+- [x] Build stage 1: targets and Send to Hevy (2026-11-07, PR from `build/stage-1`)
+- [ ] Side by side 1 to 2 weeks: SHAZAM's targets vs Claude's by hand; then Bill starts tapping Send
+- [ ] Check on the phone: API key saves, targets load, app opens offline
+- [ ] Build stage 2: progressive overload view (list plus chart) (plate calculator already carried over in stage 1)
 - [ ] Build stage 3: clean-up (issues 3 to 5, public data files)
 - [ ] Build stage 4: one-time StrongSplit history import
 - [ ] Once `shazam-backup` has a verified copy, delete the public data files

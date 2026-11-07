@@ -9,7 +9,7 @@ Bill logs every workout in **Hevy** (since 2026-10-06; StrongSplit retired 2026-
 Old StrongSplit exports (Jun 29 to Oct 2) get imported once, for history.
 
 ## Working on two computers
-Both computers have the project at `C:\Users\billv\code\shazam` (second computer set up 2026-09-27). Bill expects to do most future work on the second computer.
+**Update 2026-11-07: Bill now works on one computer only.** Skip the second-computer steps below. Both computers have the project at `C:\Users\billv\code\shazam` (second computer set up 2026-09-27).
 
 **Starting a session (either computer):**
 1. Open PowerShell.

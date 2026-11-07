@@ -9,7 +9,7 @@ Bill logs every workout in **Hevy** (since 2026-10-06; StrongSplit retired 2026-
 Old StrongSplit exports (Jun 29 to Oct 2) get imported once, for history.
 
 ## Working on two computers
-Both computers have the project at `C:\Users\billv\code\shazam` (second computer set up 2026-09-27). Bill expects to do most future work on the second computer.
+**Update 2026-11-07: Bill now works on one computer only.** Skip the second-computer steps below. Both computers have the project at `C:\Users\billv\code\shazam` (second computer set up 2026-09-27).
 
 **Starting a session (either computer):**
 1. Open PowerShell.
@@ -25,7 +25,7 @@ Both computers have the project at `C:\Users\billv\code\shazam` (second computer
 
 **Not yet on the second computer:** the private `shazam-backup` repo. Clone it there when we start the history import work (`cd C:\Users\billv\code`, then `git clone https://github.com/billv1084-netizen/shazam-backup.git`).
 
-**Claude preferences:** `CLAUDE.md` in this folder is a copy of Bill's personal preferences (from `C:\Users\billv\.claude\CLAUDE.md` on the first computer), so Claude follows them on either computer. It only applies to this project. If Bill changes the preferences, update both copies. 2026-10-18: added a "remind me to start a new chat" rule to this folder's copy. 2026-11-07: added an "always give Run buttons for commands" rule. (Copying it to the personal copy on the first computer was dropped 2026-10-31: Bill won't use that computer much for this project.) There is no personal copy on the second computer. Note: this repo is public, so the file is visible to anyone (it has nothing sensitive).
+**Claude preferences:** `CLAUDE.md` in this folder is a copy of Bill's personal preferences (from `C:\Users\billv\.claude\CLAUDE.md` on the first computer), so Claude follows them on either computer. It only applies to this project. If Bill changes the preferences, update both copies. 2026-10-18: added a "remind me to start a new chat" rule to this folder's copy. 2026-11-07: added "rename each session to a tiny summary of what we did." 2026-11-07: added an "always give Run buttons for commands" rule. (Copying it to the personal copy on the first computer was dropped 2026-10-31: Bill won't use that computer much for this project.) There is no personal copy on the second computer. Note: this repo is public, so the file is visible to anyone (it has nothing sensitive).
 
 **Second computer setup (checked 2026-09-27):** Node.js v24.15.0 installed. GitHub CLI v2.101.0 installed and signed in as `billv1084-netizen`, with access to both `shazam` and `shazam-backup`. Nothing left to install.
 

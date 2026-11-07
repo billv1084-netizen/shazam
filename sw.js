@@ -1,7 +1,7 @@
 // SHAZAM service worker: lets the app open offline. Network first, so a new
 // version always shows up as soon as it's deployed.
-const CACHE = 'shazam-v3.1';
-const SHELL = ['./', 'index.html', 'app.js', 'rules.js', 'program.js', 'hevy.js', 'manifest.json', 'icon-180.png', 'icon-512.png'];
+const CACHE = 'shazam-v3.2';
+const SHELL = ['./', 'index.html', 'app.js', 'rules.js', 'progress.js', 'program.js', 'hevy.js', 'manifest.json', 'icon-180.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(

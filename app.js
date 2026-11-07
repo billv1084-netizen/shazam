@@ -2,8 +2,9 @@
 import { PROGRAM } from './program.js';
 import { computeTargets, diffRoutine, buildRoutineBody, keptInHevy, fmtSets, localDay } from './rules.js';
 import { Hevy } from './hevy.js';
+import { buildProgress, chartPoints } from './progress.js';
 
-const VERSION = 'v3.1';
+const VERSION = 'v3.2';
 const KEY_STORE = 'shazam_hevy_key';
 
 const $ = id => document.getElementById(id);
@@ -17,6 +18,7 @@ const S = {
   overrides: {}, // edits made on this screen: { routineKey: { exId: { weight?, single? } } }
   kept: {},      // weights changed in Hevy since the last workout, same shape
   showAll: {}, sending: null,
+  progress: null, progEx: null, // Progress screen: history, and the exercise open (null = the list)
 };
 
 const progOf = key => PROGRAM.routines.find(p => p.key === key);
@@ -34,21 +36,23 @@ function effective(rKey) {
 async function load() {
   const key = getKey();
   if (!key) { S.error = null; renderTargets(); return; }
-  S.loading = true; S.error = null; renderTargets();
+  S.loading = true; S.error = null; renderTargets(); renderProgressIfOpen();
   try {
     const hevy = new Hevy(key);
-    const [workouts, routines] = await Promise.all([hevy.workoutsSince(PROGRAM.startDate), hevy.routines()]);
+    const [workouts, routines] = await Promise.all([hevy.workoutsSince(PROGRAM.historyStart), hevy.routines()]);
     S.workouts = workouts;
     S.hevyRoutines = new Map(routines.map(r => [r.id, r]));
     S.targets = computeTargets(PROGRAM, workouts, localDay(new Date().toISOString()));
     S.overrides = {};
     S.kept = Object.fromEntries(S.targets.map(t => [t.key, keptInHevy(progOf(t.key), t, S.hevyRoutines.get(t.id), workouts)]));
+    S.progress = buildProgress(PROGRAM, workouts);
     S.loadedAt = new Date();
   } catch (e) {
     S.error = e.message || String(e);
   }
   S.loading = false;
   renderTargets();
+  renderProgressIfOpen();
   updateHeader();
 }
 
@@ -141,6 +145,174 @@ function renderTargets() {
   if (S.error) html += `<div class="err">${esc(S.error)}</div>`;
   if (S.targets.length) html += S.targets.map(routineCard).join('');
   el.innerHTML = html;
+}
+
+// ---------- progress page ----------
+
+const shortDay = day => {
+  const [y, m, d] = day.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+};
+const markClass = k => ({ up: 'k-up', down: 'k-down', skip: 'k-skip' }[k] || '');
+const markShort = s => (s.kind === 'same' ? 'Same' : s.label.split(' (')[0]);
+const dot = k => `<span class="mk ${markClass(k)}">${k === 'skip' ? '&#9675;' : '&#9679;'}</span>`;
+
+function renderProgressIfOpen() {
+  if ($('page-progress').classList.contains('active')) renderProgress();
+}
+
+function renderProgress() {
+  const el = $('page-progress');
+  if (!getKey()) { el.innerHTML = `<div class="card"><div class="empty">Add your Hevy API key in <b>Settings</b> to see your progress.</div></div>`; return; }
+  if (!S.progress) {
+    el.innerHTML = S.error ? `<div class="err">${esc(S.error)}</div>` : `<div class="card"><div class="empty">Reading Hevy…</div></div>`;
+    return;
+  }
+  el.innerHTML = S.progEx && S.progress.exercises[S.progEx] ? progressDetail(S.progress.exercises[S.progEx]) : progressList();
+}
+
+const progKey = `<div class="key"><span class="k-up">&#9679; Better</span><span>&#9679; Same</span><span class="k-down">&#9679; Worse</span><span class="k-skip">&#9675; Not judged</span></div>`;
+
+function progressRow(h) {
+  const last = h.sessions[h.sessions.length - 1];
+  const sub = last ? `${esc(shortDay(last.day))} &middot; ${esc(fmtSets(last.work.length ? last.work : last.sets))}` : 'No sessions yet';
+  return `<button class="p-row" data-ex="${esc(h.id)}">
+    <div class="p-main"><div class="p-name">${esc(h.name)}</div><div class="p-sub">${sub}</div>
+    ${last ? `<div class="p-mark ${markClass(last.kind)}">${dot(last.kind)} ${esc(markShort(last))}</div>` : ''}</div>
+    <span class="p-go">&rsaquo;</span></button>`;
+}
+
+function progressList() {
+  const P = S.progress;
+  let html = `<div class="card hero"><div class="eyebrow">Progressive overload</div><div class="title-xl">Progress</div>
+    <div class="sub">Every session since ${esc(fmtDay(PROGRAM.historyStart))}, compared with the one before. Tap an exercise.</div></div>${progKey}`;
+  html += P.groups.map(g => `<div class="card"><div class="title-l" style="margin-bottom:6px">${esc(g.title)}</div>
+    ${g.ids.map(id => progressRow(P.exercises[id])).join('')}</div>`).join('');
+  if (P.dropped.length)
+    html += `<details class="card dropped"><summary>No longer in the program (${P.dropped.length})</summary>
+      ${P.dropped.map(id => progressRow(P.exercises[id])).join('')}</details>`;
+  return html;
+}
+
+function sessionRow(h, s, prev) {
+  const divider = prev && prev.day < PROGRAM.startDate && s.day >= PROGRAM.startDate
+    ? `<div class="p-div">New program started ${esc(fmtDay(PROGRAM.startDate))}</div>` : '';
+  const sets = h.bench
+    ? `${s.single ? `<div>Single ${esc(fmtSets([s.single]))}</div>` : ''}<div>${s.work.length ? `Back-offs ${esc(fmtSets(s.work))}` : 'No back-offs'}</div>`
+    : `<div>${esc(fmtSets(s.sets))}</div>`;
+  return `<div class="s-row" id="s-${esc(s.workoutId)}"><div class="s-top"><div class="s-day">${esc(fmtDay(s.day))}</div>
+    <div class="s-rt">${esc(s.routine)}</div></div>
+    <div class="s-sets">${sets}</div>
+    <div class="s-mark ${markClass(s.kind)}">${dot(s.kind)} ${esc(s.label)}</div></div>${divider}`;
+}
+
+function progressDetail(h) {
+  const pts = chartPoints(h);
+  const list = h.sessions.map((s, i) => sessionRow(h, s, h.sessions[i - 1])).reverse().join('');
+  let charts = '';
+  if (pts.length) {
+    const series = [{ key: 'weight', name: h.bench ? 'Back-offs' : 'Weight', cls: 'c-main' }];
+    if (h.bench) series.push({ key: 'single', name: 'Single', cls: 'c-single', dash: true });
+    charts = `<div class="card">
+      <div class="c-title">Weight (lb)</div>
+      ${h.bench ? `<div class="c-legend"><span><i class="lg c-main"></i>Back-offs</span><span><i class="lg c-single dash"></i>Single</span></div>` : ''}
+      ${lineChart(pts, series)}
+      <div class="c-title" style="margin-top:14px">Total reps${h.bench ? ' (back-offs)' : ''}</div>
+      ${barChart(pts)}
+      <div class="c-tip" id="c-tip">Tap a dot or bar to see that session.</div></div>`;
+  }
+  return `<button class="toggle" data-back>&lsaquo; All exercises</button>
+    <div class="card"><div class="title-l">${esc(h.name)}</div>
+    <div class="sub">${h.sessions.length} session${h.sessions.length === 1 ? '' : 's'} since ${esc(fmtDay(PROGRAM.historyStart))}</div></div>
+    ${charts}${progKey}
+    <div class="card">${list || '<div class="empty">No sessions yet.</div>'}</div>`;
+}
+
+// ---------- charts (plain SVG) ----------
+
+const CW = 340, PADL = 34, PADR = 12;
+function xScale(pts) {
+  const days = pts.map(p => Date.parse(p.day));
+  const lo = Math.min(...days), hi = Math.max(...days);
+  return day => (hi === lo ? (PADL + CW - PADR) / 2 : PADL + ((Date.parse(day) - lo) / (hi - lo)) * (CW - PADL - PADR));
+}
+function niceTicks(lo, hi, count = 3) {
+  if (lo === hi) { lo -= 5; hi += 5; }
+  const raw = (hi - lo) / count;
+  const mag = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= raw);
+  const start = Math.floor(lo / step) * step, end = Math.ceil(hi / step) * step;
+  const ticks = [];
+  for (let v = start; v <= end + 1e-9; v += step) ticks.push(+v.toFixed(2));
+  return ticks;
+}
+// The "new program" line, when the chart spans Nov 2.
+function programLine(pts, x, top, bottom) {
+  if (!(pts[0].day < PROGRAM.startDate && pts[pts.length - 1].day >= PROGRAM.startDate)) return '';
+  const xs = x(PROGRAM.startDate);
+  return `<line x1="${xs}" x2="${xs}" y1="${top}" y2="${bottom}" class="c-prog"/>
+    <text x="${xs > CW - 80 ? xs - 3 : xs + 3}" y="${top + 8}" class="c-ax" text-anchor="${xs > CW - 80 ? 'end' : 'start'}">New program</text>`;
+}
+function xLabels(pts, x, y) {
+  const first = pts[0], last = pts[pts.length - 1];
+  const l = [`<text x="${x(first.day)}" y="${y}" class="c-ax" text-anchor="${pts.length === 1 ? 'middle' : 'start'}">${esc(shortDay(first.day))}</text>`];
+  if (pts.length > 1) l.push(`<text x="${x(last.day)}" y="${y}" class="c-ax" text-anchor="end">${esc(shortDay(last.day))}</text>`);
+  return l.join('');
+}
+
+function lineChart(pts, series) {
+  const H = 150, top = 10, bottom = H - 20;
+  const vals = series.flatMap(s => pts.map(p => p[s.key]).filter(v => v != null));
+  const ticks = niceTicks(Math.min(...vals), Math.max(...vals));
+  const lo = ticks[0], hi = ticks[ticks.length - 1];
+  const x = xScale(pts), y = v => bottom - ((v - lo) / (hi - lo)) * (bottom - top);
+  let svg = ticks.map(t => `<line x1="${PADL}" x2="${CW - PADR}" y1="${y(t)}" y2="${y(t)}" class="c-grid"/>
+    <text x="${PADL - 5}" y="${y(t) + 3}" class="c-ax" text-anchor="end">${t}</text>`).join('');
+  svg += programLine(pts, x, top, bottom);
+  for (const s of series) {
+    const sp = pts.map((p, i) => ({ ...p, i })).filter(p => p[s.key] != null);
+    if (sp.length > 1)
+      svg += `<polyline points="${sp.map(p => `${x(p.day)},${y(p[s.key])}`).join(' ')}" class="c-line ${s.cls}${s.dash ? ' dash' : ''}"/>`;
+    svg += sp.map(p => `<circle cx="${x(p.day)}" cy="${y(p[s.key])}" r="4.5" class="c-pt ${s.cls}${p.kind === 'skip' && s.key === 'weight' ? ' hollow' : ''}"/>
+      <circle cx="${x(p.day)}" cy="${y(p[s.key])}" r="14" class="c-hit" data-pt="${p.i}"/>`).join('');
+  }
+  svg += xLabels(pts, x, H - 4);
+  return `<svg viewBox="0 0 ${CW} ${H}" class="chart" role="img" aria-label="Weight over time">${svg}</svg>`;
+}
+
+function barChart(pts) {
+  const H = 110, top = 8, bottom = H - 20;
+  const vals = pts.map(p => p.reps).filter(v => v != null);
+  if (!vals.length) return '';
+  const ticks = niceTicks(0, Math.max(...vals), 2);
+  const hi = ticks[ticks.length - 1];
+  const x = xScale(pts), y = v => bottom - (v / hi) * (bottom - top);
+  const bw = Math.max(6, Math.min(18, (CW - PADL - PADR) / pts.length - 4));
+  let svg = ticks.map(t => `<line x1="${PADL}" x2="${CW - PADR}" y1="${y(t)}" y2="${y(t)}" class="c-grid"/>
+    <text x="${PADL - 5}" y="${y(t) + 3}" class="c-ax" text-anchor="end">${t}</text>`).join('');
+  svg += programLine(pts, x, top, bottom);
+  svg += pts.map((p, i) => {
+    if (p.reps == null) return '';
+    const bx = Math.min(Math.max(x(p.day) - bw / 2, PADL), CW - PADR - bw), h = bottom - y(p.reps), r = Math.min(4, h / 2, bw / 2);
+    // Rounded top, square at the baseline.
+    const d = `M${bx},${bottom} V${y(p.reps) + r} Q${bx},${y(p.reps)} ${bx + r},${y(p.reps)} H${bx + bw - r} Q${bx + bw},${y(p.reps)} ${bx + bw},${y(p.reps) + r} V${bottom} Z`;
+    return `<path d="${d}" class="c-bar${p.kind === 'skip' ? ' hollow' : ''}"/>
+      <rect x="${bx - 3}" y="${top}" width="${bw + 6}" height="${bottom - top}" class="c-hit" data-pt="${i}"/>`;
+  }).join('');
+  svg += xLabels(pts, x, H - 4);
+  return `<svg viewBox="0 0 ${CW} ${H}" class="chart" role="img" aria-label="Total reps over time">${svg}</svg>`;
+}
+
+function showPoint(i) {
+  const h = S.progress.exercises[S.progEx];
+  const p = chartPoints(h)[i];
+  const s = h.sessions.find(x => x.day === p.day && (x.work.length || x.single));
+  const tip = $('c-tip');
+  if (!s || !tip) return;
+  const sets = h.bench ? [s.single && `single ${fmtSets([s.single])}`, s.work.length && `back-offs ${fmtSets(s.work)}`].filter(Boolean).join('; ') : fmtSets(s.sets);
+  tip.innerHTML = `<b>${esc(fmtDay(s.day))}</b>: ${esc(sets)}<br><span class="${markClass(s.kind)}">${dot(s.kind)} ${esc(s.label)}</span>`;
+  document.querySelectorAll('.c-hit.on').forEach(e => e.classList.remove('on'));
+  document.querySelectorAll(`.c-hit[data-pt="${i}"]`).forEach(e => e.classList.add('on'));
 }
 
 // ---------- sending ----------
@@ -288,14 +460,19 @@ function showPage(p) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.pg === p));
   document.querySelectorAll('.page').forEach(x => x.classList.toggle('active', x.id === 'page-' + p));
   if (p === 'targets') renderTargets();
+  if (p === 'progress') renderProgress();
   if (p === 'plates') renderPlates();
   if (p === 'settings') renderSettings();
 }
 
 document.addEventListener('click', ev => {
+  const pt = ev.target.closest('[data-pt]');
+  if (pt) { showPoint(+pt.dataset.pt); return; }
   const t = ev.target.closest('button');
   if (!t) return;
-  if (t.dataset.pg) showPage(t.dataset.pg);
+  if (t.dataset.pg) { if (t.dataset.pg === 'progress') S.progEx = null; showPage(t.dataset.pg); }
+  else if (t.dataset.ex) { S.progEx = t.dataset.ex; renderProgress(); window.scrollTo(0, 0); }
+  else if ('back' in t.dataset) { S.progEx = null; renderProgress(); window.scrollTo(0, 0); }
   else if (t.dataset.page) showPage(t.dataset.page);
   else if ('refresh' in t.dataset) load();
   else if (t.dataset.toggle) { S.showAll[t.dataset.toggle] = !S.showAll[t.dataset.toggle]; renderTargets(); }
@@ -304,7 +481,7 @@ document.addEventListener('click', ev => {
     confirmModal(`Send ${r.title}?`, 'This replaces the routine in Hevy with these targets, sets and notes.', () => send(r.key));
   }
   else if ('savekey' in t.dataset) saveKey();
-  else if ('forget' in t.dataset) confirmModal('Forget the API key?', 'SHAZAM will stop reading Hevy on this device until you add it again.', () => { setKey(''); S.targets = []; renderSettings(); updateHeader(); });
+  else if ('forget' in t.dataset) confirmModal('Forget the API key?', 'SHAZAM will stop reading Hevy on this device until you add it again.', () => { setKey(''); S.targets = []; S.progress = null; renderSettings(); updateHeader(); });
   else if (t.dataset.pc) { pcMode = t.dataset.pc; renderPlates(); }
   else if (t.dataset.adj) { const i = $('pc-weight'); i.value = Math.max(0, (parseFloat(i.value) || 0) + +t.dataset.adj); pcCalc(); }
 });

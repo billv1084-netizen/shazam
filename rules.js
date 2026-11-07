@@ -34,6 +34,13 @@ export function fmtSets(sets) {
   return sets.map(s => `${s.w} x ${s.r}${rpe(s)}`).join(', ');
 }
 
+// Monday bench: the heavy single is the first set when it's 1-2 reps and heavier than the next.
+export function splitSingle(sets) {
+  if (sets.length && sets[0].r <= 2 && (sets.length === 1 || sets[0].w > sets[1].w))
+    return { single: sets[0], backs: sets.slice(1) };
+  return { single: null, backs: sets };
+}
+
 const total = sets => sets.reduce((a, s) => a + s.r, 0);
 const setNo = i => `set ${i + 1}`;
 
@@ -77,12 +84,7 @@ function evalStrict(ex, st, sets, ctx) {
 
 // Monday bench: heavy single by RPE, then back-offs on the loose rule with an RPE limit.
 function evalMondayBench(ex, st, sets, ctx) {
-  let single = null;
-  let backs = sets;
-  if (sets.length && sets[0].r <= 2 && (sets.length === 1 || sets[0].w > sets[1].w)) {
-    single = sets[0];
-    backs = sets.slice(1);
-  }
+  const { single, backs } = splitSingle(sets);
   const out = {};
 
   // The single
@@ -274,9 +276,7 @@ export function computeTargets(program, workouts, today) {
 
 // Work sets the history tracks: Monday bench tracks the back-offs, everything else all sets.
 function benchWork(ex, sets) {
-  if (ex.rule !== 'mondayBench') return sets;
-  if (sets.length && sets[0].r <= 2 && (sets.length === 1 || sets[0].w > sets[1].w)) return sets.slice(1);
-  return sets;
+  return ex.rule === 'mondayBench' ? splitSingle(sets).backs : sets;
 }
 
 /**

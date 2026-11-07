@@ -17,6 +17,8 @@
 export const PROGRAM = {
   // SHAZAM replays every workout from this date (first week of the post-football program).
   startDate: '2026-11-02',
+  // The Progress screen shows every workout from this date (first workout in Hevy).
+  historyStart: '2026-10-06',
   // 8 or more days in a row with no workout at all = a week off
   // (Fri Nov 13 to Mon Nov 23 has 9 empty days in between).
   weekOffDays: 8,

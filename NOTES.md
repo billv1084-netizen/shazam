@@ -328,7 +328,7 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - 2026-09-27: The old idea of combining SHAZAM and IRON 300 into one app is dropped. IRON 300's only remaining task is deleting its public data files.
 
 ## Open questions for Bill
-- Next (2026-11-14): v3.2.1 merged and checked on the phone. Merge the v3.2.2 PR, check the header says v3.2.2. Week of Nov 16 is off. After the first workouts of the week of Nov 23, check the targets side by side again (first session of each routine holds weights after the week off).
+- Next (2026-11-14): v3.2.2 merged (PR #19) and checked on the phone (header says v3.2.2). Week of Nov 16 is off. After the first workouts of the week of Nov 23, check the targets side by side again (first session of each routine holds weights after the week off).
 - Earlier (2026-11-07): stage 2 built (PR open). Bill: merge, open the Progress tab on the phone, look at Monday bench. Review Claude's calls in "Stage 2 built" and the "small rule calls" in "Stage 1 built" (not reviewed yet). Don't Send yet. Then side by side for 1 to 2 weeks: after each workout Claude works out targets by hand as usual and compares with SHAZAM. Early December: ask Bill about the Dec 7 week. (Deload approach: A, decided 2026-11-07.)
 
 ## Next steps

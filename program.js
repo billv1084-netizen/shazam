@@ -125,7 +125,8 @@ export const PROGRAM = {
         },
         {
           id: '94B7239B', name: 'Triceps Rope Pushdown', rule: 'strict',
-          sets: 2, reps: [8, 12], jump: 2.5, start: 50, rest: 120,
+          sets: 3, reps: [8, 12], jump: 2.5, start: 50, rest: 120,
+          setsBefore: { '2026-11-12': 2 }, // was 2 sets until Thursday Nov 12 (Bill, 2026-11-14)
           note: 'SHAZAM: Up 2.5 when every set hits 12. Elbows pinned at your sides. Check the wrist the next morning.',
         },
         {
@@ -135,7 +136,8 @@ export const PROGRAM = {
         },
         {
           id: 'C7973E0E', name: 'Leg Press (Machine)', rule: 'strict',
-          sets: 2, reps: [6, 10], jump: 10, start: 150, rest: 120,
+          sets: 3, reps: [6, 10], jump: 10, start: 150, rest: 120,
+          setsBefore: { '2026-11-12': 2 }, // was 2 sets until Thursday Nov 12 (Bill, 2026-11-14)
           note: 'SHAZAM: Each set is 10 leg presses, then 10 calf raises on the leg press. Up 10 when every set hits 10. Legs are tired after hip thrusts, so lower the weight if needed and log what you lifted.',
         },
       ],

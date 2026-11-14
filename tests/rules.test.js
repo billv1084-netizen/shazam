@@ -405,3 +405,15 @@ test('fmtSets', () => {
   assert.equal(fmtSets([{ w: 180, r: 10 }, { w: 180, r: 9 }, { w: 180, r: 8, rpe: 10 }]), '180 x 10, 9, 8 @10');
   assert.equal(fmtSets([{ w: 75, r: 12 }, { w: 105, r: 10 }]), '75 x 12, 105 x 10');
 });
+
+test('set count changes count from their date: Rope Pushdown 2 sets before Nov 12, 3 after', () => {
+  const w = [
+    workout('2026-11-05', 'thursday', { 'Rope': '65x12, 65x12' }),
+    workout('2026-11-12', 'thursday', { 'Rope': '67.5x12, 67.5x12, 67.5x8' }),
+  ];
+  const nov5 = target(computeTargets(PROGRAM, w.slice(0, 1), '2026-11-06'), 'thursday', 'Rope');
+  assert.equal(nov5.weight, 67.5); // 2 sets was the full plan then, not cut short
+  const nov12 = target(computeTargets(PROGRAM, w, '2026-11-13'), 'thursday', 'Rope');
+  assert.equal(nov12.weight, 67.5);
+  assert.match(nov12.reason, /set 3 had 8, needs 12/);
+});

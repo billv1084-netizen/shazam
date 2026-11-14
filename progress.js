@@ -1,6 +1,6 @@
 // SHAZAM progressive overload view: every session per exercise, compared to the one before.
 // No screens, no network: give it the program and the Hevy workouts.
-import { loggedSets, localDay, splitSingle } from './rules.js';
+import { loggedSets, localDay, splitSingle, setsOn } from './rules.js';
 
 function dayNum(day) {
   const [y, m, d] = day.split('-').map(Number);
@@ -48,11 +48,11 @@ export function judge(prev, cur, ctx) {
  * Each session: { day, workoutId, routine, sets, single, work, plan, kind, label }.
  */
 export function buildProgress(program, workouts) {
-  const planned = new Map(); // `${routineId}|${exId}` -> planned work sets
+  const planned = new Map(); // `${routineId}|${exId}` -> exercise (planned work sets via setsOn)
   const inProgram = new Map();
   for (const r of program.routines)
     for (const ex of r.exercises) {
-      planned.set(`${r.id}|${ex.id}`, ex.sets);
+      planned.set(`${r.id}|${ex.id}`, ex);
       if (!inProgram.has(ex.id)) inProgram.set(ex.id, ex);
     }
 
@@ -83,7 +83,7 @@ export function buildProgress(program, workouts) {
       const h = (exercises[id] ??= { id, name: ex?.name ?? title ?? id, bench, sessions: [] });
       h.sessions.push({
         day, workoutId: w.id, routine: w.title ?? '', sets, single, work: backs,
-        plan: day >= program.startDate ? planned.get(`${w.routine_id}|${id}`) ?? null : null,
+        plan: day >= program.startDate && planned.has(`${w.routine_id}|${id}`) ? setsOn(planned.get(`${w.routine_id}|${id}`), day) : null,
       });
     }
   }

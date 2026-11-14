@@ -158,6 +158,14 @@ test('weight lowered partway: next time starts at the lower weight', () => {
   assert.match(t.reason, /lowered partway/);
 });
 
+test('weight lowered partway but every set hit the top: up one jump (Nov 9 Pendulum Squat)', () => {
+  const w = [workout('2026-11-09', 'monday', { 'Pendulum': '10x10, 10x10, 10x10@9.5, 7.5x10@10' })];
+  const t = target(computeTargets(PROGRAM, w, '2026-11-10'), 'monday', 'Pendulum');
+  assert.equal(t.weight, 10);
+  assert.equal(t.kind, 'up');
+  assert.match(t.reason, /lowered partway, but every set hit 10/);
+});
+
 test('weight raised after a too-easy first set: the rules start from what was lifted', () => {
   const w = [workout('2026-11-05', 'thursday', { 'Rope': '50x15, 65x12' })];
   assert.equal(target(computeTargets(PROGRAM, w, '2026-11-06'), 'thursday', 'Rope').weight, 67.5);

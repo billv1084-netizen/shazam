@@ -1,6 +1,6 @@
 # SHAZAM: Project Notes
 
-_Last updated: 2026-11-07 (stage 2 built)_
+_Last updated: 2026-11-14 (v3.2.1 crash fix, week of Nov 9 checked)_
 
 ## Goal
 Bill logs every workout in **Hevy** (since 2026-10-06; StrongSplit retired 2026-10-11). **SHAZAM** reads the workouts from Hevy's API and:
@@ -281,6 +281,13 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
   - The chart shows the top weight of the session; mixed-weight sessions (raised partway) show the heaviest.
   - The single's dots are always solid (the single is never judged).
 
+### Bug fix v3.2.1 (2026-11-14, branch `fix/lowered-all-top`)
+- **Bug:** both tabs showed "undefined is not an object (evaluating 'use[short].r')". Cause: Monday Nov 9 Pendulum Squat 10 x 10, 10, 10, then 7.5 x 10. Weight lowered partway AND every set hit the top of the range; the code had no answer for that and crashed.
+- **Decided (Bill, Claude's pick):** that case goes **up one jump from the lower weight** (7.5 + 2.5 = 10). Card says "Weight lowered partway, but every set hit 10: up to 10." Test added (46 tests).
+- **Side-by-side check, week of Nov 9 (Mon, Tue, Thu; no Friday):** SHAZAM's targets match Claude's by hand for every exercise. Monday: single 250 hold, back-offs 237 hold (RPE 9-9.5), Pendulum 10, Incline 185, Lateral 80 hold, Overhead Triceps 57.5 hold. Tuesday: Lat Pulldown 185 hold, Low Row 190, Leg Curl 105, Rear Delt 102.5, Curl 45 hold. Thursday: Bench 212 (last set RPE 9.5 two Thursdays in a row; same as the planned reset), Close Grip 180 hold, Iso Row 185, Hip Thrust 190, Arsenal 37.5 hold, Rope 70, Bayesian 22.5, Leg Press 170. After the week off, Monday back-offs show the planned 230.
+- **Logged differently from the plan (to ask Bill):** Thursday Rope Pushdown 3 sets (plan 2; the extra set 67.5 x 8 is ignored), Thursday Leg Press 3 sets (plan 2). Hip Thrust was 180 (routine said 170; Bill's raise counts).
+- **Week of Nov 16: no training (work offsite; the planned week off).** The first session of each routine after it holds weights.
+
 ### Future idea: written coaching summary (Bill, 2026-11-07; not now)
 - Every workout day: a short note per session. What went well last time, what didn't, what to focus on today.
 - First workout of the week: also a review of last week and a big-picture focus for the week ahead.
@@ -314,7 +321,8 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - 2026-09-27: The old idea of combining SHAZAM and IRON 300 into one app is dropped. IRON 300's only remaining task is deleting its public data files.
 
 ## Open questions for Bill
-- Next (2026-11-07): stage 2 built (PR open). Bill: merge, open the Progress tab on the phone, look at Monday bench. Review Claude's calls in "Stage 2 built" and the "small rule calls" in "Stage 1 built" (not reviewed yet). Don't Send yet. Then side by side for 1 to 2 weeks: after each workout Claude works out targets by hand as usual and compares with SHAZAM. Early December: ask Bill about the Dec 7 week. (Deload approach: A, decided 2026-11-07.)
+- Next (2026-11-14): merge the v3.2.1 fix PR, check both tabs load on the phone. Ask Bill about the extra Rope Pushdown and Leg Press sets on Thursday (on purpose, or should the plan change?). Ask whether Claude should put the week-of-Nov-9 targets into the Hevy routines by hand (side by side, no Send yet). Week of Nov 16 is off.
+- Earlier (2026-11-07): stage 2 built (PR open). Bill: merge, open the Progress tab on the phone, look at Monday bench. Review Claude's calls in "Stage 2 built" and the "small rule calls" in "Stage 1 built" (not reviewed yet). Don't Send yet. Then side by side for 1 to 2 weeks: after each workout Claude works out targets by hand as usual and compares with SHAZAM. Early December: ask Bill about the Dec 7 week. (Deload approach: A, decided 2026-11-07.)
 
 ## Next steps
 - [x] Install Node.js and GitHub CLI on the second computer (2026-09-27)

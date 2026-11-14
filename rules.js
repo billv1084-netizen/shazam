@@ -65,6 +65,12 @@ function evalStrict(ex, st, sets, ctx) {
     st.missStreak = 0;
     return { weight: roundTo(base + ex.jump, 0.5), kind: 'up', counted: true, reason: `Every set hit ${hi}` };
   }
+  if (lowered && use.every(s => s.r >= hi)) {
+    st.missStreak = 0;
+    const next = roundTo(base + ex.jump, 0.5);
+    return { weight: next, kind: 'up', counted: true,
+      reason: `Weight lowered partway, but every set hit ${hi}: up to ${next}` };
+  }
   const miss = use.findIndex(s => s.r < lo);
   if (miss >= 0) {
     st.missStreak++;

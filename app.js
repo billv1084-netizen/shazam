@@ -4,7 +4,7 @@ import { computeTargets, diffRoutine, buildRoutineBody, keptInHevy, fmtSets, loc
 import { Hevy } from './hevy.js';
 import { buildProgress, chartPoints } from './progress.js';
 
-const VERSION = 'v3.2';
+const VERSION = 'v3.2.1';
 const KEY_STORE = 'shazam_hevy_key';
 
 const $ = id => document.getElementById(id);

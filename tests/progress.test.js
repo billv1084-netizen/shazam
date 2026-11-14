@@ -186,3 +186,15 @@ test('workouts before the history start are left out', () => {
   const p = buildProgress(PROGRAM, [workout('2026-09-29', 'monday', { 'Incline Chest': '175x10, 175x10, 175x10' })]);
   assert.deepEqual(sessions(p, 'monday', 'Incline Chest'), []);
 });
+
+test('an old session with the old set count is not shown as cut short', () => {
+  const p = buildProgress(PROGRAM, [
+    workout('2026-11-05', 'thursday', { 'Rope': '65x12, 65x12' }),
+    workout('2026-11-12', 'thursday', { 'Rope': '67.5x12, 67.5x12, 67.5x8' }),
+  ]);
+  const h = Object.values(p.exercises ?? p).flat().find(x => x?.id === exId('thursday', 'Rope'));
+  const nov12 = h.sessions.find(s => s.day === '2026-11-12');
+  assert.equal(h.sessions.find(s => s.day === '2026-11-05').plan, 2);
+  assert.equal(nov12.plan, 3);
+  assert.notEqual(nov12.kind, 'short');
+});

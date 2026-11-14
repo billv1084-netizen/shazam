@@ -41,6 +41,15 @@ export function splitSingle(sets) {
   return { single: null, backs: sets };
 }
 
+// Planned work sets on a given day. setsBefore: { 'YYYY-MM-DD': n } means n sets before that day
+// (a set count change only counts from its date, so older sessions aren't judged as cut short).
+export function setsOn(ex, day) {
+  let n = ex.sets;
+  for (const [from, before] of Object.entries(ex.setsBefore ?? {}).sort().reverse())
+    if (day < from) n = before;
+  return n;
+}
+
 const total = sets => sets.reduce((a, s) => a + s.r, 0);
 const setNo = i => `set ${i + 1}`;
 
@@ -243,10 +252,11 @@ export function computeTargets(program, workouts, today) {
       applyResets(program, routine, ex, st, day);
       const sets = loggedSets(w, ex.id);
       if (!sets.length) continue; // not done (or swapped out): ignored
-      const res = EVAL[ex.rule](ex, st, sets, { afterBreak });
+      const exNow = { ...ex, sets: setsOn(ex, day) };
+      const res = EVAL[ex.rule](exNow, st, sets, { afterBreak });
       const flags = [];
       if (res.kind !== 'none') {
-        const work = benchWork(ex, sets).slice(0, ex.sets);
+        const work = benchWork(ex, sets).slice(0, exNow.sets);
         st.history.push({ day, weight: work[work.length - 1].w, total: total(work), counted: res.counted });
         if (ex.rule === 'strict') { const f = stallFlag(st, res); if (f) flags.push(f); }
       }
@@ -330,11 +340,12 @@ export function buildRoutineBody(routine, targets, existing, overrides = {}) {
           superset_id: null,
           rest_seconds: ex.rest,
           notes: ex.note,
+          // Hevy rejects rep_range: null (found 2026-11-14), so it's left out on fixed-rep sets.
           sets: plannedSets(ex, t).map(s => ({
             type: s.type,
             weight_kg: lbToKg(s.lb),
             reps: s.reps,
-            rep_range: s.range ? { start: s.range[0], end: s.range[1] } : null,
+            ...(s.range ? { rep_range: { start: s.range[0], end: s.range[1] } } : {}),
           })),
         };
       }),

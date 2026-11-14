@@ -96,9 +96,9 @@ How we got here: Claude drafted a 3-day and a 4-day option. Bill ran them past C
 | | Hammer Strength ISO-Lateral Row | 3 x 8-12 |
 | | Machine Hip Thrust | 2 x 6-10 (was 8-12; changed 2026-10-31) |
 | | Arsenal Standing Lateral Raise | 4 x 8-12 (was 3) |
-| | Rope Pushdown (added 2026-10-31) | 2 x 8-12 |
+| | Rope Pushdown (added 2026-10-31) | 3 x 8-12 (was 2; Bill 2026-11-14) |
 | | Bayesian Cable Curl (added 2026-10-31) | 2 x 8-12 |
-| | Leg Press + 10 calf raises after each set (moved from Friday 2026-11-07) | 2 x 6-10 |
+| | Leg Press + 10 calf raises after each set (moved from Friday 2026-11-07) | 3 x 6-10 (was 2; Bill 2026-11-14) |
 | | ~~Machine Ab Crunch~~ | removed 2026-10-31 |
 | Friday (optional) | Arsenal Reloaded Incline Fly | 3 x 8-12, stop 2 reps short (was 2 sets; Bill 2026-11-07) |
 | | Seated Dip Machine, Hoist ROC-IT (added 2026-11-07) | 3 x 8-12 |
@@ -281,11 +281,18 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
   - The chart shows the top weight of the session; mixed-weight sessions (raised partway) show the heaviest.
   - The single's dots are always solid (the single is never judged).
 
-### Bug fix v3.2.1 (2026-11-14, branch `fix/lowered-all-top`)
+### Bug fix v3.2.1 (PR #18) and v3.2.2: Thursday set changes, Send fix (2026-11-14, PR from `fix/send-and-sets`)
 - **Bug:** both tabs showed "undefined is not an object (evaluating 'use[short].r')". Cause: Monday Nov 9 Pendulum Squat 10 x 10, 10, 10, then 7.5 x 10. Weight lowered partway AND every set hit the top of the range; the code had no answer for that and crashed.
 - **Decided (Bill, Claude's pick):** that case goes **up one jump from the lower weight** (7.5 + 2.5 = 10). Card says "Weight lowered partway, but every set hit 10: up to 10." Test added (46 tests).
-- **Side-by-side check, week of Nov 9 (Mon, Tue, Thu; no Friday):** SHAZAM's targets match Claude's by hand for every exercise. Monday: single 250 hold, back-offs 237 hold (RPE 9-9.5), Pendulum 10, Incline 185, Lateral 80 hold, Overhead Triceps 57.5 hold. Tuesday: Lat Pulldown 185 hold, Low Row 190, Leg Curl 105, Rear Delt 102.5, Curl 45 hold. Thursday: Bench 212 (last set RPE 9.5 two Thursdays in a row; same as the planned reset), Close Grip 180 hold, Iso Row 185, Hip Thrust 190, Arsenal 37.5 hold, Rope 70, Bayesian 22.5, Leg Press 170. After the week off, Monday back-offs show the planned 230.
-- **Logged differently from the plan (to ask Bill):** Thursday Rope Pushdown 3 sets (plan 2; the extra set 67.5 x 8 is ignored), Thursday Leg Press 3 sets (plan 2). Hip Thrust was 180 (routine said 170; Bill's raise counts).
+- **Side-by-side check, week of Nov 9 (all 4 days):** SHAZAM's targets match Claude's by hand for every exercise. Monday: single 250 hold, back-offs 237 hold (RPE 9-9.5), Pendulum 10, Incline 185, Lateral 80 hold, Overhead Triceps 57.5 hold. Tuesday: Lat Pulldown 185 hold, Low Row 190, Leg Curl 105, Rear Delt 102.5, Curl 45 hold. Thursday: Bench 212 (last set RPE 9.5 two Thursdays in a row; same as the planned reset), Close Grip 180 hold, Iso Row 185, Hip Thrust 190, Arsenal 37.5 hold, Rope 67.5 hold (after the 3-set change below; 70 before it), Bayesian 22.5, Leg Press 170. After the week off, Monday back-offs show the planned 230.
+- **Decided 2026-11-14 (Bill): Thursday Leg Press 3 sets (Claude's pick) and Thursday Rope Pushdown 3 sets (Claude suggested keeping 2; Bill chose 3).** Bill did 3 of each on Nov 12 on purpose. Quads now 7 hard sets a week; triceps 12 direct with Friday, 7 without. Thursday is about 8 minutes longer. Hip Thrust was 180 (routine said 170; Bill's raise counts).
+  - **Set count changes now count from a date** (`setsBefore` in `program.js`, helper `setsOn` in `rules.js`). Both changes count from Nov 12, so Nov 12 is judged on 3 sets and Nov 5's 2-set Rope Pushdown isn't shown as cut short. Rope Pushdown therefore **holds at 67.5** (set 3 had 8), not 70. Leg Press 170. 48 tests.
+  - The Hevy Thursday routine still shows 2 sets of each until the routines are next updated. Bill adds the third set at the gym if needed.
+- **Friday Nov 13** (Bill finished it in Hevy on Nov 14): Incline Fly 150 x 12, 11, 10 (holds); Seated Dip 205 x 12 x3 (to 210); Skull Crusher 20 x 12 x2 (to 25); Rear Delt 100 x 12 x3 (to 102.5); Bayesian 20 x 12 x2 (to 22.5). SHAZAM matches Claude by hand.
+- **Done in Hevy 2026-11-14** (Claude, with SHAZAM's own code, targets as of Nov 16; backup `routines_backup_2026-11-14.json` in the session scratchpad; all 4 routines re-read and match the plan). Monday: single 250, back-offs **230** (planned reset), Pendulum 10, Incline 185, Lateral 80, Overhead 57.5. Tuesday: Lat Pulldown 185, Low Row 190, Leg Curl 105, Rear Delt 102.5, Curl 45. Thursday: Bench **212** (planned reset), Close Grip 180, Iso Row 185, Hip Thrust 190, Arsenal 37.5, Rope 67.5 x3, Bayesian 22.5, Leg Press 170 x3. Friday: Fly 150, Dip 210, Skull Crusher 25, Rear Delt 102.5, Bayesian 22.5.
+  - Kept Bill's own Hevy edits by copying them into `program.js`: Monday Pendulum Squat rest 3 minutes; Rope Pushdown note "Using V Bar. Not rope."
+  - Bench notes now carry the new rules (Monday: back-offs up 1 when the best set hits 6 and every set is RPE 8.5 or less; Thursday: last set RPE 9.5+ two Thursdays in a row, down 5). This finishes the "after the week off" bench step.
+  - **Bug found and fixed:** Hevy now rejects `rep_range: null` (error 400, nothing written). Send would have failed on the phone for Monday. Fixed in `buildRoutineBody` (rep_range left out on fixed-rep sets).
 - **Week of Nov 16: no training (work offsite; the planned week off).** The first session of each routine after it holds weights.
 
 ### Future idea: written coaching summary (Bill, 2026-11-07; not now)
@@ -321,7 +328,7 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - 2026-09-27: The old idea of combining SHAZAM and IRON 300 into one app is dropped. IRON 300's only remaining task is deleting its public data files.
 
 ## Open questions for Bill
-- Next (2026-11-14): merge the v3.2.1 fix PR, check both tabs load on the phone. Ask Bill about the extra Rope Pushdown and Leg Press sets on Thursday (on purpose, or should the plan change?). Ask whether Claude should put the week-of-Nov-9 targets into the Hevy routines by hand (side by side, no Send yet). Week of Nov 16 is off.
+- Next (2026-11-14): v3.2.1 merged and checked on the phone. Merge the v3.2.2 PR, check the header says v3.2.2. Week of Nov 16 is off. After the first workouts of the week of Nov 23, check the targets side by side again (first session of each routine holds weights after the week off).
 - Earlier (2026-11-07): stage 2 built (PR open). Bill: merge, open the Progress tab on the phone, look at Monday bench. Review Claude's calls in "Stage 2 built" and the "small rule calls" in "Stage 1 built" (not reviewed yet). Don't Send yet. Then side by side for 1 to 2 weeks: after each workout Claude works out targets by hand as usual and compares with SHAZAM. Early December: ask Bill about the Dec 7 week. (Deload approach: A, decided 2026-11-07.)
 
 ## Next steps
@@ -343,7 +350,7 @@ Why Hevy: StrongSplit has no API (manual export plus a Shortcut after every work
 - [x] Deload approach: option A (2026-11-07)
 - [x] Thursday bench rep range: stays 6-8 (2026-10-31)
 - [ ] Until SHAZAM is built: after each workout, Claude updates the Hevy routines by the rules
-- [ ] After the Nov 16 week off: Monday back-offs 230, Thursday bench 212, bench notes updated for the new RPE rules
+- [x] After the Nov 16 week off: Monday back-offs 230, Thursday bench 212, bench notes updated for the new RPE rules (in Hevy 2026-11-14)
 - [ ] Clone `shazam-backup` on the second computer; put the StrongSplit exports and `shazam_export.csv` in it
 - [x] Write the detailed build plan (2026-11-07; see "SHAZAM build plan")
 - [x] Build stage 1: targets and Send to Hevy (2026-11-07, PR from `build/stage-1`)

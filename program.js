@@ -36,11 +36,11 @@ export const PROGRAM = {
           warmups: [[135, 10], [185, 4], [205, 2], [225, 1]],
           single: { start: 250, up: 2, down: 5 },
           sets: 3, reps: [4, 6], jump: 1, start: 237, rest: 120,
-          note: "SHAZAM: Work up to one heavy single at RPE 7-8. Smooth, 2-3 reps left. Don't grind it. Then 3 back-off sets.",
+          note: "SHAZAM: Work up to one heavy single at RPE 7-8. Smooth, 2-3 reps left. Don't grind it. Then 3 back-off sets. Back-offs up 1 when the best set hits 6 and every set is RPE 8.5 or less.",
         },
         {
           id: '30E293E3', name: 'Pendulum Squat (Machine)', rule: 'strict',
-          sets: 4, reps: [6, 10], jump: 2.5, start: 5, rest: 120,
+          sets: 4, reps: [6, 10], jump: 2.5, start: 5, rest: 180,
           note: 'SHAZAM: Up 2.5 total when every set hits 10. Full depth, control the way down.',
         },
         {
@@ -101,7 +101,7 @@ export const PROGRAM = {
           id: '296dae56-9dd3-4e69-a755-5466bf53922d', name: 'Bench Press-Volume', rule: 'volumeBench',
           warmups: [[135, 10], [185, 4], [210, 1]],
           sets: 4, reps: [6, 8], jump: 1, start: 216, rest: 120,
-          note: 'SHAZAM: Volume day, not a max day. 1-2 reps in reserve, crisp reps. Up 1 when all 4 sets hit 8 and the last set is RPE 8.5 or less.',
+          note: 'SHAZAM: Volume day, not a max day. 1-2 reps in reserve, crisp reps. Up 1 when all 4 sets hit 8 and the last set is RPE 8.5 or less. Last set RPE 9.5 or more two Thursdays in a row: down 5.',
         },
         {
           id: '4E5257DE', name: 'Lat Pulldown - Close Grip (Cable)', rule: 'strict',
@@ -127,7 +127,7 @@ export const PROGRAM = {
           id: '94B7239B', name: 'Triceps Rope Pushdown', rule: 'strict',
           sets: 3, reps: [8, 12], jump: 2.5, start: 50, rest: 120,
           setsBefore: { '2026-11-12': 2 }, // was 2 sets until Thursday Nov 12 (Bill, 2026-11-14)
-          note: 'SHAZAM: Up 2.5 when every set hits 12. Elbows pinned at your sides. Check the wrist the next morning.',
+          note: 'SHAZAM: Up 2.5 when every set hits 12. Elbows pinned at your sides. Check the wrist the next morning. Using V Bar. Not rope.',
         },
         {
           id: 'cf54d5eb-7a05-4f18-9dc6-eb2d61922b55', name: 'Bayesian Cable Curl', rule: 'strict',

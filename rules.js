@@ -340,11 +340,12 @@ export function buildRoutineBody(routine, targets, existing, overrides = {}) {
           superset_id: null,
           rest_seconds: ex.rest,
           notes: ex.note,
+          // Hevy rejects rep_range: null (found 2026-11-14), so it's left out on fixed-rep sets.
           sets: plannedSets(ex, t).map(s => ({
             type: s.type,
             weight_kg: lbToKg(s.lb),
             reps: s.reps,
-            rep_range: s.range ? { start: s.range[0], end: s.range[1] } : null,
+            ...(s.range ? { rep_range: { start: s.range[0], end: s.range[1] } } : {}),
           })),
         };
       }),

@@ -336,8 +336,8 @@ test('routine body: warm-ups, single, rep ranges, kg, notes and rest from the pr
   assert.equal(body.routine.title, 'Shazam Monday');
   assert.equal(benchEx.exercise_template_id, '79D0BB3A');
   assert.equal(benchEx.sets.length, 8);
-  assert.deepEqual(benchEx.sets[0], { type: 'warmup', weight_kg: lbToKg(135), reps: 10, rep_range: null });
-  assert.deepEqual(benchEx.sets[4], { type: 'normal', weight_kg: lbToKg(250), reps: 1, rep_range: null });
+  assert.deepEqual(benchEx.sets[0], { type: 'warmup', weight_kg: lbToKg(135), reps: 10 }); // no rep_range: Hevy rejects null
+  assert.deepEqual(benchEx.sets[4], { type: 'normal', weight_kg: lbToKg(250), reps: 1 });
   assert.deepEqual(benchEx.sets[5], { type: 'normal', weight_kg: lbToKg(237), reps: null, rep_range: { start: 4, end: 6 } });
   assert.equal(kgToLb(body.routine.exercises[1].sets[0].weight_kg), 10);
   assert.equal(benchEx.notes, r.exercises[0].note);
